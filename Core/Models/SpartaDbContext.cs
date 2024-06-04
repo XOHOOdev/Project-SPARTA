@@ -1,13 +1,11 @@
-﻿using Sparta.Core.Helpers;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Sparta.Core.Models;
 
 public partial class SpartaDbContext : DbContext
 {
-    //Scaffold-DbContext "Server=localhost,1433;Database=SpartaDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
-
     public SpartaDbContext()
     {
     }
@@ -49,29 +47,13 @@ public partial class SpartaDbContext : DbContext
 
     public virtual DbSet<DcStatsChannel> DcStatsChannels { get; set; }
 
-    public virtual DbSet<HllGame> HllGames { get; set; }
-
-    public virtual DbSet<HllGamePlayer> HllGamePlayers { get; set; }
-
-    public virtual DbSet<HllGameState> HllGameStates { get; set; }
-
-    public virtual DbSet<HllGameserver> HllGameservers { get; set; }
-
-    public virtual DbSet<HllLog> HllLogs { get; set; }
-
-    public virtual DbSet<HllPlayer> HllPlayers { get; set; }
-
-    public virtual DbSet<HllPlayerSession> HllPlayerSessions { get; set; }
-
     public virtual DbSet<UsPermission> UsPermissions { get; set; }
 
     public virtual DbSet<UsSteamId> UsSteamIds { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        string connectionString = ConfigLoader.Load().GetConnectionString("DefaultConnection") ?? string.Empty;
-        optionsBuilder.UseSqlServer(connectionString);
-    }
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=localhost,1433;Database=SpartaDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -254,77 +236,6 @@ public partial class SpartaDbContext : DbContext
         modelBuilder.Entity<DcStatsChannel>(entity =>
         {
             entity.ToTable("DC_StatsChannels");
-        });
-
-        modelBuilder.Entity<HllGame>(entity =>
-        {
-            entity.HasKey(e => e.GameId);
-
-            entity.ToTable("HLL_Games");
-
-            entity.HasIndex(e => e.HllgameserverId, "IX_HLL_Games_HLLGameserverId");
-
-            entity.Property(e => e.HllgameserverId).HasColumnName("HLLGameserverId");
-
-            entity.HasOne(d => d.Hllgameserver).WithMany(p => p.HllGames).HasForeignKey(d => d.HllgameserverId);
-        });
-
-        modelBuilder.Entity<HllGamePlayer>(entity =>
-        {
-            entity.HasKey(e => new { e.SteamId, e.GameId });
-
-            entity.ToTable("HLL_GamePlayers");
-
-            entity.HasIndex(e => e.GameId, "IX_HLL_GamePlayers_GameId");
-
-            entity.HasOne(d => d.Game).WithMany(p => p.HllGamePlayers).HasForeignKey(d => d.GameId);
-
-            entity.HasOne(d => d.Steam).WithMany(p => p.HllGamePlayers).HasForeignKey(d => d.SteamId);
-        });
-
-        modelBuilder.Entity<HllGameState>(entity =>
-        {
-            entity.ToTable("HLL_GameStates");
-
-            entity.HasIndex(e => e.HllgameserverId, "IX_HLL_GameStates_HLLGameserverId");
-
-            entity.Property(e => e.HllgameserverId).HasColumnName("HLLGameserverId");
-
-            entity.HasOne(d => d.Hllgameserver).WithMany(p => p.HllGameStates).HasForeignKey(d => d.HllgameserverId);
-        });
-
-        modelBuilder.Entity<HllGameserver>(entity =>
-        {
-            entity.ToTable("HLL_Gameservers");
-        });
-
-        modelBuilder.Entity<HllLog>(entity =>
-        {
-            entity.ToTable("HLL_Logs");
-
-            entity.HasIndex(e => e.HllgameserverId, "IX_HLL_Logs_HLLGameserverId");
-
-            entity.Property(e => e.HllgameserverId).HasColumnName("HLLGameserverId");
-
-            entity.HasOne(d => d.Hllgameserver).WithMany(p => p.HllLogs).HasForeignKey(d => d.HllgameserverId);
-        });
-
-        modelBuilder.Entity<HllPlayer>(entity =>
-        {
-            entity.HasKey(e => e.SteamId);
-
-            entity.ToTable("HLL_Players");
-
-            entity.Property(e => e.SteamId).ValueGeneratedNever();
-        });
-
-        modelBuilder.Entity<HllPlayerSession>(entity =>
-        {
-            entity.HasKey(e => new { e.SteamId, e.StartTime });
-
-            entity.ToTable("HLL_PlayerSessions");
-
-            entity.HasOne(d => d.Steam).WithMany(p => p.HllPlayerSessions).HasForeignKey(d => d.SteamId);
         });
 
         modelBuilder.Entity<UsPermission>(entity =>
