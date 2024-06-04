@@ -1,0 +1,141 @@
+﻿@using Helium.BlazorUI.Authorization;
+@using Helium.BlazorUI.Data.DiscordData;
+@using Helium.BlazorUI.Entities;
+
+@inject IStringLocalizer<Discord> Localizer
+@inject DiscordDataService DataService
+@inject IJSRuntime Js
+@attribute [HasPermission(Permissions.Permissions.Discord.Author.View)]
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer["Author"]</h3>
+    </div>
+    <div class="card-body container">
+        <table class="table table-striped table-hover" id="roleTable">
+            <thead>
+                <tr>
+                    <th>@Localizer["AuthorName"]</th>
+                    <th>@Localizer["AuthorImage"]</th>
+                    <th>@Localizer["AuthorUrl"]</th>
+                    <th>@Localizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var author in authors)
+                {
+                    <tr>
+                        <td class="align-middle">@author.Name</td>
+                        <td>
+                            <img src="@author.IconUrl" class="rounded align-middle" height="64" />
+                        </td>
+                        <td class="align-middle">
+                            <a class="link-success" href="@author.Url">@author.Url</a>
+                        </td>
+                        <td class="text-right align-middle">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @Localizer["Actions"]
+                                </button>
+                                <div class="dropdown-menu shadow animated--grow-in">
+                                    <AuthorizeView>
+                                        @if (context.User.Authorize(Permissions.Permissions.Discord.Author.Delete))
+                                        {
+                                            <a style='margin-right:16px' class="dropdown-item" @onclick='(() => DeleteAuthor(author))'>@Localizer["Delete"]</a>
+                                        }
+                                        @if (context.User.Authorize(Permissions.Permissions.Discord.Author.Edit))
+                                        {
+                                            <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageEmbed" @onclick='(() => LoadAuthor(author))'>@Localizer["EditEmbed"]</a>
+                                        }
+                                    </AuthorizeView>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <AuthorizeView>
+        @if (context.User.Authorize(Permissions.Permissions.Discord.Author.Create))
+        {
+            <div class="card-footer">
+                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#manageEmbed" @onclick=CreateAuthor>@Localizer["AddAuthor"]</button>
+            </div>
+        }
+    </AuthorizeView>
+</div>
+
+<div class="modal fade" id="manageEmbed" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer["EditAuthor"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (author != null)
+                {
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">@Localizer["AuthorName"]</span>
+                        <input type="text" class="form-control" @bind=author.Name>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">@Localizer["AuthorImage"]</span>
+                        <input class="form-control" @bind=author.IconUrl></input>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">@Localizer["AuthorUrl"]</span>
+                        <input class="form-control" @bind=author.Url></input>
+                    </div>
+                }
+                else
+                {
+                    @Localizer["AuthorModalText"]
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["ModalClose"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick=SaveAuthor>@Localizer["ModalSubmit"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Entities.DiscordAuthor> authors = null!;
+    private Entities.DiscordAuthor? author;
+
+    protected override void OnInitialized()
+    {
+        LoadData();
+    }
+
+    private void LoadData()
+    {
+        authors = DataService.GetAuthors();
+    }
+
+    private void DeleteAuthor(Entities.DiscordAuthor author)
+    {
+        DataService.DeleteAuthor(author);
+        LoadData();
+    }
+
+    private void LoadAuthor(Entities.DiscordAuthor author)
+    {
+        this.author = author;
+    }
+
+    private void CreateAuthor()
+    {
+        author = new Entities.DiscordAuthor();
+    }
+
+    private void SaveAuthor()
+    {
+        if (author == null) return;
+        DataService.SaveAuthor(author);
+        LoadData();
+    }
+}

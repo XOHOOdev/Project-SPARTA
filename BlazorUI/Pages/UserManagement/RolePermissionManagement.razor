@@ -1,0 +1,120 @@
+﻿@using Helium.BlazorUI.Authorization;
+@using Helium.BlazorUI.Data.UserManagementData;
+@using Helium.BlazorUI.Entities;
+@using Microsoft.AspNetCore.Identity;
+
+@inject IStringLocalizer<UserManagement> Localizer
+@inject UserManagementService ManagementService
+@attribute [HasPermission(Permissions.Permissions.UserManagement.View)]
+
+<div class="card">
+    <div class="card-header">
+        <h3>@Localizer["Roles"]</h3>
+    </div>
+    <div class="card-body container">
+        <table class="table table-striped table-hover" id="roleTable">
+            <thead>
+                <tr>
+                    <th>@Localizer["RoleName"]</th>
+                    <th>@Localizer["Id"]</th>
+                    <th>@Localizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in roles)
+                {
+                    <tr>
+                        <td>@role.Name</td>
+                        <td>@role.Id</td>
+                        <td class="text-right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @Localizer["Actions"]
+                                </button>
+                                @if (role.Name != "Admin")
+                                {
+                                    <AuthorizeView>
+                                        <div class="dropdown-menu shadow animated--grow-in">
+                                            @if (context.User.Authorize(Permissions.Permissions.UserManagement.Delete))
+                                            {
+                                                <a style='margin-right:16px' class="dropdown-item" @onclick='(() => DeleteRole(role))'>@Localizer["Delete"]</a>
+                                            }
+                                            @if (context.User.Authorize(Permissions.Permissions.UserManagement.Edit))
+                                            {
+                                                <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#managePermissionsModal" @onclick='(() => LoadPermissions(role))'>@Localizer["ManagePermissions"]</a>
+                                            }
+                                        </div>
+                                    </AuthorizeView>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <AuthorizeView>
+        @if (context.User.Authorize(Permissions.Permissions.UserManagement.Create))
+        {
+            <div class="card-footer">
+                <div class="input-group">
+                    <input name="roleName" class="form-control w-25" @bind=newRoleName>
+                    <button class="btn btn-info" @onclick=AddNewRoleAsync>@Localizer["NewRole"]</button>
+                </div>
+            </div>
+        }
+    </AuthorizeView>
+</div>
+
+<div class="modal fade" id="managePermissionsModal" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer["ManagePermissions"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group list-group-flush">
+                    <PermissionManagement Permissions="rolePermissions.RolePermissions" />
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Abort"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick=SavePermissions>@Localizer["Save"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<ApplicationRole> roles = null!;
+    private RolePermission rolePermissions = null!;
+    private string? newRoleName;
+    private bool checkedTest = false;
+
+    protected override void OnInitialized()
+    {
+        roles = ManagementService.GetRoles();
+        rolePermissions = new RolePermission { RolePermissions = new List<IPermissionModel>() };
+    }
+
+    private async Task AddNewRoleAsync()
+    {
+        await ManagementService.AddNewRoleAsync(newRoleName);
+    }
+
+    private void DeleteRole(ApplicationRole role)
+    {
+        ManagementService.DeleteRole(role);
+    }
+
+    private void LoadPermissions(ApplicationRole role)
+    {
+        rolePermissions = ManagementService.GetPermissions(role);
+    }
+
+    private void SavePermissions()
+    {
+        ManagementService.SavePermissions(rolePermissions);
+    }
+}

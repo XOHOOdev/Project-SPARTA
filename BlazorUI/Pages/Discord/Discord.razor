@@ -1,0 +1,64 @@
+﻿@page "/discord"
+@using Helium.BlazorUI.Authorization;
+@using Helium.BlazorUI.Data.DiscordData;
+@using Helium.BlazorUI.Entities;
+
+@inject IStringLocalizer<Discord> Localizer
+@inject DiscordDataService DataService
+@attribute [HasPermission(Permissions.Permissions.Discord.View)]
+
+<PageTitle>Discord</PageTitle>
+
+<h3>Discord</h3>
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
+    <div class="container-fluid">
+        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <button class="btn" type="button" @onclick='(() => SetSelectedCategory("author"))'>@Localizer["Author"]</button>
+                </li>
+                <li class="nav-item">
+                    <button class="btn" type="button" @onclick='(() => SetSelectedCategory("button"))'>@Localizer["Button"]</button>
+                </li>
+                <li class="nav-item">
+                    <button class="btn" type="button" @onclick='(() => SetSelectedCategory("modal"))'>Modals</button>
+                </li>
+                <li class="nav-item">
+                    <button class="btn" type="button" @onclick='(() => SetSelectedCategory("embed"))'>Embeds</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+@switch (selectedCategory)
+{
+    case "author":
+        <DiscordAuthor />
+        break;
+    case "button":
+        <DiscordMessageComponent />
+        break;
+    case "modal":
+        <DiscordModal />
+        break;
+    case "embed":
+        <DiscordEmbed />
+        break;
+    default:
+        break;
+}
+
+@code {
+    private string selectedCategory = null!;
+
+    protected override void OnInitialized()
+    {
+        selectedCategory = "embed";
+    }
+
+    private void SetSelectedCategory(string categoryName)
+    {
+        selectedCategory = categoryName;
+    }
+}

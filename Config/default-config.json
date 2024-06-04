@@ -1,0 +1,30 @@
+{
+  "DiscordBot": {
+    "enabled": true,
+    "MessageUpdateInterval": "10",
+    "ChannelUpdateInterval": "30",
+    "DiscordToken": "MTE1MTU0ODYzNjYyNzQ3NjQ5MQ.GzpVVC.eIKN9dZrikenqKPyf-ahWnUqqqb4Y1jOy73yv4",
+    "DiscordLogsChannel": "1096381779507679232",
+    "DiscordStatsChannel": "1085625564259418304"
+  },
+
+  "RCON": {
+    "Address": "176.57.171.7",
+    "Port": "28016",
+    "Password": "65920be"
+  },
+
+  "SendGrid": {
+    "SendGridKey": "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"
+  },
+
+  "DataImport": {
+    "enabled": false,
+    "BasicImportInterval": "10",
+    "LogImportInterval": "50"
+  },
+
+  "Runner": {
+    "ImportInterval" : "10"
+  }
+}

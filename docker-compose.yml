@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  helium-web-ui:
+    build:
+      dockerfile: Dockerfile.BlazorUI
+    container_name: helium-web-ui
+    ports:
+      - "5000:80"
+    environment:
+     - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - "sql"
+    restart: always
+  runner:
+    build: 
+      dockerfile: Dockerfile.Runner
+    container_name: runner
+    environment:
+     - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - "sql"
+      - "helium-web-ui"
+    restart: always
+  sql:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    container_name: helium-sql
+    user: root
+    ports:
+      - "1433:1433" 
+    environment:
+      - ACCEPT_EULA=y
+      - SA_PASSWORD=A&VeryComplex123Password
+    volumes:
+      - "heliumdata:/var/opt/mssql/data/"
+      - "heliumlog:/var/opt/mssql/log/"
+      - "heliumsecrets:/var/opt/mssql/secrets/"
+    restart: always
+volumes:
+  heliumdata:
+  heliumlog:
+  heliumsecrets:
