@@ -40,18 +40,4 @@ public class ApplicationDbContext<TUser, TRole, TKey> : IdentityDbContext<
     public DbSet<DiscordModal> DC_Modals { get; set; }
 
     public DbSet<DiscordModalComponent> DC_ModalComponents { get; set; }
-
-    public DbSet<HLLGameserver> HLL_Gameservers { get; set; }
-
-    public DbSet<HLLGameState> HLL_GameStates { get; set; }
-
-    public DbSet<HLLGame> HLL_Games { get; set; }
-
-    public DbSet<HLLPlayer> HLL_Players { get; set; }
-
-    public DbSet<HLLGamePlayer> HLL_GamePlayers { get; set; }
-
-    public DbSet<HLLLog> HLL_Logs { get; set; }
-
-    public DbSet<HLLPlayerSession> HLL_PlayerSessions { get; set; }
 }

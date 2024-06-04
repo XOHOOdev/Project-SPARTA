@@ -12,6 +12,5 @@ public class UserSteamId
     public string UserId { get; set; } = null!;
 
     [Required]
-    [ForeignKey(nameof(HLLPlayer))]
     public long SteamId { get; set; }
 }
