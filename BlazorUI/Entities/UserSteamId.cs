@@ -11,6 +11,5 @@ public class UserSteamId
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public string UserId { get; set; } = null!;
 
-    [Required]
-    public long SteamId { get; set; }
+    [Required] public long SteamId { get; set; }
 }
