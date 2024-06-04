@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Sparta.Core.Helpers;
 
 namespace Sparta.Core.Models;
 
 public partial class SpartaDbContext : DbContext
 {
+    //Scaffold-DbContext "Server=localhost,1433;Database=SpartaDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
+
     public SpartaDbContext()
     {
     }
@@ -52,8 +54,10 @@ public partial class SpartaDbContext : DbContext
     public virtual DbSet<UsSteamId> UsSteamIds { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost,1433;Database=SpartaDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True");
+    {
+        var connectionString = ConfigLoader.Load().GetConnectionString("DefaultConnection") ?? string.Empty;
+        optionsBuilder.UseSqlServer(connectionString);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
