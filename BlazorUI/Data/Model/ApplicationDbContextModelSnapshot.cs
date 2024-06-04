@@ -261,6 +261,44 @@ namespace Sparta.BlazorUI.Data.Model
                     b.ToTable("CF_Configurations");
                 });
 
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MD_Modules");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.ModuleParameter", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ModuleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("MD_Parameters");
+                });
+
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Permission", b =>
                 {
                     b.Property<string>("Id")
@@ -356,6 +394,22 @@ namespace Sparta.BlazorUI.Data.Model
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.ModuleParameter", b =>
+                {
+                    b.HasOne("Sparta.BlazorUI.Entities.Module", "Module")
+                        .WithMany("Parameters")
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Module");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
+                {
+                    b.Navigation("Parameters");
                 });
 #pragma warning restore 612, 618
         }

@@ -31,6 +31,10 @@ public partial class SpartaDbContext : DbContext
 
     public virtual DbSet<CfConfiguration> CfConfigurations { get; set; }
 
+    public virtual DbSet<MdModule> MdModules { get; set; }
+
+    public virtual DbSet<MdParameter> MdParameters { get; set; }
+
     public virtual DbSet<UsPermission> UsPermissions { get; set; }
 
     public virtual DbSet<UsSteamId> UsSteamIds { get; set; }
@@ -120,6 +124,20 @@ public partial class SpartaDbContext : DbContext
             entity.HasKey(e => new { e.Class, e.Property });
 
             entity.ToTable("CF_Configurations");
+        });
+
+        modelBuilder.Entity<MdModule>(entity =>
+        {
+            entity.ToTable("MD_Modules");
+        });
+
+        modelBuilder.Entity<MdParameter>(entity =>
+        {
+            entity.ToTable("MD_Parameters");
+
+            entity.HasIndex(e => e.ModuleId, "IX_MD_Parameters_ModuleId");
+
+            entity.HasOne(d => d.Module).WithMany(p => p.MdParameters).HasForeignKey(d => d.ModuleId);
         });
 
         modelBuilder.Entity<UsPermission>(entity =>

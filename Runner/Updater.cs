@@ -5,12 +5,7 @@ namespace Sparta.Runner
 {
     public class Updater
     {
-        private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens;
-
-        public Updater()
-        {
-            _cancellationTokens = new Dictionary<string, CancellationTokenSource>();
-        }
+        private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens = [];
 
         public void Update()
         {

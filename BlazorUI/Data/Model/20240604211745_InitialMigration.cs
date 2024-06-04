@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -61,6 +60,18 @@ namespace Sparta.BlazorUI.Data.Model
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CF_Configurations", x => new { x.Class, x.Property });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MD_Modules",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MD_Modules", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -195,6 +206,26 @@ namespace Sparta.BlazorUI.Data.Model
                 });
 
             migrationBuilder.CreateTable(
+                name: "MD_Parameters",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModuleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MD_Parameters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MD_Parameters_MD_Modules_ModuleId",
+                        column: x => x.ModuleId,
+                        principalTable: "MD_Modules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ApplicationRolePermission",
                 columns: table => new
                 {
@@ -261,6 +292,11 @@ namespace Sparta.BlazorUI.Data.Model
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MD_Parameters_ModuleId",
+                table: "MD_Parameters",
+                column: "ModuleId");
         }
 
         /// <inheritdoc />
@@ -288,6 +324,9 @@ namespace Sparta.BlazorUI.Data.Model
                 name: "CF_Configurations");
 
             migrationBuilder.DropTable(
+                name: "MD_Parameters");
+
+            migrationBuilder.DropTable(
                 name: "US_SteamIds");
 
             migrationBuilder.DropTable(
@@ -298,6 +337,9 @@ namespace Sparta.BlazorUI.Data.Model
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "MD_Modules");
         }
     }
 }

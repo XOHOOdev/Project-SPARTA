@@ -9,9 +9,10 @@
   },
 
   "RCON": {
-    "Address": "176.57.171.7",
-    "Port": "28016",
-    "Password": "65920be"
+    "Address": "http://89.58.29.14",
+    "Port": "8010",
+    "Username": "xohoo",
+    "Password": "22T5RuCUVjrMAERH"
   },
 
   "SendGrid": {

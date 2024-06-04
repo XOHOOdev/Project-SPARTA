@@ -8,5 +8,5 @@ public class Permission
 
     public string NormalizedName { get; set; } = null!;
 
-    public virtual List<ApplicationRole> Roles { get; } = new();
+    public virtual List<ApplicationRole> Roles { get; } = [];
 }

@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Runner", "Runner\Runner.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorUI", "BlazorUI\BlazorUI.csproj", "{B6A0CC56-D076-4503-831F-DD7DE7CE2B2E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{71AB0197-A6B0-4A2F-8DE0-716E1C6E44F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScoreboardModule", "ScoreboardModule\ScoreboardModule.csproj", "{57653970-9876-4274-812E-1AE53CC79532}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,9 +31,16 @@ Global
 		{B6A0CC56-D076-4503-831F-DD7DE7CE2B2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6A0CC56-D076-4503-831F-DD7DE7CE2B2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6A0CC56-D076-4503-831F-DD7DE7CE2B2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57653970-9876-4274-812E-1AE53CC79532}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57653970-9876-4274-812E-1AE53CC79532}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57653970-9876-4274-812E-1AE53CC79532}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57653970-9876-4274-812E-1AE53CC79532}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{57653970-9876-4274-812E-1AE53CC79532} = {71AB0197-A6B0-4A2F-8DE0-716E1C6E44F7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1AA4AAA7-7AA2-4D7E-A239-779DBBE47220}
