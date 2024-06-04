@@ -7,7 +7,6 @@ using Sparta.BlazorUI.Areas.Identity;
 using Sparta.BlazorUI.Authorization;
 using Sparta.BlazorUI.Data;
 using Sparta.BlazorUI.Data.ConfigurationData;
-using Sparta.BlazorUI.Data.DiscordData;
 using Sparta.BlazorUI.Data.UserManagementData;
 using Sparta.BlazorUI.Entities;
 using Sparta.BlazorUI.Permissions;
@@ -47,7 +46,6 @@ internal class Program
         builder.Services.AddSingleton<IPermissionService, PermissionService>();
         builder.Services.AddScoped<ConfigurationService>();
         builder.Services.AddScoped<UserManagementService>();
-        builder.Services.AddScoped<DiscordDataService>();
         builder.Services.AddHttpClient();
 
         builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -124,7 +122,8 @@ internal class Program
         {
             permissions.AddRange(classPermission.GetFields().Select(x => new Permission
             {
-                Name = x.GetValue(null) as string ?? "", NormalizedName = (x.GetValue(null) as string ?? "").ToUpper()
+                Name = x.GetValue(null) as string ?? "",
+                NormalizedName = (x.GetValue(null) as string ?? "").ToUpper()
             }));
             permissions.AddRange(GetPermissions(classPermission.GetNestedTypes()));
         }
@@ -151,7 +150,7 @@ internal class Program
         var dbContext =
             serviceProvider.GetRequiredService<ApplicationDbContext<IdentityUser, ApplicationRole, string>>();
         foreach (var permission in dbContext.US_Permissions) adminRole.Permissions.Add(permission);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
     }
 
     private static async Task CreateDefaultUser(IServiceProvider serviceProvider)

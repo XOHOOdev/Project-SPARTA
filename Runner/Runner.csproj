@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\DiscordService\DiscordService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

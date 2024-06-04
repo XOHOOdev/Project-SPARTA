@@ -5,18 +5,16 @@ namespace Sparta.Runner
 {
     public class Updater
     {
-        private readonly DiscordRunner _discordRunner;
         private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens;
 
-        public Updater(DiscordRunner discordRunner)
+        public Updater()
         {
-            _discordRunner = discordRunner;
             _cancellationTokens = new Dictionary<string, CancellationTokenSource>();
         }
 
         public void Update()
         {
-            UpdateComponent("Discord", "DiscordBot", _discordRunner);
+            //UpdateComponent("Discord", "DiscordBot", _discordRunner);
 
             Task.Delay(TimeSpan.FromSeconds(int.Parse(ConfigHelper.GetConfig("Runner", "ImportInterval") ?? "60"))).ContinueWith(t => Update());
         }
