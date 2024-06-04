@@ -1,15 +1,15 @@
-﻿using Helium.Core.Helpers;
-using Helium.Core.Models;
-using Helium.DiscordService.Discord;
+﻿using Sparta.Core.Helpers;
+using Sparta.Core.Models;
+using Sparta.DiscordService.Discord;
 
-namespace Helium.Runner.Runners
+namespace Sparta.Runner.Runners
 {
     public class DiscordRunner : IRunner
     {
         private readonly IDiscordBot _discordBot;
-        private readonly HeliumDbContext _context;
+        private readonly SpartaDbContext _context;
 
-        public DiscordRunner(IDiscordBot discordBot, HeliumDbContext context)
+        public DiscordRunner(IDiscordBot discordBot, SpartaDbContext context)
         {
             _discordBot = discordBot;
             _context = context;

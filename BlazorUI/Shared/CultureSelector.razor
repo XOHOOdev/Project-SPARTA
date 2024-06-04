@@ -1,6 +1,5 @@
 ﻿@using System.Globalization
-@using Helium.BlazorUI.Localization;
-
+@using Sparta.BlazorUI.Localization
 @inject NavigationManager Navigation
 @inject IStringLocalizer<SharedResource> Localizer
 
@@ -13,7 +12,7 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-lang-text">
         <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='(() => SetCulture("en-US"))'>
+            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='() => SetCulture("en-US")'>
                 <svg class="bi me-2 bg-opacity-50 theme-icon">
                     <use href="#american-flag"></use>
                 </svg>
@@ -24,7 +23,7 @@
             </button>
         </li>
         <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='(() => SetCulture("en-GB"))'>
+            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='() => SetCulture("en-GB")'>
                 <svg class="bi me-2 bg-opacity-50 theme-icon">
                     <use href="#british-flag"></use>
                 </svg>
@@ -35,7 +34,7 @@
             </button>
         </li>
         <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='(() => SetCulture("de-DE"))'>
+            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='() => SetCulture("de-DE")'>
                 <svg class="bi me-2 bg-opacity-50 theme-icon">
                     <use href="#german-flag"></use>
                 </svg>
@@ -89,7 +88,7 @@
 
                 Navigation.NavigateTo(
                     $"Culture/Set?culture={cultureEscaped}&redirectUri={uriEscaped}",
-                    forceLoad: true);
+                    true);
             }
         }
     }

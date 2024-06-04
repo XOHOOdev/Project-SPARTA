@@ -1,8 +1,8 @@
 ﻿using Discord;
-using Helium.Core.Helpers;
-using Helium.DiscordService.Discord;
+using Sparta.Core.Helpers;
+using Sparta.DiscordService.Discord;
 
-namespace Helium.DiscordService.Helpers
+namespace Sparta.DiscordService.Helpers
 {
     public class SetupHelper
     {

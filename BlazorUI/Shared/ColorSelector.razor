@@ -1,8 +1,6 @@
-﻿@using Helium.BlazorUI.Localization;
-@using Helium.BlazorUI.Services;
-@using Microsoft.Extensions.Localization;
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-
+﻿@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using Sparta.BlazorUI.Localization
+@using Sparta.BlazorUI.Services
 @inject IStringLocalizer<SharedResource> Localizer
 @inject ProtectedLocalStorage BrowserStorage
 @inject NavigationManager nav
@@ -18,7 +16,7 @@
     </button>
     <ul class="dropdown-menu">
         <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='(() => ChangeColor("light"))'>
+            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='() => ChangeColor("light")'>
                 <svg class="bi me-2 bg-opacity-50 theme-icon">
                     <use href="#sun-fill"></use>
                 </svg>
@@ -29,7 +27,7 @@
             </button>
         </li>
         <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='(() => ChangeColor("dark"))'>
+            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='() => ChangeColor("dark")'>
                 <svg class="bi me-2 bg-opacity-50 theme-icon">
                     <use href="#moon-stars-fill"></use>
                 </svg>
@@ -40,7 +38,7 @@
             </button>
         </li>
         <li>
-            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='(() => ChangeColor("auto"))'>
+            <button type="button" class="dropdown-item d-flex align-items-center" @onclick='() => ChangeColor("auto")'>
                 <svg class="bi me-2 bg-opacity-50 theme-icon">
                     <use href="#circle-half"></use>
                 </svg>
@@ -64,8 +62,7 @@
 </script>
 
 @code {
-    [Parameter]
-    public string? CurrentThemeIcon { get; set; }
+    [Parameter] public string? CurrentThemeIcon { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -77,19 +74,26 @@
 
     private async Task SetStoredTheme()
     {
-        CacheService.AppCache.TryGetValue("styleName", out string? style);
+        CacheService.AppCache.TryGetValue("styleName", out var style);
 
         if (string.IsNullOrEmpty(style))
         {
-            var storedTheme = await BrowserStorage.GetAsync<string>("theme");
-            if (storedTheme.Success)
+            try
             {
-                string color = storedTheme.Value ?? "auto";
-                CurrentThemeIcon = GetImageNameFromThemeName(color);
-                await ChangeColor(color);
-                StateHasChanged();
+                var storedTheme = await BrowserStorage.GetAsync<string>("theme");
+                if (storedTheme.Success)
+                {
+                    var color = storedTheme.Value ?? "auto";
+                    CurrentThemeIcon = GetImageNameFromThemeName(color);
+                    await ChangeColor(color);
+                    StateHasChanged();
+                }
+                else
+                {
+                    await ChangeColor("auto");
+                }
             }
-            else
+            catch (Exception)
             {
                 await ChangeColor("auto");
             }
@@ -127,4 +131,5 @@
                 return "#circle-half";
         }
     }
+
 }

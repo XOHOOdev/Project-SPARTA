@@ -7,7 +7,6 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["./Runner/Runner.csproj", "Runner/"]
 COPY ["./Core/Core.csproj", "Core/"]
-COPY ["./WebUI/WebUI.csproj", "WebUI/"]
 RUN dotnet restore "Runner/Runner.csproj"
 COPY . .
 WORKDIR "/src/Runner/"

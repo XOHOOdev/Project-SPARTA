@@ -1,7 +1,7 @@
 ﻿using Discord;
-using Helium.Core.Models;
+using Sparta.Core.Models;
 
-namespace Helium.DiscordService.Helpers
+namespace Sparta.DiscordService.Helpers
 {
     internal static class InteractionHelper
     {

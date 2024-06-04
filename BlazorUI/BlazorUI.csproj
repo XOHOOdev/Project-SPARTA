@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-BlazorUI-ffd8e62c-c06e-4133-8e45-0fde2be14819</UserSecretsId>
-    <RootNamespace>Helium.BlazorUI</RootNamespace>
+    <RootNamespace>Sparta.BlazorUI</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

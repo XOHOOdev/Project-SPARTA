@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Helium.BlazorUI.Entities
+namespace Sparta.BlazorUI.Entities;
+
+public class DiscordGuild
 {
-    public class DiscordGuild
-    {
-        [Required]
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public ulong Id { get; set; }
+    [Required]
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public ulong Id { get; set; }
 
-        public string Name { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
-        public virtual IList<DiscordChannel> Channels { get; set; } = null!;
-    }
+    public virtual IList<DiscordChannel> Channels { get; set; } = null!;
 }

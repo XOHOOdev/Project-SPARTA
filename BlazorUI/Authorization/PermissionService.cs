@@ -1,27 +1,27 @@
-﻿using Helium.BlazorUI.Data;
-using Helium.BlazorUI.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Sparta.BlazorUI.Data;
+using Sparta.BlazorUI.Entities;
 
-namespace Helium.BlazorUI.Authorization
+namespace Sparta.BlazorUI.Authorization;
+
+public class PermissionService : IPermissionService
 {
-    public class PermissionService : IPermissionService
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public PermissionService(IServiceScopeFactory serviceScopeFactory)
     {
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        _serviceScopeFactory = serviceScopeFactory;
+    }
 
-        public PermissionService(IServiceScopeFactory serviceScopeFactory)
-        {
-            _serviceScopeFactory = serviceScopeFactory;
-        }
+    public HashSet<string> GetPermissionAsync(string memberId)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
 
-        public HashSet<string> GetPermissionAsync(string memberId)
-        {
-            using var scope = _serviceScopeFactory.CreateScope();
+        var context = scope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext<IdentityUser, ApplicationRole, string>>();
 
-            ApplicationDbContext<IdentityUser, ApplicationRole, string> context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext<IdentityUser, ApplicationRole, string>>();
-
-            var roleIds = context.UserRoles.Where(x => x.UserId == memberId).Select(x => x.RoleId);
-            return context.US_Permissions.Where(x => x.Roles.Any(y => roleIds.Contains(y.Id))).Select(x => x.Name).ToHashSet();
-        }
+        var roleIds = context.UserRoles.Where(x => x.UserId == memberId).Select(x => x.RoleId);
+        return context.US_Permissions.Where(x => x.Roles.Any(y => roleIds.Contains(y.Id))).Select(x => x.Name)
+            .ToHashSet();
     }
 }

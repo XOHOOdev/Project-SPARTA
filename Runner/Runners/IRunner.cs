@@ -1,4 +1,4 @@
-﻿namespace Helium.Runner.Runners
+﻿namespace Sparta.Runner.Runners
 {
     public interface IRunner
     {

@@ -1,9 +1,9 @@
 version: "3.9"
 services:
-  helium-web-ui:
+  sparta-web-ui:
     build:
       dockerfile: Dockerfile.BlazorUI
-    container_name: helium-web-ui
+    container_name: sparta-web-ui
     ports:
       - "5000:80"
     environment:
@@ -19,11 +19,11 @@ services:
      - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
       - "sql"
-      - "helium-web-ui"
+      - "sparta-web-ui"
     restart: always
   sql:
     image: "mcr.microsoft.com/mssql/server:2019-latest"
-    container_name: helium-sql
+    container_name: sparta-sql
     user: root
     ports:
       - "1433:1433" 
@@ -31,11 +31,11 @@ services:
       - ACCEPT_EULA=y
       - SA_PASSWORD=A&VeryComplex123Password
     volumes:
-      - "heliumdata:/var/opt/mssql/data/"
-      - "heliumlog:/var/opt/mssql/log/"
-      - "heliumsecrets:/var/opt/mssql/secrets/"
+      - "spartadata:/var/opt/mssql/data/"
+      - "spartalog:/var/opt/mssql/log/"
+      - "spartasecrets:/var/opt/mssql/secrets/"
     restart: always
 volumes:
-  heliumdata:
-  heliumlog:
-  heliumsecrets:
+  spartadata:
+  spartalog:
+  spartasecrets:

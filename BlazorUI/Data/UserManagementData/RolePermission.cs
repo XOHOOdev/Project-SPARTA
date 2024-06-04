@@ -1,25 +1,26 @@
-﻿using Helium.BlazorUI.Entities;
+﻿using Sparta.BlazorUI.Entities;
 
-namespace Helium.BlazorUI.Data.UserManagementData
+namespace Sparta.BlazorUI.Data.UserManagementData;
+
+public class RolePermission
 {
-    public class RolePermission
-    {
-        public ApplicationRole ApplicationRole { get; set; } = null!;
-        public IList<IPermissionModel> RolePermissions { get; set; } = null!;
-    }
+    public ApplicationRole ApplicationRole { get; set; } = null!;
+    public IList<IPermissionModel> RolePermissions { get; set; } = null!;
+}
 
-    public interface IPermissionModel { }
+public interface IPermissionModel
+{
+}
 
-    public class BaseRolePermissionModel : IPermissionModel
-    {
-        public string BaseName { get; set; } = null!;
-        public IList<IPermissionModel> RolePermissions { get; set; } = null!;
-    }
+public class BaseRolePermissionModel : IPermissionModel
+{
+    public string BaseName { get; set; } = null!;
+    public IList<IPermissionModel> RolePermissions { get; set; } = null!;
+}
 
-    public class RolePermissionModel : IPermissionModel
-    {
-        public string Id { get; set; } = null!;
-        public string Name { get; set; } = null!;
-        public bool Selected { get; set; }
-    }
+public class RolePermissionModel : IPermissionModel
+{
+    public string Id { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public bool Selected { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿namespace Helium.DiscordService.Services
+﻿namespace Sparta.DiscordService.Services
 {
     internal interface IScoreboardService
     {

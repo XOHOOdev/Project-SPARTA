@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Helium.BlazorUI.Authorization
+namespace Sparta.BlazorUI.Authorization;
+
+public class HasPermissionAttribute : AuthorizeAttribute
 {
-    public class HasPermissionAttribute : AuthorizeAttribute
+    public HasPermissionAttribute(string permission) : base(permission)
     {
-        public HasPermissionAttribute(string permission) : base(policy: permission) { }
     }
 }

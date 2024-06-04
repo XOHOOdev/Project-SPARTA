@@ -1,11 +1,10 @@
-﻿namespace Helium.BlazorUI.Helpers
+﻿namespace Sparta.BlazorUI.Helpers;
+
+public static class StringExtensions
 {
-    public static class StringExtensions
+    public static string Truncate(this string value, int maxLength)
     {
-        public static string Truncate(this string value, int maxLength)
-        {
-            if (string.IsNullOrEmpty(value)) return value;
-            return value.Length <= maxLength ? value : value[..(maxLength - 3)] + "...";
-        }
+        if (string.IsNullOrEmpty(value)) return value;
+        return value.Length <= maxLength ? value : value[..(maxLength - 3)] + "...";
     }
 }

@@ -1,6 +1,6 @@
-﻿using Helium.Core.Models;
+﻿using Sparta.Core.Models;
 
-namespace Helium.DiscordService.Discord
+namespace Sparta.DiscordService.Discord
 {
     public interface IDiscordBot
     {

@@ -1,20 +1,22 @@
 ﻿@page "/configuration"
-@using Helium.BlazorUI.Authorization;
-@using Helium.BlazorUI.Data.ConfigurationData;
-@using System.Security.Claims;
+@using Sparta.BlazorUI.Authorization
+@using Sparta.BlazorUI.Data.ConfigurationData
+@using Sparta.BlazorUI.Permissions
 
 @inject ConfigurationService ConfService
 @inject IStringLocalizer<Configuration> Localizer
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime Js
-@attribute [HasPermission(Permissions.Permissions.Configuration.View)]
+@attribute [HasPermission(Permissions.Configuration.View)]
 
 <PageTitle>@Localizer["Configuration"]</PageTitle>
 
 <h3>@Localizer["Configuration"]</h3>
 @if (configurations == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
@@ -22,15 +24,15 @@ else
         <div class="container-fluid">
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    @foreach (ConfigurationCategory configuration in configurations)
+                    @foreach (var configuration in configurations)
                     {
                         <li class="nav-item">
-                            <button class="btn" type="submit" @onclick='(()=>CategorySelected(configuration))'>@configuration.Name</button>
+                            <button class="btn" type="submit" @onclick='() => CategorySelected(configuration)'>@configuration.Name</button>
                         </li>
                     }
                     <li>
                         <AuthorizeView>
-                            @if (context.User.Authorize(Permissions.Permissions.Configuration.Edit))
+                            @if (context.User.Authorize(Permissions.Configuration.Edit))
                             {
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveToFileModal">@Localizer["SaveToFile"]</button>
                             }
@@ -49,24 +51,24 @@ else
             <div class="card-body container">
                 @if (selectedCategory.ConfigurationElements.Count != 0)
                 {
-                    foreach (ConfigurationElement configurationElement in selectedCategory.ConfigurationElements)
+                    foreach (var configurationElement in selectedCategory.ConfigurationElements)
                     {
                         <div class="row">
                             <div class="col">
                                 <p>@configurationElement.Name</p>
                             </div>
                             <div class="col-10">
-                                <input class="form-control" @bind="configurationElement.Value" />
+                                <input class="form-control" @bind="configurationElement.Value"/>
                             </div>
                         </div>
                     }
                 }
             </div>
             <AuthorizeView>
-                @if (context.User.Authorize(Permissions.Permissions.Configuration.Edit))
+                @if (context.User.Authorize(Permissions.Configuration.Edit))
                 {
                     <div class="card-footer">
-                        <button type="button" class="btn btn-primary" id="showSavedToast" @onclick='(() => SaveChanges())'>@Localizer["Save"]</button>
+                        <button type="button" class="btn btn-primary" id="showSavedToast" @onclick='() => SaveChanges()'>@Localizer["Save"]</button>
                     </div>
                 }
             </AuthorizeView>
@@ -85,7 +87,7 @@ else
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Abort"]</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick='(() => SaveConfigurations())'>@Localizer["Save"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="() => SaveConfigurations()">@Localizer["Save"]</button>
             </div>
         </div>
     </div>
@@ -152,4 +154,5 @@ else
         configurations = ConfService.GetConfigurations();
         StateHasChanged();
     }
+
 }

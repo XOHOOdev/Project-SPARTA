@@ -1,11 +1,11 @@
 ﻿@page "/usermanagement"
-@using Helium.BlazorUI.Authorization;
-@using Helium.BlazorUI.Data.UserManagementData;
-@using Microsoft.AspNetCore.Identity;
+@using Sparta.BlazorUI.Authorization
+@using Sparta.BlazorUI.Data.UserManagementData
+@using Sparta.BlazorUI.Permissions
 
 @inject IStringLocalizer<UserManagement> Localizer
 @inject UserManagementService ManagementService
-@attribute [HasPermission(Permissions.Permissions.UserManagement.View)]
+@attribute [HasPermission(Permissions.UserManagement.View)]
 
 <PageTitle>@Localizer["UserManagement"]</PageTitle>
 
@@ -27,15 +27,15 @@
 </nav>
 @if (usersSelected)
 {
-    <UserRoleManagement />
+    <UserRoleManagement/>
 }
 else
 {
-    <RolePermissionManagement />
+    <RolePermissionManagement/>
 }
 
 @code {
-    private bool usersSelected = true;   
+    private bool usersSelected = true;
 
     private void SetUsersSelected()
     {
@@ -46,4 +46,5 @@ else
     {
         usersSelected = false;
     }
+
 }

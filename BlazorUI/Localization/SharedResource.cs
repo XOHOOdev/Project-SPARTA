@@ -1,6 +1,5 @@
-﻿namespace Helium.BlazorUI.Localization
+﻿namespace Sparta.BlazorUI.Localization;
+
+public class SharedResource
 {
-    public class SharedResource
-    {
-    }
 }

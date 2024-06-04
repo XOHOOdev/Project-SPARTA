@@ -1,12 +1,12 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Helium.Core.Helpers;
-using Helium.Core.Models;
-using Helium.DiscordService.Helpers;
+using Sparta.Core.Helpers;
+using Sparta.Core.Models;
+using Sparta.DiscordService.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Helium.DiscordService.Discord
+namespace Sparta.DiscordService.Discord
 {
     public class DiscordBot : IDiscordBot
     {
@@ -14,9 +14,9 @@ namespace Helium.DiscordService.Discord
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly IServiceProvider _services;
-        private readonly HeliumDbContext _dbContext;
+        private readonly SpartaDbContext _dbContext;
 
-        public DiscordBot(HeliumDbContext dbContext)
+        public DiscordBot(SpartaDbContext dbContext)
         {
             _dbContext = dbContext;
             _token = ConfigHelper.GetConfig("DiscordBot", "DiscordToken") ?? "";

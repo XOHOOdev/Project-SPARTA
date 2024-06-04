@@ -1,7 +1,6 @@
-﻿namespace Helium.BlazorUI.Authorization
+﻿namespace Sparta.BlazorUI.Authorization;
+
+public interface IPermissionService
 {
-    public interface IPermissionService
-    {
-        HashSet<string> GetPermissionAsync(string memberId);
-    }
+    HashSet<string> GetPermissionAsync(string memberId);
 }

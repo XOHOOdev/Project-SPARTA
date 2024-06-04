@@ -1,10 +1,10 @@
-﻿@using Helium.BlazorUI.Authorization;
-@using Helium.BlazorUI.Data.UserManagementData;
-@using Microsoft.AspNetCore.Identity;
-
+﻿@using Microsoft.AspNetCore.Identity
+@using Sparta.BlazorUI.Authorization
+@using Sparta.BlazorUI.Data.UserManagementData
+@using Sparta.BlazorUI.Permissions
 @inject IStringLocalizer<UserManagement> Localizer
 @inject UserManagementService ManagementService
-@attribute [HasPermission(Permissions.Permissions.UserManagement.View)]
+@attribute [HasPermission(Permissions.UserManagement.View)]
 
 <div class="card">
     <div class="card-header">
@@ -13,40 +13,40 @@
     <div class="card-body container">
         <table class="table table-striped table-hover" id="roleTable">
             <thead>
-                <tr>
-                    <th>@Localizer["Username"]</th>
-                    <th>@Localizer["Id"]</th>
-                    <th>@Localizer["Actions"]</th>
-                </tr>
+            <tr>
+                <th>@Localizer["Username"]</th>
+                <th>@Localizer["Id"]</th>
+                <th>@Localizer["Actions"]</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var user in users)
-                {
-                    <tr>
-                        <td>@user.UserName</td>
-                        <td>@user.Id</td>
-                        <td class="text-right">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    @Localizer["Actions"]
-                                </button>
-                                <div class="dropdown-menu shadow animated--grow-in">
-                                    <AuthorizeView>
-                                        @if (context.User.Authorize(Permissions.Permissions.UserManagement.Delete) && context.User.Identity?.Name != user.UserName)
-                                        {
-                                            <a style='margin-right:16px' class="dropdown-item" @onclick='(() => DeleteUser(user))'>@Localizer["Delete"]</a>
-                                        }
-                                        @if (context.User.Authorize(Permissions.Permissions.UserManagement.Edit))
-                                        {
-                                            <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageRolesModal" @onclick='(() => LoadUserRoles(user))'>@Localizer["ManageRoles"]</a>
-                                            <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageSteamIdModal" @onclick='(() => LoadUserSteamId(user))'>@Localizer["ManageSteamId"]</a>
-                                        }
-                                    </AuthorizeView>
-                                </div>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Id</td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                @Localizer["Actions"]
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                <AuthorizeView>
+                                    @if (context.User.Authorize(Permissions.UserManagement.Delete) && context.User.Identity?.Name != user.UserName)
+                                    {
+                                        <a style='margin-right:16px' class="dropdown-item" @onclick='() => DeleteUser(user)'>@Localizer["Delete"]</a>
+                                    }
+                                    @if (context.User.Authorize(Permissions.UserManagement.Edit))
+                                    {
+                                        <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageRolesModal" @onclick='() => LoadUserRoles(user)'>@Localizer["ManageRoles"]</a>
+                                        <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageSteamIdModal" @onclick='() => LoadUserSteamId(user)'>@Localizer["ManageSteamId"]</a>
+                                    }
+                                </AuthorizeView>
                             </div>
-                        </td>
-                    </tr>
-                }
+                        </div>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     </div>
@@ -67,14 +67,14 @@
                 <div class="btn-group">
                     @foreach (var role in userRoles.Roles)
                     {
-                        <input type="checkbox" class="btn-check" @bind="role.Selected" id="@($"check{role.Name}")" />
+                        <input type="checkbox" class="btn-check" @bind="role.Selected" id="@($"check{role.Name}")"/>
                         <label class="btn btn-outline-primary" for="@($"check{role.Name}")">@role.Name</label>
                     }
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Abort"]</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick=SaveUserRoles>@Localizer["Save"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="SaveUserRoles">@Localizer["Save"]</button>
             </div>
         </div>
     </div>
@@ -94,12 +94,12 @@
                 }
                 <div class="input-group">
                     <span class="input-group-text" id="basic-addon3">@Localizer["SteamId"]</span>
-                    <input type="text" class="form-control" @bind=userSteamId.SteamId >
+                    <input type="text" class="form-control" @bind="userSteamId.SteamId">
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Abort"]</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick=SaveUserSteamId>@Localizer["Save"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="SaveUserSteamId">@Localizer["Save"]</button>
             </div>
         </div>
     </div>
@@ -141,4 +141,5 @@
     {
         ManagementService.SaveUserSteamId(userSteamId);
     }
+
 }

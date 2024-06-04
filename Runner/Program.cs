@@ -1,14 +1,13 @@
-﻿using Helium.Core.Helpers;
-using Helium.Core.Models;
-using Helium.DiscordService.Discord;
-using Helium.ImportService.Services;
-using Helium.Runner.Runners;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sparta.Core.Helpers;
+using Sparta.Core.Models;
+using Sparta.DiscordService.Discord;
+using Sparta.Runner.Runners;
 
-namespace Helium.Runner
+namespace Sparta.Runner
 {
     public class Program
     {
@@ -16,11 +15,9 @@ namespace Helium.Runner
         {
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-            builder.Services.AddDbContext<HeliumDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(ConfigLoader.Load().GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<SpartaDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(ConfigLoader.Load().GetConnectionString("DefaultConnection")));
             builder.Services.AddSingleton<IDiscordBot, DiscordBot>();
-            builder.Services.AddSingleton<RconWebDataService>();
             builder.Services.AddSingleton<DiscordRunner>();
-            builder.Services.AddSingleton<ImportServiceRunner>();
             builder.Services.AddSingleton<Updater>();
 
             IHost host = builder.Build();

@@ -1,4 +1,4 @@
-﻿namespace Helium.Core.Helpers
+﻿namespace Sparta.Core.Helpers
 {
     public static class EnvHelper
     {

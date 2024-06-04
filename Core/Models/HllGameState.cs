@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Helium.Core.Models;
+namespace Sparta.Core.Models;
 
 public partial class HllGameState
 {

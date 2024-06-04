@@ -1,20 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Helium.BlazorUI.Entities
+namespace Sparta.BlazorUI.Entities;
+
+public class HLLGame
 {
-    public class HLLGame
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long GameId { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long GameId { get; set; }
 
-        public DateTime StartTime { get; set; }
+    public DateTime StartTime { get; set; }
 
-        public TimeSpan? Duration { get; set; }
+    public TimeSpan? Duration { get; set; }
 
-        public string Map { get; set; } = null!;
+    public string Map { get; set; } = null!;
 
-        public virtual List<HLLGamePlayer> Players { get; } = new();
-    }
+    public virtual List<HLLGamePlayer> Players { get; } = new();
 }

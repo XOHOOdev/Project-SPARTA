@@ -1,19 +1,19 @@
-﻿namespace Helium.BlazorUI.Services
-{
-    public static class CacheService
-    {
-        private static Dictionary<string, string> cache = null!;
+﻿namespace Sparta.BlazorUI.Services;
 
-        private static readonly object cacheLock = new();
-        public static Dictionary<string, string> AppCache
+public static class CacheService
+{
+    private static Dictionary<string, string> cache = null!;
+
+    private static readonly object cacheLock = new();
+
+    public static Dictionary<string, string> AppCache
+    {
+        get
         {
-            get
+            lock (cacheLock)
             {
-                lock (cacheLock)
-                {
-                    cache ??= new Dictionary<string, string>();
-                    return cache;
-                }
+                cache ??= new Dictionary<string, string>();
+                return cache;
             }
         }
     }

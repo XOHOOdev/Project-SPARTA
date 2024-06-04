@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Helium.BlazorUI.Authorization
-{
-    public class PermissionRequirement : IAuthorizationRequirement
-    {
-        public PermissionRequirement(string permission)
-        {
-            Permission = permission;
-        }
+namespace Sparta.BlazorUI.Authorization;
 
-        public string Permission { get; }
+public class PermissionRequirement : IAuthorizationRequirement
+{
+    public PermissionRequirement(string permission)
+    {
+        Permission = permission;
     }
+
+    public string Permission { get; }
 }

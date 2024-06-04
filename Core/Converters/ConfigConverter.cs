@@ -1,7 +1,7 @@
-﻿using Helium.Core.Models;
+﻿using Sparta.Core.Models;
 using Newtonsoft.Json.Linq;
 
-namespace Helium.Core.Helpers
+namespace Sparta.Core.Helpers
 {
     public class ConfigConverter
     {

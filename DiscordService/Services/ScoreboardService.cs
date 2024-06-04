@@ -1,12 +1,12 @@
-﻿using Helium.Core.Models;
+﻿using Sparta.Core.Models;
 
-namespace Helium.DiscordService.Services
+namespace Sparta.DiscordService.Services
 {
     internal class ScoreboardService : IScoreboardService
     {
-        private readonly HeliumDbContext _context;
+        private readonly SpartaDbContext _context;
 
-        ScoreboardService(HeliumDbContext dbContext)
+        ScoreboardService(SpartaDbContext dbContext)
         {
             _context = dbContext;
         }

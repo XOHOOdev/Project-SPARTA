@@ -1,11 +1,10 @@
-﻿@using Helium.BlazorUI.Data.UserManagementData;
-
+﻿@using Sparta.BlazorUI.Data.UserManagementData
 @if (Permissions.Any(x => x is RolePermissionModel))
 {
     <div class="btn-group" role="group">
         @foreach (var rolePermission in Permissions.Where(x => x is RolePermissionModel).Select(x => (RolePermissionModel)x))
         {
-            <input type="checkbox" class="btn-check" @bind="rolePermission.Selected" id="@($"check{rolePermission.Id}")" />
+            <input type="checkbox" class="btn-check" @bind="rolePermission.Selected" id="@($"check{rolePermission.Id}")"/>
             <label class="btn btn-outline-primary" for="@($"check{rolePermission.Id}")">@rolePermission.Name</label>
         }
     </div>
@@ -16,13 +15,12 @@
         <div class="card">
             <div class="card-header">@rolePermission.BaseName</div>
             <ul class="list-group list-group-flush">
-                <PermissionManagement Permissions="rolePermission.RolePermissions" />
+                <PermissionManagement Permissions="rolePermission.RolePermissions"/>
             </ul>
         </div>
     </li>
 }
 
 @code {
-    [Parameter]
-    public IList<IPermissionModel> Permissions { get; set; } = null!;
+    [Parameter] public IList<IPermissionModel> Permissions { get; set; } = null!;
 }

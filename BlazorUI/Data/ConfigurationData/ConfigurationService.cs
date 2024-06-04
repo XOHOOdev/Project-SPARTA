@@ -1,61 +1,60 @@
-﻿using Helium.BlazorUI.Authorization;
-using Helium.BlazorUI.Entities;
-using Helium.Core.Helpers;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Sparta.BlazorUI.Authorization;
+using Sparta.BlazorUI.Entities;
+using Sparta.Core.Helpers;
 
-namespace Helium.BlazorUI.Data.ConfigurationData
+namespace Sparta.BlazorUI.Data.ConfigurationData;
+
+[HasPermission(Permissions.Permissions.Configuration.View)]
+public class ConfigurationService
 {
-    [HasPermission(Permissions.Permissions.Configuration.View)]
-    public class ConfigurationService
+    private readonly ApplicationDbContext<IdentityUser, ApplicationRole, string> _context;
+
+    public ConfigurationService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
     {
-        private readonly ApplicationDbContext<IdentityUser, ApplicationRole, string> _context;
+        _context = context;
+    }
 
-        public ConfigurationService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
+    public ConfigurationCategory[] GetConfigurations()
+    {
+        var dbConfigs = _context.CF_Configurations.ToList();
+
+        List<ConfigurationCategory> configurations = new();
+        foreach (var dbconfig in dbConfigs)
         {
-            _context = context;
-        }
-
-        public ConfigurationCategory[] GetConfigurations()
-        {
-            var dbConfigs = _context.CF_Configurations.ToList();
-
-            List<ConfigurationCategory> configurations = new();
-            foreach (Entities.Configuration dbconfig in dbConfigs)
+            var config = configurations.FirstOrDefault(x => x.Name == dbconfig.Class);
+            if (config == null)
             {
-                ConfigurationCategory? config = configurations.FirstOrDefault(x => x.Name == dbconfig.Class);
-                if (config == null)
+                config = new ConfigurationCategory
                 {
-                    config = new ConfigurationCategory
-                    {
-                        Name = dbconfig.Class,
-                        ConfigurationElements = new List<ConfigurationElement>()
-                    };
-                    configurations.Add(config);
-                }
-                config.ConfigurationElements.Add(new ConfigurationElement { Value = dbconfig.Value, Name = dbconfig.Property });
+                    Name = dbconfig.Class,
+                    ConfigurationElements = new List<ConfigurationElement>()
+                };
+                configurations.Add(config);
             }
 
-            return configurations.ToArray();
+            config.ConfigurationElements.Add(new ConfigurationElement
+                { Value = dbconfig.Value, Name = dbconfig.Property });
         }
 
-        [HasPermission(Permissions.Permissions.Configuration.Edit)]
-        public void SetConfiguration(ConfigurationCategory? category)
-        {
-            if (category == null) return;
-            var affectedEntries = _context.CF_Configurations.Where(x => x.Class == category.Name);
-            foreach (var entry in affectedEntries)
-            {
-                entry.Value = category.ConfigurationElements.First(x => x.Name == entry.Property).Value;
-            }
-            _context.SaveChanges();
-        }
+        return configurations.ToArray();
+    }
 
-        [HasPermission(Permissions.Permissions.Configuration.Edit)]
-        public void SaveConfiguration()
-        {
-            var jsonString = ConfigHelper.GetConfigAsJson();
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "default-config.json");
-            File.WriteAllText(path, jsonString);
-        }
+    [HasPermission(Permissions.Permissions.Configuration.Edit)]
+    public void SetConfiguration(ConfigurationCategory? category)
+    {
+        if (category == null) return;
+        var affectedEntries = _context.CF_Configurations.Where(x => x.Class == category.Name);
+        foreach (var entry in affectedEntries)
+            entry.Value = category.ConfigurationElements.First(x => x.Name == entry.Property).Value;
+        _context.SaveChanges();
+    }
+
+    [HasPermission(Permissions.Permissions.Configuration.Edit)]
+    public void SaveConfiguration()
+    {
+        var jsonString = ConfigHelper.GetConfigAsJson();
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "default-config.json");
+        File.WriteAllText(path, jsonString);
     }
 }

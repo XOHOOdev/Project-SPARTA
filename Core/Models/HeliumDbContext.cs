@@ -1,18 +1,18 @@
-﻿using Helium.Core.Helpers;
+﻿using Sparta.Core.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Helium.Core.Models;
+namespace Sparta.Core.Models;
 
-public partial class HeliumDbContext : DbContext
+public partial class SpartaDbContext : DbContext
 {
-    //Scaffold-DbContext "Server=localhost,1433;Database=HeliumDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
+    //Scaffold-DbContext "Server=localhost,1433;Database=SpartaDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
 
-    public HeliumDbContext()
+    public SpartaDbContext()
     {
     }
 
-    public HeliumDbContext(DbContextOptions<HeliumDbContext> options)
+    public SpartaDbContext(DbContextOptions<SpartaDbContext> options)
         : base(options)
     {
     }

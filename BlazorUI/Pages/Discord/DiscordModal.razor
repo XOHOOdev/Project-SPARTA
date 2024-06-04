@@ -1,12 +1,11 @@
-﻿@using Helium.BlazorUI.Authorization;
-@using Helium.BlazorUI.Data.DiscordData;
-@using Helium.BlazorUI.Entities;
-@using System.Drawing;
-
+﻿@using Sparta.BlazorUI.Authorization
+@using Sparta.BlazorUI.Data.DiscordData
+@using Sparta.BlazorUI.Entities
+@using Sparta.BlazorUI.Permissions
 @inject IStringLocalizer<Discord> Localizer
 @inject DiscordDataService DataService
 @inject IJSRuntime Js
-@attribute [HasPermission(Permissions.Permissions.Discord.Modal.View)]
+@attribute [HasPermission(Permissions.Discord.Modal.View)]
 
 <div class="card">
     <div class="card-header">
@@ -15,48 +14,48 @@
     <div class="card-body container">
         <table class="table table-striped table-hover" id="roleTable">
             <thead>
-                <tr>
-                    <th>@Localizer["ModalTitle"]</th>
-                    <th>@Localizer["ModalComponents"]</th>
-                    <th>@Localizer["Actions"]</th>
-                </tr>
+            <tr>
+                <th>@Localizer["ModalTitle"]</th>
+                <th>@Localizer["ModalComponents"]</th>
+                <th>@Localizer["Actions"]</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var modal in modals)
-                {
-                    <tr>
-                        <td class="align-middle">@modal.Title</td>
-                        <td class="align-middle">@modal.Components.Count</td>
-                        <td class="text-right align-middle">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    @Localizer["Actions"]
-                                </button>
-                                <div class="dropdown-menu shadow animated--grow-in">
-                                    <AuthorizeView>
-                                        @if (context.User.Authorize(Permissions.Permissions.Discord.Modal.Delete))
-                                        {
-                                            <a style='margin-right:16px' class="dropdown-item" @onclick='(() => DeleteModal(modal))'>@Localizer["Delete"]</a>
-                                        }
-                                        @if (context.User.Authorize(Permissions.Permissions.Discord.Modal.Edit))
-                                        {
-                                            <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageModal" @onclick='(() => LoadModalData(modal))'>@Localizer["EditModal"]</a>
-                                        }
-                                        @if (context.User.Authorize(Permissions.Permissions.Discord.Modal.Create))
-                                        {
-                                            <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageModal" @onclick='(() => DuplicateModal(modal))'>@Localizer["DuplicateModal"]</a>
-                                        }
-                                    </AuthorizeView>
-                                </div>
+            @foreach (var modal in modals)
+            {
+                <tr>
+                    <td class="align-middle">@modal.Title</td>
+                    <td class="align-middle">@modal.Components.Count</td>
+                    <td class="text-right align-middle">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                @Localizer["Actions"]
+                            </button>
+                            <div class="dropdown-menu shadow animated--grow-in">
+                                <AuthorizeView>
+                                    @if (context.User.Authorize(Permissions.Discord.Modal.Delete))
+                                    {
+                                        <a style='margin-right:16px' class="dropdown-item" @onclick='() => DeleteModal(modal)'>@Localizer["Delete"]</a>
+                                    }
+                                    @if (context.User.Authorize(Permissions.Discord.Modal.Edit))
+                                    {
+                                        <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageModal" @onclick='() => LoadModalData(modal)'>@Localizer["EditModal"]</a>
+                                    }
+                                    @if (context.User.Authorize(Permissions.Discord.Modal.Create))
+                                    {
+                                        <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageModal" @onclick='() => DuplicateModal(modal)'>@Localizer["DuplicateModal"]</a>
+                                    }
+                                </AuthorizeView>
                             </div>
-                        </td>
-                    </tr>
-                }
+                        </div>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     </div>
     <AuthorizeView>
-        @if (context.User.Authorize(Permissions.Permissions.Discord.Modal.Create))
+        @if (context.User.Authorize(Permissions.Discord.Modal.Create))
         {
             <div class="card-footer">
                 <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#manageModal" @onclick=CreateModal>@Localizer["AddModal"]</button>
@@ -94,10 +93,12 @@
                                 <span class="input-group-text">@Localizer["ComponentMaxLength"]</span>
                                 <input type="text" class="form-control" @bind=component.MaxLength>
                                 <label class="btn btn-outline-primary align-middle" for="@($"check{modal.Id}{component.Id}")">@Localizer["EmbedInline"]</label>
-                                <input type="checkbox" class="btn-check" autocomplete="off" @bind="component.Required" id="@($"check{modal.Id}{component.Id}")" />
+                                <input type="checkbox" class="btn-check" autocomplete="off" @bind="component.Required" id="@($"check{modal.Id}{component.Id}")"/>
                                 <span class="input-group-text">@Localizer["ComponentDefaultValue"]</span>
                                 <input type="text" class="form-control" @bind=component.DefaultValue>
-                                <button type="button" class="btn btn-danger" @onclick='(() => DeleteComponent(component))'><span class="bi bi-x"></span></button>
+                                <button type="button" class="btn btn-danger" @onclick='() => DeleteComponent(component)'>
+                                    <span class="bi bi-x"></span>
+                                </button>
                             </div>
                         }
                         <div class="input-group">
@@ -112,7 +113,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["ModalClose"]</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick=SaveModal>@Localizer["ModalSubmit"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="SaveModal">@Localizer["ModalSubmit"]</button>
             </div>
         </div>
     </div>
@@ -134,17 +135,14 @@
 
     private void DeleteModal(Entities.DiscordModal modal)
     {
-
     }
 
     private void LoadModalData(Entities.DiscordModal modal)
     {
-
     }
 
     private void DuplicateModal(Entities.DiscordModal modal)
     {
-
     }
 
     private void CreateModal()
@@ -159,11 +157,10 @@
 
     private void DeleteComponent(DiscordModalComponent component)
     {
-
     }
 
     private void SaveModal()
     {
-
     }
+
 }

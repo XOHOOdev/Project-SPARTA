@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Helium.Core.Helpers
+namespace Sparta.Core.Helpers
 {
     public class ConfigLoader
     {

@@ -1,8 +1,7 @@
-﻿namespace Helium.BlazorUI.Permissions
+﻿namespace Sparta.BlazorUI.Permissions;
+
+public enum DefaultRoles
 {
-    public enum DefaultRoles
-    {
-        Admin,
-        TeamMember
-    }
+    Admin,
+    TeamMember
 }
