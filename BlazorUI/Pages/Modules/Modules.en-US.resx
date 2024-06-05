@@ -100,4 +100,7 @@
   <data name="Modules" xml:space="preserve">
     <value>Modules</value>
   </data>
+  <data name="MapVote" xml:space="preserve">
+    <value>Map Vote</value>
+  </data>
 </root>

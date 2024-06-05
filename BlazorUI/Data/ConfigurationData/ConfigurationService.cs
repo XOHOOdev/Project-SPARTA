@@ -6,20 +6,13 @@ using Sparta.Core.Helpers;
 namespace Sparta.BlazorUI.Data.ConfigurationData;
 
 [HasPermission(Permissions.Permissions.Configuration.View)]
-public class ConfigurationService
+public class ConfigurationService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
 {
-    private readonly ApplicationDbContext<IdentityUser, ApplicationRole, string> _context;
-
-    public ConfigurationService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
-    {
-        _context = context;
-    }
-
     public ConfigurationCategory[] GetConfigurations()
     {
-        var dbConfigs = _context.CF_Configurations.ToList();
+        var dbConfigs = context.CF_Configurations.ToList();
 
-        List<ConfigurationCategory> configurations = new();
+        List<ConfigurationCategory> configurations = [];
         foreach (var dbconfig in dbConfigs)
         {
             var config = configurations.FirstOrDefault(x => x.Name == dbconfig.Class);
@@ -28,13 +21,13 @@ public class ConfigurationService
                 config = new ConfigurationCategory
                 {
                     Name = dbconfig.Class,
-                    ConfigurationElements = new List<ConfigurationElement>()
+                    ConfigurationElements = []
                 };
                 configurations.Add(config);
             }
 
             config.ConfigurationElements.Add(new ConfigurationElement
-                { Value = dbconfig.Value, Name = dbconfig.Property });
+            { Value = dbconfig.Value, Name = dbconfig.Property });
         }
 
         return configurations.ToArray();
@@ -44,10 +37,10 @@ public class ConfigurationService
     public void SetConfiguration(ConfigurationCategory? category)
     {
         if (category == null) return;
-        var affectedEntries = _context.CF_Configurations.Where(x => x.Class == category.Name);
+        var affectedEntries = context.CF_Configurations.Where(x => x.Class == category.Name);
         foreach (var entry in affectedEntries)
             entry.Value = category.ConfigurationElements.First(x => x.Name == entry.Property).Value;
-        _context.SaveChanges();
+        context.SaveChanges();
     }
 
     [HasPermission(Permissions.Permissions.Configuration.Edit)]

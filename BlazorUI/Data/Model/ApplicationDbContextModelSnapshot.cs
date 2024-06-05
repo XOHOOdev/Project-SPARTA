@@ -261,6 +261,26 @@ namespace Sparta.BlazorUI.Data.Model
                     b.ToTable("CF_Configurations");
                 });
 
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordReceivedMessage", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MessageType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Reference")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DC_ReceivedMessages");
+                });
+
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
                 {
                     b.Property<string>("Id")

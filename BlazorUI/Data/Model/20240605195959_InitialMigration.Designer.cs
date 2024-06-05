@@ -14,7 +14,7 @@ using Sparta.BlazorUI.Entities;
 namespace Sparta.BlazorUI.Data.Model
 {
     [DbContext(typeof(ApplicationDbContext<IdentityUser, ApplicationRole, string>))]
-    [Migration("20240604211745_InitialMigration")]
+    [Migration("20240605195959_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -264,16 +264,44 @@ namespace Sparta.BlazorUI.Data.Model
                     b.ToTable("CF_Configurations");
                 });
 
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordReceivedMessage", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MessageType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Reference")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DC_ReceivedMessages");
+                });
+
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("TypeId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TypeId");
 
                     b.ToTable("MD_Modules");
                 });
@@ -300,6 +328,20 @@ namespace Sparta.BlazorUI.Data.Model
                     b.HasIndex("ModuleId");
 
                     b.ToTable("MD_Parameters");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.ModuleType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ModuleType");
                 });
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Permission", b =>
@@ -399,6 +441,15 @@ namespace Sparta.BlazorUI.Data.Model
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
+                {
+                    b.HasOne("Sparta.BlazorUI.Entities.ModuleType", "Type")
+                        .WithMany("Modules")
+                        .HasForeignKey("TypeId");
+
+                    b.Navigation("Type");
+                });
+
             modelBuilder.Entity("Sparta.BlazorUI.Entities.ModuleParameter", b =>
                 {
                     b.HasOne("Sparta.BlazorUI.Entities.Module", "Module")
@@ -413,6 +464,11 @@ namespace Sparta.BlazorUI.Data.Model
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
                 {
                     b.Navigation("Parameters");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.ModuleType", b =>
+                {
+                    b.Navigation("Modules");
                 });
 #pragma warning restore 612, 618
         }

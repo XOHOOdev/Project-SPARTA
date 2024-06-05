@@ -11,8 +11,58 @@
 <PageTitle>@Localizer["Modules"]</PageTitle>
 
 <h3>@Localizer["Modules"]</h3>
-
+@if (_moduleCategories == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    @foreach (var moduleCategory in _moduleCategories)
+                    {
+                        <li class="nav-item">
+                            <button class="btn" type="submit" @onclick='() => CategorySelected(moduleCategory)'>@Localizer[moduleCategory.Name]</button>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+    if (_selectedModuleCategory != null)
+    {
+        <div class="card">
+            <div class="card-header">
+                <h3>@Localizer[_selectedModuleCategory.Name]</h3>
+            </div>
+            <div class="card-body container">
+            </div>
+        </div>
+    }
+}
 
 @code {
+    private ModuleCategory? _selectedModuleCategory;
+    private IEnumerable<ModuleCategory>? _moduleCategories;
 
+    protected override void OnInitialized()
+    {
+        SetModules();
+        _selectedModuleCategory = _moduleCategories?.FirstOrDefault();
+    }
+
+    private void CategorySelected(ModuleCategory category)
+    {
+        _selectedModuleCategory = category;
+    }
+
+    private void SetModules()
+    {
+        _moduleCategories = ModService.GetModuleCategories();
+        StateHasChanged();
+    }
 }

@@ -23,4 +23,6 @@ public class ApplicationDbContext<TUser, TRole, TKey>(
     public DbSet<Module> MD_Modules { get; set; }
 
     public DbSet<ModuleParameter> MD_Parameters { get; set; }
+
+    public DbSet<DiscordReceivedMessage> DC_ReceivedMessages { get; set; }
 }

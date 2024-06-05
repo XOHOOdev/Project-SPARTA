@@ -31,9 +31,13 @@ public partial class SpartaDbContext : DbContext
 
     public virtual DbSet<CfConfiguration> CfConfigurations { get; set; }
 
+    public virtual DbSet<DcReceivedMessage> DcReceivedMessages { get; set; }
+
     public virtual DbSet<MdModule> MdModules { get; set; }
 
     public virtual DbSet<MdParameter> MdParameters { get; set; }
+
+    public virtual DbSet<ModuleType> ModuleTypes { get; set; }
 
     public virtual DbSet<UsPermission> UsPermissions { get; set; }
 
@@ -126,9 +130,21 @@ public partial class SpartaDbContext : DbContext
             entity.ToTable("CF_Configurations");
         });
 
+        modelBuilder.Entity<DcReceivedMessage>(entity =>
+        {
+            entity.ToTable("DC_ReceivedMessages");
+
+            entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
+            entity.Property(e => e.Reference).HasColumnType("decimal(20, 0)");
+        });
+
         modelBuilder.Entity<MdModule>(entity =>
         {
             entity.ToTable("MD_Modules");
+
+            entity.HasIndex(e => e.TypeId, "IX_MD_Modules_TypeId");
+
+            entity.HasOne(d => d.Type).WithMany(p => p.MdModules).HasForeignKey(d => d.TypeId);
         });
 
         modelBuilder.Entity<MdParameter>(entity =>
@@ -138,6 +154,11 @@ public partial class SpartaDbContext : DbContext
             entity.HasIndex(e => e.ModuleId, "IX_MD_Parameters_ModuleId");
 
             entity.HasOne(d => d.Module).WithMany(p => p.MdParameters).HasForeignKey(d => d.ModuleId);
+        });
+
+        modelBuilder.Entity<ModuleType>(entity =>
+        {
+            entity.ToTable("ModuleType");
         });
 
         modelBuilder.Entity<UsPermission>(entity =>

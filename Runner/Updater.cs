@@ -27,7 +27,7 @@ namespace Sparta.Runner
                         _cancellationTokens.Add(dictionaryName, cts);
                         break;
                     }
-                case false when _cancellationTokens.TryGetValue(dictionaryName, out CancellationTokenSource? cts):
+                case false when _cancellationTokens.TryGetValue(dictionaryName, out var cts):
                     cts.Cancel();
                     cts.Dispose();
                     _cancellationTokens.Remove(dictionaryName);

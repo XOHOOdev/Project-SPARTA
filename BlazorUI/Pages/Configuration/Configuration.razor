@@ -11,7 +11,7 @@
 <PageTitle>@Localizer["Configuration"]</PageTitle>
 
 <h3>@Localizer["Configuration"]</h3>
-@if (configurations == null)
+@if (_configurations == null)
 {
     <p>
         <em>Loading...</em>
@@ -23,7 +23,7 @@ else
         <div class="container-fluid">
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    @foreach (var configuration in configurations)
+                    @foreach (var configuration in _configurations)
                     {
                         <li class="nav-item">
                             <button class="btn" type="submit" @onclick='() => CategorySelected(configuration)'>@configuration.Name</button>
@@ -41,16 +41,16 @@ else
             </div>
         </div>
     </nav>
-    if (selectedCategory != null)
+    if (_selectedCategory != null)
     {
         <div class="card">
             <div class="card-header">
-                <h3>@selectedCategory.Name</h3>
+                <h3>@_selectedCategory.Name</h3>
             </div>
             <div class="card-body container">
-                @if (selectedCategory.ConfigurationElements.Count != 0)
+                @if (_selectedCategory.ConfigurationElements.Count != 0)
                 {
-                    foreach (var configurationElement in selectedCategory.ConfigurationElements)
+                    foreach (var configurationElement in _selectedCategory.ConfigurationElements)
                     {
                         <div class="row">
                             <div class="col">
@@ -67,7 +67,7 @@ else
                 @if (context.User.Authorize(Permissions.Configuration.Edit))
                 {
                     <div class="card-footer">
-                        <button type="button" class="btn btn-primary" id="showSavedToast" @onclick='() => SaveChanges()'>@Localizer["Save"]</button>
+                        <button type="button" class="btn btn-primary" id="showSavedToast" @onclick='SaveChanges'>@Localizer["Save"]</button>
                     </div>
                 }
             </AuthorizeView>
@@ -86,7 +86,7 @@ else
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Abort"]</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="() => SaveConfigurations()">@Localizer["Save"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="SaveConfigurations">@Localizer["Save"]</button>
             </div>
         </div>
     </div>
@@ -118,8 +118,8 @@ else
 </script>
 
 @code {
-    private ConfigurationCategory[]? configurations;
-    private ConfigurationCategory? selectedCategory;
+    private ConfigurationCategory[]? _configurations;
+    private ConfigurationCategory? _selectedCategory;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -129,17 +129,17 @@ else
     protected override void OnInitialized()
     {
         SetConfigurations();
-        selectedCategory = configurations?.FirstOrDefault();
+        _selectedCategory = _configurations?.FirstOrDefault();
     }
 
     private void CategorySelected(ConfigurationCategory category)
     {
-        selectedCategory = category;
+        _selectedCategory = category;
     }
 
     private void SaveChanges()
     {
-        ConfService.SetConfiguration(selectedCategory);
+        ConfService.SetConfiguration(_selectedCategory);
         SetConfigurations();
     }
 
@@ -150,7 +150,7 @@ else
 
     private void SetConfigurations()
     {
-        configurations = ConfService.GetConfigurations();
+        _configurations = ConfService.GetConfigurations();
         StateHasChanged();
     }
 
