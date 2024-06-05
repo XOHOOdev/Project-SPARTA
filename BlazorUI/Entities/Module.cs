@@ -6,6 +6,10 @@
 
         public string Name { get; set; } = null!;
 
+        public bool Enabled { get; set; } = false;
+
+        public virtual ModuleType Type { get; set; } = null!;
+
         public virtual List<ModuleParameter> Parameters { get; } = [];
     }
 }

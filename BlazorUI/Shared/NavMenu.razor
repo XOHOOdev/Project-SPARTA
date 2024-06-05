@@ -43,11 +43,11 @@
             }
         </AuthorizeView>
         <AuthorizeView>
-            @if (context.User.Authorize(Permissions.Discord.View))
+            @if (context.User.Authorize(Permissions.Modules.View))
             {
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="discord">
-                        <span class="oi bi-discord" aria-hidden="true"></span> Discord
+                    <NavLink class="nav-link" href="modules">
+                        <span class="oi oi-wrench" aria-hidden="true"></span> @Localizer["Modules"]
                     </NavLink>
                 </div>
             }

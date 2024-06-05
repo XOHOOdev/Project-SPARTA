@@ -1,0 +1,18 @@
+﻿@page "/modules"
+@using Sparta.BlazorUI.Authorization
+@using Sparta.BlazorUI.Data.ModulesData
+@using Sparta.BlazorUI.Permissions
+
+@inject ModulesService ModService
+@inject IStringLocalizer<Modules> Localizer
+@inject IJSRuntime Js
+@attribute [HasPermission(Permissions.Modules.View)]
+
+<PageTitle>@Localizer["Modules"]</PageTitle>
+
+<h3>@Localizer["Modules"]</h3>
+
+
+@code {
+
+}

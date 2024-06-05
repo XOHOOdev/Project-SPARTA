@@ -97,58 +97,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Stats" xml:space="preserve">
-    <value>Deine Stats</value>
-  </data>
-  <data name="UserManagement" xml:space="preserve">
-    <value>Benutzerverwaltung</value>
-  </data>
-  <data name="HLL" xml:space="preserve">
-    <value>Hell Let Loose</value>
-  </data>
-  <data name="ToggleTheme" xml:space="preserve">
-    <value>Theme wechseln</value>
-  </data>
-  <data name="Dark" xml:space="preserve">
-    <value>Dunkel</value>
-  </data>
-  <data name="Light" xml:space="preserve">
-    <value>Hell</value>
-  </data>
-  <data name="Auto" xml:space="preserve">
-    <value>Auto</value>
-  </data>
-  <data name="ToggleLanguage" xml:space="preserve">
-    <value>Sprache wechseln</value>
-  </data>
-  <data name="EnglishUS" xml:space="preserve">
-    <value>Englisch (US)</value>
-  </data>
-  <data name="EnglishGB" xml:space="preserve">
-    <value>Englisch (GB)</value>
-  </data>
-  <data name="German" xml:space="preserve">
-    <value>Deutsch</value>
-  </data>
-  <data name="HelloString" xml:space="preserve">
-    <value>Hallo {0}!</value>
-  </data>
-  <data name="Login" xml:space="preserve">
-    <value>Anmelden</value>
-  </data>
-  <data name="Register" xml:space="preserve">
-    <value>Registrieren</value>
-  </data>
-  <data name="Logout" xml:space="preserve">
-    <value>Abmelden</value>
-  </data>
-  <data name="Config" xml:space="preserve">
-    <value>Konfiguration</value>
-  </data>
-  <data name="Home" xml:space="preserve">
-    <value>Hauptmenü</value>
-  </data>
   <data name="Modules" xml:space="preserve">
-    <value>Module</value>
+    <value>Modules</value>
   </data>
 </root>

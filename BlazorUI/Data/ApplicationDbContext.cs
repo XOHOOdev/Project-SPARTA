@@ -5,18 +5,15 @@ using Sparta.BlazorUI.Entities;
 
 namespace Sparta.BlazorUI.Data;
 
-public class ApplicationDbContext<TUser, TRole, TKey> : IdentityDbContext<
-    TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>,
-    IdentityUserLogin<TKey>, IdentityRoleClaim<TKey>, IdentityUserToken<TKey>>
+public class ApplicationDbContext<TUser, TRole, TKey>(
+    DbContextOptions<ApplicationDbContext<TUser, TRole, TKey>> options)
+    : IdentityDbContext<
+        TUser, TRole, TKey, IdentityUserClaim<TKey>, IdentityUserRole<TKey>,
+        IdentityUserLogin<TKey>, IdentityRoleClaim<TKey>, IdentityUserToken<TKey>>(options)
     where TUser : IdentityUser<TKey>
     where TRole : IdentityRole<TKey>
     where TKey : IEquatable<TKey>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext<TUser, TRole, TKey>> options)
-        : base(options)
-    {
-    }
-
     public DbSet<Permission> US_Permissions { get; set; }
 
     public DbSet<UserSteamId> US_SteamIds { get; set; }
