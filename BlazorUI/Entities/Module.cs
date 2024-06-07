@@ -1,8 +1,13 @@
-﻿namespace Sparta.BlazorUI.Entities
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Sparta.BlazorUI.Entities
 {
     public class Module
     {
-        public string Id { get; set; } = null!;
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
 
         public string Name { get; set; } = null!;
 
@@ -10,6 +15,6 @@
 
         public virtual ModuleType Type { get; set; } = null!;
 
-        public virtual List<ModuleParameter> Parameters { get; } = [];
+        public virtual List<ModuleParameter> Parameters { get; set; } = [];
     }
 }

@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
 using Sparta.Core.Models;
+using Sparta.Runner.Runners;
 
 namespace Sparta.Runner
 {
@@ -15,6 +17,9 @@ namespace Sparta.Runner
 
             builder.Services.AddDbContext<SpartaDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(ConfigLoader.Load().GetConnectionString("DefaultConnection")));
             builder.Services.AddSingleton<Updater>();
+            builder.Services.AddSingleton<DiscordAccess>();
+
+            builder.Services.AddSingleton<ModuleRunner>();
 
             var host = builder.Build();
 

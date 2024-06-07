@@ -1,7 +1,11 @@
 ﻿@page "/modules"
+@using System.Reflection
+@using System.Runtime.InteropServices.JavaScript
 @using Sparta.BlazorUI.Authorization
 @using Sparta.BlazorUI.Data.ModulesData
 @using Sparta.BlazorUI.Permissions
+@using Sparta.Modules.Dto
+@using Sparta.Modules.Interface
 
 @inject ModulesService ModService
 @inject IStringLocalizer<Modules> Localizer
@@ -40,29 +44,90 @@ else
                 <h3>@Localizer[_selectedModuleCategory.Name]</h3>
             </div>
             <div class="card-body container">
+                @foreach (var module in _selectedModuleCategory.Modules)
+                {
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Name</span>
+                        <input type="text" class="form-control" @bind="module.Name">
+                        <input type="checkbox" class="btn-check" @bind="module.Enabled" id="@($"check{module.Type.Name}{module.Id}")" />
+                        <label class="btn btn-outline-primary" for="@($"check{module.Type.Name}{module.Id}")">Enabled</label>
+                    </div>
+                }
             </div>
+            <AuthorizeView>
+                @if (context.User.Authorize(Permissions.Modules.Create))
+                {
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEditModule">@Localizer["CreateModule"]</button>
+                    </div>
+                }
+            </AuthorizeView>
         </div>
     }
 }
 
+<div class="modal fade" id="createEditModule" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer["CreateModule"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (_params != null)
+                {
+                    foreach (var parameter in _params)
+                    {
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">@parameter.Name</span>
+                            <input type="text" class="form-control" @bind="parameter.Content">
+                            <span class="input-group-text">@parameter.Type</span>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Abort"]</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="CreateModule">@Localizer["Create"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @code {
     private ModuleCategory? _selectedModuleCategory;
     private IEnumerable<ModuleCategory>? _moduleCategories;
+    private ModuleParameterBase? _selectedModuleParameters;
+
+    private ParamInfo[]? _params;
 
     protected override void OnInitialized()
     {
         SetModules();
-        _selectedModuleCategory = _moduleCategories?.FirstOrDefault();
+        if (_moduleCategories is null) return;
+        CategorySelected(_moduleCategories.First());
     }
 
     private void CategorySelected(ModuleCategory category)
     {
         _selectedModuleCategory = category;
+        _selectedModuleParameters = ModService.GetModuleParameters(category.Name);
+
+        _params = _selectedModuleParameters?.AllParameters.ToArray();
     }
 
     private void SetModules()
     {
         _moduleCategories = ModService.GetModuleCategories();
         StateHasChanged();
+    }
+
+    private void CreateModule()
+    {
+        if (_selectedModuleParameters == null || _params == null || _selectedModuleCategory == null) return;
+        _selectedModuleParameters.AllParameters = _params;
+        ModService.CreateModule(_selectedModuleParameters, _selectedModuleCategory);
+
+        SetModules();
     }
 }

@@ -70,6 +70,7 @@ namespace Sparta.Core.DataAccess
             //SetupHelper.BuildStatsMessages(this);
 
             await _client.DownloadUsersAsync(_client.Guilds);
+            Console.WriteLine($"Started as \"{_client.CurrentUser.Username}\"");
         }
 
         private static Task Log(LogMessage msg)

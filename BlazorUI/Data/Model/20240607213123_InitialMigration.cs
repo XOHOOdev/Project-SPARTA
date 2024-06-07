@@ -78,15 +78,16 @@ namespace Sparta.BlazorUI.Data.Model
                 });
 
             migrationBuilder.CreateTable(
-                name: "ModuleType",
+                name: "MD_ModuleType",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ModuleType", x => x.Id);
+                    table.PrimaryKey("PK_MD_ModuleType", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -224,19 +225,21 @@ namespace Sparta.BlazorUI.Data.Model
                 name: "MD_Modules",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Enabled = table.Column<bool>(type: "bit", nullable: false),
-                    TypeId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    TypeId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MD_Modules", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MD_Modules_ModuleType_TypeId",
+                        name: "FK_MD_Modules_MD_ModuleType_TypeId",
                         column: x => x.TypeId,
-                        principalTable: "ModuleType",
-                        principalColumn: "Id");
+                        principalTable: "MD_ModuleType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -267,10 +270,11 @@ namespace Sparta.BlazorUI.Data.Model
                 name: "MD_Parameters",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ModuleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ModuleId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -384,7 +388,7 @@ namespace Sparta.BlazorUI.Data.Model
                 name: "MD_Modules");
 
             migrationBuilder.DropTable(
-                name: "ModuleType");
+                name: "MD_ModuleType");
         }
     }
 }

@@ -14,7 +14,7 @@ using Sparta.BlazorUI.Entities;
 namespace Sparta.BlazorUI.Data.Model
 {
     [DbContext(typeof(ApplicationDbContext<IdentityUser, ApplicationRole, string>))]
-    [Migration("20240605195959_InitialMigration")]
+    [Migration("20240607213123_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -286,8 +286,11 @@ namespace Sparta.BlazorUI.Data.Model
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<bool>("Enabled")
                         .HasColumnType("bit");
@@ -296,8 +299,8 @@ namespace Sparta.BlazorUI.Data.Model
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TypeId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("TypeId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -308,12 +311,14 @@ namespace Sparta.BlazorUI.Data.Model
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.ModuleParameter", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("ModuleId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ModuleId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -332,8 +337,11 @@ namespace Sparta.BlazorUI.Data.Model
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.ModuleType", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -341,7 +349,7 @@ namespace Sparta.BlazorUI.Data.Model
 
                     b.HasKey("Id");
 
-                    b.ToTable("ModuleType");
+                    b.ToTable("MD_ModuleType");
                 });
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Permission", b =>
@@ -445,7 +453,9 @@ namespace Sparta.BlazorUI.Data.Model
                 {
                     b.HasOne("Sparta.BlazorUI.Entities.ModuleType", "Type")
                         .WithMany("Modules")
-                        .HasForeignKey("TypeId");
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Type");
                 });

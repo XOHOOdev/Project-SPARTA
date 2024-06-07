@@ -61,17 +61,13 @@
 
     private string GetSvgName(CultureInfo cultureInfo)
     {
-        switch (cultureInfo.Name)
+        return cultureInfo.Name switch
         {
-            case "en-US":
-                return "#american-flag";
-            case "en-GB":
-                return "#british-flag";
-            case "de-DE":
-                return "#german-flag";
-            default:
-                return "#error";
-        }
+            "en-US" => "#american-flag",
+            "en-GB" => "#british-flag",
+            "de-DE" => "#german-flag",
+            _ => "#error"
+        };
     }
 
     private CultureInfo Culture

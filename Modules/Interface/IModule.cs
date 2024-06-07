@@ -2,5 +2,6 @@
 {
     internal interface IModule
     {
+        Type GetModuleParameters();
     }
 }

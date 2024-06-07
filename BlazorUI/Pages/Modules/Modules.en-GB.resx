@@ -103,4 +103,13 @@
   <data name="MapVote" xml:space="preserve">
     <value>Map Vote</value>
   </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Abort" xml:space="preserve">
+    <value>Abort</value>
+  </data>
+  <data name="CreateModule" xml:space="preserve">
+    <value>Create Module</value>
+  </data>
 </root>

@@ -3,13 +3,14 @@ using Sparta.Runner.Runners;
 
 namespace Sparta.Runner
 {
-    public class Updater
+    public class Updater(ModuleRunner moduleRunner)
     {
+        private readonly ModuleRunner _moduleRunner = moduleRunner;
         private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens = [];
 
         public void Update()
         {
-            //UpdateComponent("Discord", "DiscordBot", _discordRunner);
+            UpdateComponent("Modules", "ModuleRunner", _moduleRunner);
 
             Task.Delay(TimeSpan.FromSeconds(int.Parse(ConfigHelper.GetConfig("Runner", "ImportInterval") ?? "60"))).ContinueWith(t => Update());
         }

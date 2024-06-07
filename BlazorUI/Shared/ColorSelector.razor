@@ -121,15 +121,12 @@
 
     private string GetImageNameFromThemeName(string themeName)
     {
-        switch (themeName)
+        return themeName switch
         {
-            case "dark":
-                return "#moon-stars-fill";
-            case "light":
-                return "#sun-fill";
-            default:
-                return "#circle-half";
-        }
+            "dark" => "#moon-stars-fill",
+            "light" => "#sun-fill",
+            _ => "#circle-half"
+        };
     }
 
 }

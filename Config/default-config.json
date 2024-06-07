@@ -1,11 +1,6 @@
 {
   "DiscordBot": {
-    "enabled": true,
-    "MessageUpdateInterval": "10",
-    "ChannelUpdateInterval": "30",
-    "DiscordToken": "MTE1MTU0ODYzNjYyNzQ3NjQ5MQ.GzpVVC.eIKN9dZrikenqKPyf-ahWnUqqqb4Y1jOy73yv4",
-    "DiscordLogsChannel": "1096381779507679232",
-    "DiscordStatsChannel": "1085625564259418304"
+    "DiscordToken": "MTI0ODAwNjI2NjExOTM5MzMzMA.Gk_CIA.wAdG5CnuNByzsZ6rCK-xIM1aXuyO1XUC12xU_8"
   },
 
   "RCON": {
@@ -26,6 +21,10 @@
   },
 
   "Runner": {
-    "ImportInterval" : "10"
+    "ImportInterval": "10"
+  },
+
+  "ModuleRunner": {
+    "enabled" :  "true"
   }
 }
