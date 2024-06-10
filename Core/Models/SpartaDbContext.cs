@@ -35,9 +35,9 @@ public partial class SpartaDbContext : DbContext
 
     public virtual DbSet<MdModule> MdModules { get; set; }
 
-    public virtual DbSet<MdParameter> MdParameters { get; set; }
+    public virtual DbSet<MdModuleType> MdModuleTypes { get; set; }
 
-    public virtual DbSet<ModuleType> ModuleTypes { get; set; }
+    public virtual DbSet<MdParameter> MdParameters { get; set; }
 
     public virtual DbSet<UsPermission> UsPermissions { get; set; }
 
@@ -147,6 +147,11 @@ public partial class SpartaDbContext : DbContext
             entity.HasOne(d => d.Type).WithMany(p => p.MdModules).HasForeignKey(d => d.TypeId);
         });
 
+        modelBuilder.Entity<MdModuleType>(entity =>
+        {
+            entity.ToTable("MD_ModuleType");
+        });
+
         modelBuilder.Entity<MdParameter>(entity =>
         {
             entity.ToTable("MD_Parameters");
@@ -154,11 +159,6 @@ public partial class SpartaDbContext : DbContext
             entity.HasIndex(e => e.ModuleId, "IX_MD_Parameters_ModuleId");
 
             entity.HasOne(d => d.Module).WithMany(p => p.MdParameters).HasForeignKey(d => d.ModuleId);
-        });
-
-        modelBuilder.Entity<ModuleType>(entity =>
-        {
-            entity.ToTable("ModuleType");
         });
 
         modelBuilder.Entity<UsPermission>(entity =>

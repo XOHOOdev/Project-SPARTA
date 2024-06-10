@@ -1,6 +1,7 @@
 ﻿@page "/modules"
 @using System.Reflection
 @using System.Runtime.InteropServices.JavaScript
+@using Microsoft.IdentityModel.Tokens
 @using Sparta.BlazorUI.Authorization
 @using Sparta.BlazorUI.Data.ModulesData
 @using Sparta.BlazorUI.Permissions
@@ -47,10 +48,21 @@ else
                 @foreach (var module in _selectedModuleCategory.Modules)
                 {
                     <div class="input-group mb-3">
-                        <span class="input-group-text">Name</span>
+                        <span class="input-group-text">@Localizer["Name"]</span>
                         <input type="text" class="form-control" @bind="module.Name">
                         <input type="checkbox" class="btn-check" @bind="module.Enabled" id="@($"check{module.Type.Name}{module.Id}")" />
-                        <label class="btn btn-outline-primary" for="@($"check{module.Type.Name}{module.Id}")">Enabled</label>
+                        <label class="btn btn-outline-primary" for="@($"check{module.Type.Name}{module.Id}")">@Localizer["Enabled"]</label>
+                        <i class="btn btn-success bi-floppy-fill" @onclick="SaveChanges"></i>
+                        <AuthorizeView>
+                            @if (context.User.Authorize(Permissions.Modules.Edit))
+                            {
+                                <i class="btn btn-secondary bi-wrench" @onclick='(()=>LoadModuleParameters(module))' data-bs-toggle="modal" data-bs-target="#createEditModule"></i>
+                            }
+                            @if (context.User.Authorize(Permissions.Modules.Delete))
+                            {
+                                <i class="btn btn-danger bi-trash3-fill" @onclick='(()=>DeleteModule(module))'></i>
+                            }
+                        </AuthorizeView>
                     </div>
                 }
             </div>
@@ -58,7 +70,7 @@ else
                 @if (context.User.Authorize(Permissions.Modules.Create))
                 {
                     <div class="card-footer">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEditModule">@Localizer["CreateModule"]</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEditModule" @onclick="CreateNewParams">@Localizer["CreateModule"]</button>
                     </div>
                 }
             </AuthorizeView>
@@ -81,7 +93,6 @@ else
                         <div class="input-group mb-3">
                             <span class="input-group-text">@parameter.Name</span>
                             <input type="text" class="form-control" @bind="parameter.Content">
-                            <span class="input-group-text">@parameter.Type</span>
                         </div>
                     }
                 }
@@ -98,21 +109,25 @@ else
     private ModuleCategory? _selectedModuleCategory;
     private IEnumerable<ModuleCategory>? _moduleCategories;
     private ModuleParameterBase? _selectedModuleParameters;
-
+    private Entities.Module? _currentModule;
     private ParamInfo[]? _params;
 
     protected override void OnInitialized()
     {
         SetModules();
-        if (_moduleCategories is null) return;
-        CategorySelected(_moduleCategories.First());
+        if (_moduleCategories == null) return;
+        _selectedModuleCategory = _moduleCategories.First();
     }
 
     private void CategorySelected(ModuleCategory category)
     {
         _selectedModuleCategory = category;
-        _selectedModuleParameters = ModService.GetModuleParameters(category.Name);
+    }
 
+    private void CreateNewParams()
+    {
+        if (_selectedModuleCategory == null) return;
+        _selectedModuleParameters = ModService.GetModuleParameters(_selectedModuleCategory.Name);
         _params = _selectedModuleParameters?.AllParameters.ToArray();
     }
 
@@ -126,8 +141,34 @@ else
     {
         if (_selectedModuleParameters == null || _params == null || _selectedModuleCategory == null) return;
         _selectedModuleParameters.AllParameters = _params;
-        ModService.CreateModule(_selectedModuleParameters, _selectedModuleCategory);
+        if (_currentModule == null)
+        {
+            ModService.CreateModule(_selectedModuleParameters, _selectedModuleCategory);
+        }
+        else
+        {
+            ModService.SetModuleParameters(_currentModule, _selectedModuleParameters);
+            _currentModule = null;
+        }
 
         SetModules();
+    }
+
+    private void SaveChanges()
+    {
+        ModService.SaveChanges();
+    }
+
+    private void LoadModuleParameters(Entities.Module module)
+    {
+        _selectedModuleParameters = ModService.GetModuleParameters(module);
+        _currentModule = module;
+        _params = _selectedModuleParameters?.AllParameters.ToArray();
+    }
+
+    private void DeleteModule(Entities.Module module)
+    {
+        //TODO add modal to confirm delete
+        ModService.DeleteModule(module);
     }
 }

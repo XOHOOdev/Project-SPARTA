@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
 using Sparta.Core.Models;
+using Sparta.Modules.MapVote;
 using Sparta.Runner.Runners;
 
 namespace Sparta.Runner
@@ -20,6 +21,8 @@ namespace Sparta.Runner
             builder.Services.AddSingleton<DiscordAccess>();
 
             builder.Services.AddSingleton<ModuleRunner>();
+
+            builder.Services.AddSingleton<MapVoteModule>();
 
             var host = builder.Build();
 

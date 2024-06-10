@@ -5,14 +5,14 @@ namespace Sparta.Runner
 {
     public class Updater(ModuleRunner moduleRunner)
     {
-        private readonly ModuleRunner _moduleRunner = moduleRunner;
         private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens = [];
 
         public void Update()
         {
-            UpdateComponent("Modules", "ModuleRunner", _moduleRunner);
+            UpdateComponent("Modules", "ModuleRunner", moduleRunner);
 
-            Task.Delay(TimeSpan.FromSeconds(int.Parse(ConfigHelper.GetConfig("Runner", "ImportInterval") ?? "60"))).ContinueWith(t => Update());
+            var delay = int.Parse(ConfigHelper.GetConfig("Runner", "ImportInterval") ?? "60");
+            Task.Delay(TimeSpan.FromSeconds(delay)).ContinueWith(t => Update());
         }
 
         private void UpdateComponent(string dictionaryName, string configName, IRunner runner)

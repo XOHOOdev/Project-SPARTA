@@ -13,7 +13,6 @@ namespace Sparta.Modules.Interface
                     StringComparison.Ordinal)).Select(p => new ParamInfo
                     {
                         Name = p.Name,
-                        Type = p.PropertyType,
                         Content = p.GetValue(this)?.ToString() ?? string.Empty
                     });
             }

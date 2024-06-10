@@ -5,13 +5,13 @@ namespace Sparta.Core.Models;
 
 public partial class MdParameter
 {
-    public string Id { get; set; } = null!;
+    public long Id { get; set; }
 
     public string Name { get; set; } = null!;
 
     public string Value { get; set; } = null!;
 
-    public string ModuleId { get; set; } = null!;
+    public long ModuleId { get; set; }
 
     public virtual MdModule Module { get; set; } = null!;
 }

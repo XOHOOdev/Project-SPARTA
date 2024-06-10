@@ -14,6 +14,8 @@ namespace Sparta.Modules.MapVote
 
         public ulong Team2 { get; set; }
 
+        internal ulong DiscordMessage { get; set; }
+
         internal bool? Sides { get; set; } = null;
 
         internal string Votes { get; set; } = string.Empty;

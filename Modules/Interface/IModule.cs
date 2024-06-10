@@ -1,7 +1,9 @@
-﻿namespace Sparta.Modules.Interface
+﻿using Sparta.Core.Models;
+
+namespace Sparta.Modules.Interface
 {
-    internal interface IModule
+    public interface IModule
     {
-        Type GetModuleParameters();
+        void Run(MdModule module, CancellationToken token);
     }
 }

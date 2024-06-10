@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        table {
+            border-collapse: collapse;
+            font-size: 35px;
+            font-family: verdana;
+            text-align: center;
+        }
+
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            background-color: WhiteSmoke;
+            width: 360px;
+            font-size: 32px;
+        }
+
+        .index {
+            text-align: center;
+            font-weight: normal;
+            font-size: 28px;
+            width: 248px;
+            max-width: 360px;
+            border-top: 0;
+            border-bottom: 0;
+            background-color: white;
+            padding: 0px 13px 0px 13px;
+        }
+
+        .blank {
+            border: none
+        }
+
+        .empty-row {
+            padding-top: 3px;
+            border: none;
+        }
+
+        .teamname {
+            border: 3px solid black;
+            border-collapse: collapse;
+            background-color: gray;
+            max-width: 360px;
+        }
+
+        .mapname {
+            max-width: 1000px
+        }
+
+        .not_chosen {
+            background-color: white;
+        }
+
+        .chosen_by_you {
+            background-color: rgb(255, 52, 86);
+        }
+
+        .chosen_by_opponent {
+            background-color: rgb(255, 179, 87);
+        }
+
+        .final_pick {
+            background-color: PaleGreen;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th id="team1_name" class="teamname">TEAM1_NAME</th>
+                <th id="maps_header" class="mapheader">Maps</th>
+                <th id="team2_name" class="teamname">TEAM2_NAME</th>
+            </tr>
+        </thead>
+        <tbody>
+            BODY_HERE
+        </tbody>
+    </table>
+</body>
+</html>

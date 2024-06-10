@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\img\Helium.svg" />
+    <Content Remove="wwwroot\img\Sparta.svg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,13 +57,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\img\Helium.svg">
+    <None Include="wwwroot\img\Sparta.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\favicon.ico">
+    <Content Update="wwwroot\favicon.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -87,5 +87,72 @@ namespace Sparta.Core.DataAccess
 
             await Task.Delay(-1);
         }
+
+        public async Task<ulong> SendFileAsync(ulong channelId, FileAttachment attachment, string? content = null, Embed? embed = null)
+        {
+            if (_client.GetChannel(channelId) is not SocketTextChannel channel) return 0;
+            var message = await channel.SendFileAsync(attachment, text: content, embed: embed);
+            return message.Id;
+        }
+
+        public async Task<ulong> SendMessageAsync(ulong channelId, string? content = null, Embed? embed = null)
+        {
+            if (_client.GetChannel(channelId) is not SocketTextChannel channel) return 0;
+            var message = await channel.SendMessageAsync(text: content, embed: embed);
+            return message.Id;
+        }
+
+        public async Task<ulong> ModifyFileAsync(ulong channelId, ulong messageId, FileAttachment attachment, string? content = null, Embed? embed = null)
+        {
+            if (_client.ConnectionState != ConnectionState.Connected) return 1;
+            if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return 0;
+            if (await channel.GetMessageAsync(messageId) is not IUserMessage message) return 0;
+            try
+            {
+                await message.ModifyAsync(m =>
+                {
+                    m.Content = content;
+                    m.Embed = embed;
+                    m.Attachments = new Optional<IEnumerable<FileAttachment>>([attachment]);
+                });
+                return message.Id;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return 0;
+            }
+        }
+
+        public async Task<ulong> ModifyMessageAsync(ulong channelId, ulong messageId, string? content = null, Embed? embed = null)
+        {
+            if (_client.ConnectionState != ConnectionState.Connected) return 1;
+            if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return 0;
+            try
+            {
+                var message = await channel.ModifyMessageAsync(messageId, m =>
+                {
+                    m.Content = content;
+                    m.Embed = embed;
+                });
+                return message.Id;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return 0;
+            }
+        }
+
+        public async Task<string> GetRoleNameAsync(ulong channelId, ulong roleId)
+        {
+            return await _client.GetChannelAsync(channelId) is not SocketGuildChannel channel ? string.Empty : channel.Guild.GetRole(roleId).Name;
+        }
+
+        public async Task<IEnumerable<IReadOnlyCollection<IMessage>>> GetMessages(ulong channelId)
+        {
+            if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return [];
+            return channel.GetMessagesAsync().ToEnumerable();
+        }
     }
 }

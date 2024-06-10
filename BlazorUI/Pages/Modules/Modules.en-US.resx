@@ -112,4 +112,10 @@
   <data name="CreateModule" xml:space="preserve">
     <value>Create Module</value>
   </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
 </root>
