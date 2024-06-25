@@ -1,23 +1,16 @@
-﻿using Sparta.Core.Models;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using Sparta.Core.Models;
 
-namespace Sparta.Core.Helpers
+namespace Sparta.Core.Converters
 {
     public class ConfigConverter
     {
         public static CfConfiguration[] Deserialize(string json)
         {
-            List<CfConfiguration> configs = new();
+            List<CfConfiguration> configs = [];
 
-            JObject jsonObject = JObject.Parse(json);
-            foreach (JToken item in jsonObject.Children())
-            {
-                foreach (JToken item2 in item.First().Children())
-                {
-                    JProperty? prop = item2 as JProperty;
-                    configs.Add(new CfConfiguration { Class = item.Path, Property = prop?.Name ?? "", Value = prop?.Value.ToString() ?? "" });
-                }
-            }
+            var jsonObject = JObject.Parse(json);
+            configs.AddRange(from item in jsonObject.Children() from item2 in item.First().Children() let prop = item2 as JProperty select new CfConfiguration { Class = item.Path, Property = prop?.Name ?? "", Value = prop?.Value.ToString() ?? "" });
 
             return configs.ToArray();
         }
@@ -25,14 +18,14 @@ namespace Sparta.Core.Helpers
         public static string Serialize(CfConfiguration[] dbConfigurations)
         {
             JObject jsonObject = new();
-            foreach (CfConfiguration dbconfig in dbConfigurations)
+            foreach (var config in dbConfigurations)
             {
-                if (jsonObject.Children().FirstOrDefault(x => x.Path == dbconfig.Class) is not JProperty item)
+                if (jsonObject.Children().FirstOrDefault(x => x.Path == config.Class) is not JProperty item)
                 {
-                    item = new JProperty(dbconfig.Class, new JObject());
+                    item = new JProperty(config.Class, new JObject());
                     jsonObject.Add(item);
                 }
-                ((JObject)item.Value).Add(new JProperty(dbconfig.Property, dbconfig.Value));
+                ((JObject)item.Value).Add(new JProperty(config.Property, config.Value));
             }
             return jsonObject.ToString();
         }

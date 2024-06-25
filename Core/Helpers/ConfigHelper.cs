@@ -1,4 +1,5 @@
-﻿using Sparta.Core.Models;
+﻿using Sparta.Core.Converters;
+using Sparta.Core.Models;
 
 /**
  * Update Migration
@@ -14,7 +15,7 @@ namespace Sparta.Core.Helpers
             using SpartaDbContext dbContext = new();
             foreach (var config in ConfigConverter.Deserialize(json))
             {
-                var reqObj = dbContext.Find(typeof(CfConfiguration), new[] { config.Class, config.Property });
+                var reqObj = dbContext.Find(typeof(CfConfiguration), [config.Class, config.Property]);
                 if (reqObj != null)
                 {
                     ((CfConfiguration)reqObj).Value = config.Value;
@@ -28,7 +29,7 @@ namespace Sparta.Core.Helpers
         public static string? GetConfig(string className, string config)
         {
             using SpartaDbContext dbContext = new();
-            return (dbContext.Find(typeof(CfConfiguration), new[] { className, config }) as CfConfiguration)?.Value;
+            return (dbContext.Find(typeof(CfConfiguration), [className, config]) as CfConfiguration)?.Value;
         }
 
         public static string GetConfigAsJson()

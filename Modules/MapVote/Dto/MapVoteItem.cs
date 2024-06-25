@@ -1,9 +1,13 @@
-﻿namespace Sparta.Modules.MapVote.Dto
+﻿using Newtonsoft.Json;
+
+namespace Sparta.Modules.MapVote.Dto
 {
     internal class MapVoteItem
     {
+        [JsonProperty]
         internal string MapName { get; set; } = null!;
 
+        [JsonProperty]
         internal MapVoteState State { get; set; }
     }
 

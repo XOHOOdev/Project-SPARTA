@@ -144,15 +144,37 @@ namespace Sparta.Core.DataAccess
             }
         }
 
+        public async Task RespondToMessage(IUserMessage? message, string? content = null, Embed? embed = null, MessageComponent? components = null)
+        {
+            if (message == null) return;
+            await message.ReplyAsync(text: content, embed: embed, components: components);
+        }
+
         public async Task<string> GetRoleNameAsync(ulong channelId, ulong roleId)
         {
             return await _client.GetChannelAsync(channelId) is not SocketGuildChannel channel ? string.Empty : channel.Guild.GetRole(roleId).Name;
         }
 
+        public async Task<string> GetRoleMentionAsync(ulong channelId, ulong roleId)
+        {
+            return await _client.GetChannelAsync(channelId) is not SocketGuildChannel channel ? string.Empty : channel.Guild.GetRole(roleId).Mention;
+        }
+
+        public async Task<IEmbed?> GetMessageEmbed(ulong channelId, ulong messageId)
+        {
+            if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return null;
+            return await channel.GetMessageAsync(messageId) is not IUserMessage message ? null : message.Embeds.First();
+        }
+
         public async Task<IEnumerable<IReadOnlyCollection<IMessage>>> GetMessages(ulong channelId)
         {
-            if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return [];
-            return channel.GetMessagesAsync().ToEnumerable();
+            return await _client.GetChannelAsync(channelId) is not SocketTextChannel channel ? [] : channel.GetMessagesAsync().ToEnumerable();
+        }
+
+        public async Task DeleteMessageAsync(ulong channelId, ulong messageId)
+        {
+            if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return;
+            await channel.DeleteMessageAsync(messageId);
         }
     }
 }
