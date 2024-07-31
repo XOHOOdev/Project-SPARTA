@@ -8,6 +8,7 @@ using Sparta.BlazorUI.Authorization;
 using Sparta.BlazorUI.Data;
 using Sparta.BlazorUI.Data.ConfigurationData;
 using Sparta.BlazorUI.Data.ModulesData;
+using Sparta.BlazorUI.Data.ServerData;
 using Sparta.BlazorUI.Data.UserManagementData;
 using Sparta.BlazorUI.Entities;
 using Sparta.BlazorUI.Permissions;
@@ -48,6 +49,7 @@ internal class Program
         builder.Services.AddScoped<ConfigurationService>();
         builder.Services.AddScoped<UserManagementService>();
         builder.Services.AddScoped<ModulesService>();
+        builder.Services.AddScoped<ServerService>();
         builder.Services.AddHttpClient();
 
         builder.Services.AddTransient<IEmailSender, EmailSender>();

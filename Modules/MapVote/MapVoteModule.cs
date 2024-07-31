@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SixLabors.Fonts;
@@ -78,8 +79,12 @@ namespace Sparta.Modules.MapVote
             var mapVoteMessageBuilder = new StringBuilder(messageId == 0 ? "" : discord.GetMessageEmbed(channelId, messageId).Result?.Description);
 
             if (mapVoteMessageBuilder.Length == 0)
-                mapVoteMessageBuilder.AppendLine(
-                    $"{discord.GetRoleMentionAsync(channelId, coinFlipRoleId).Result} won the coinflip and may start voting");
+            {
+                var mention = discord.GetRoleMentionAsync(channelId, coinFlipRoleId).Result;
+                if (mention.IsNullOrEmpty()) return new EmbedBuilder().Build();
+                mapVoteMessageBuilder.AppendLine($"{mention} won the coinflip and may start voting");
+            }
+
             if (lastBan != null)
             {
                 mapVoteMessageBuilder.AppendLine();
@@ -110,11 +115,11 @@ namespace Sparta.Modules.MapVote
                             .WithIsInline(true)
                         , new EmbedFieldBuilder()
                             .WithName("Allies")
-                            .WithValue(roles[order])
+                            .WithValue(roles[0])
                             .WithIsInline(true)
                         , new EmbedFieldBuilder()
                             .WithName("Axis")
-                            .WithValue(roles[(order + 1) % 2])
+                            .WithValue(roles[1])
                             .WithIsInline(true))
                     .Build();
             }
@@ -276,10 +281,25 @@ namespace Sparta.Modules.MapVote
 
         private void SendFile(MdModule module, Embed embed, FileAttachment attachment)
         {
+            const string threadName = "match-orga";
+
+            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
+            if (!discord.ChannelHasThread(channelId, threadName).Result)
+            {
+                var thread = discord.CreateThread(channelId, threadName).Result;
+                if (thread == null) return;
+
+                var rep1 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value);
+                var rep2 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value);
+
+                discord.AddUserToThread(thread.Id, rep1).Wait();
+                discord.AddUserToThread(thread.Id, rep2).Wait();
+            }
+
             if (module.MdParameters.Any(p => p.Name == nameof(MapVoteParameters.DiscordMessage)))
             {
                 var messageId = discord.ModifyFileAsync(
-                    ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value)
+                    channelId
                     , ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage)).Value)
                     , embed: embed
                     , attachment: attachment).Result;
@@ -294,7 +314,7 @@ namespace Sparta.Modules.MapVote
             else
             {
                 var messageId = discord.SendFileAsync(
-                    ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value)
+                    channelId
                     , embed: embed
                     , attachment: attachment).Result;
 
@@ -326,25 +346,34 @@ namespace Sparta.Modules.MapVote
                 .First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
 
             var messages = discord
-                .GetMessages(channelId).Result;
+                .GetMessages(channelId).Result.SelectMany(c => c).ToArray();
 
-            var enumerable = messages as IReadOnlyCollection<IMessage>[] ?? messages.ToArray();
-            if (enumerable.Length == 0) return null;
+            if (messages.Length == 0) return null;
 
-            //foreach (var deletableMessages in enumerable)
-            //{
-            //    foreach (var deletableMessage in deletableMessages)
-            //    {
-            //        if (deletableMessage.Author.IsBot) continue;
-            //        discord.DeleteMessageAsync(channelId, deletableMessage.Id).Wait();
-            //    }
-            //}
+            var respondedMessages = messages.Select(m => new[]
+                {
+                    m, messages.FirstOrDefault(msg => msg.Reference != null && msg.Reference.MessageId.Value == m.Id)
+                })
+                .Where(m2 => m2[1] != null).ToArray();
 
-            var relevantMessages = enumerable.SelectMany(c => c).Where(m => userId.Equals(m.Author.Id));
+            foreach (var respondedMessage in respondedMessages)
+            {
+                discord.DeleteMessageAsync(channelId, respondedMessage[0]?.Id ?? 0).Wait();
+                discord.DeleteMessageAsync(channelId, respondedMessage[1]?.Id ?? 0).Wait();
+            }
+
+            var relevantMessages = messages.Where(m => userId.Equals(m.Author.Id)).ToArray();
+
+            foreach (var wrongMessage in messages.Where(m => !m.Author.IsBot && !relevantMessages.Contains(m)))
+            {
+                if (respondedMessages.Select(m => m[0]).Contains(wrongMessage)) continue;
+                discord.RespondToMessageAsync(wrongMessage as IUserMessage, "Please wait for your turn").Wait();
+            }
+
             if (relevantMessages.LastOrDefault() is not { } message) return null;
 
             var messageContent = message.Content;
-            if (!messageContent.StartsWith("ban ")) return null;
+            if (!messageContent.StartsWith("ban ", StringComparison.OrdinalIgnoreCase)) return null;
 
             messageContent = messageContent.Remove(0, 4);
             var messageArr = messageContent.ToLowerInvariant().ToCharArray().Select(c => (int)c).ToArray();
@@ -357,8 +386,7 @@ namespace Sparta.Modules.MapVote
 
             if (bestGuess.Value > messageContent.Length / 3)
             {
-                discord.RespondToMessage(message as IUserMessage, "Your vote couldn't be processed.").Wait();
-                discord.DeleteMessageAsync(channelId, message.Id).Wait();
+                discord.RespondToMessageAsync(message as IUserMessage, "Your vote couldn't be processed.").Wait();
                 return null;
             }
 

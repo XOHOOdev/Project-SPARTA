@@ -151,4 +151,7 @@
   <data name="Modules" xml:space="preserve">
     <value>Modules</value>
   </data>
+  <data name="Servers" xml:space="preserve">
+    <value>Server</value>
+  </data>
 </root>

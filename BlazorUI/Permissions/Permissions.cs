@@ -23,4 +23,12 @@ public class Permissions
         public const string Delete = "Modules.Delete";
         public const string Create = "Modules.Create";
     }
+
+    public class Servers
+    {
+        public const string View = "Servers.View";
+        public const string Edit = "Servers.Edit";
+        public const string Delete = "Servers.Delete";
+        public const string Create = "Servers.Create";
+    }
 }

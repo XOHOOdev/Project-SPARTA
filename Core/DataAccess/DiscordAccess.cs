@@ -144,7 +144,7 @@ namespace Sparta.Core.DataAccess
             }
         }
 
-        public async Task RespondToMessage(IUserMessage? message, string? content = null, Embed? embed = null, MessageComponent? components = null)
+        public async Task RespondToMessageAsync(IUserMessage? message, string? content = null, Embed? embed = null, MessageComponent? components = null)
         {
             if (message == null) return;
             await message.ReplyAsync(text: content, embed: embed, components: components);
@@ -175,6 +175,24 @@ namespace Sparta.Core.DataAccess
         {
             if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return;
             await channel.DeleteMessageAsync(messageId);
+        }
+
+        public async Task<SocketThreadChannel?> CreateThread(ulong channelId, string threadName)
+        {
+            if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return null;
+            return await channel.CreateThreadAsync(threadName, ThreadType.PrivateThread);
+        }
+
+        public async Task<bool> ChannelHasThread(ulong channelId, string threadName)
+        {
+            return await _client.GetChannelAsync(channelId) is SocketTextChannel channel && channel.Threads.Any(t => t.Name == threadName);
+        }
+
+        public async Task AddUserToThread(ulong threadId, ulong userId)
+        {
+            if (await _client.GetChannelAsync(threadId) is not SocketThreadChannel thread) return;
+            var user = thread.Guild.Users.First(u => u.Id == userId);
+            await thread.AddUserAsync(user);
         }
     }
 }

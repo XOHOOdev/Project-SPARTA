@@ -27,4 +27,6 @@ public class ApplicationDbContext<TUser, TRole, TKey>(
     public DbSet<ModuleType> MD_ModuleType { get; set; }
 
     public DbSet<DiscordReceivedMessage> DC_ReceivedMessages { get; set; }
+
+    public DbSet<Server> SV_Servers { get; set; }
 }

@@ -10,7 +10,7 @@ namespace Sparta.Runner.Runners
     {
         public void Run(CancellationToken cancellationToken)
         {
-            foreach (var module in context.MdModules.Include(mdModule => mdModule.Type))
+            foreach (var module in context.MdModules.Include(mdModule => mdModule.Type).Where(m => m.Enabled))
             {
                 if (provider.GetRequiredService(typeof(Modules.Modules).Assembly
                         .GetTypes()

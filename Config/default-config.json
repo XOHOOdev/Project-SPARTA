@@ -3,13 +3,6 @@
     "DiscordToken": "MTI0ODAwNjI2NjExOTM5MzMzMA.Gk_CIA.wAdG5CnuNByzsZ6rCK-xIM1aXuyO1XUC12xU_8"
   },
 
-  "RCON": {
-    "Address": "http://89.58.29.14",
-    "Port": "8010",
-    "Username": "xohoo",
-    "Password": "22T5RuCUVjrMAERH"
-  },
-
   "SendGrid": {
     "SendGridKey": "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"
   },
@@ -25,6 +18,6 @@
   },
 
   "ModuleRunner": {
-    "enabled" :  "true"
+    "enabled": "true"
   }
 }
