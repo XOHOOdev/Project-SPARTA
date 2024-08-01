@@ -100,4 +100,22 @@
   <data name="Server" xml:space="preserve">
     <value>Server</value>
   </data>
+  <data name="NewServer" xml:space="preserve">
+    <value>Neuer Server</value>
+  </data>
+  <data name="Url" xml:space="preserve">
+    <value>Url</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Nutzer</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Passwort</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Typ</value>
+  </data>
 </root>

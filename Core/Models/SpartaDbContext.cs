@@ -39,6 +39,8 @@ public partial class SpartaDbContext : DbContext
 
     public virtual DbSet<MdParameter> MdParameters { get; set; }
 
+    public virtual DbSet<SvServer> SvServers { get; set; }
+
     public virtual DbSet<UsPermission> UsPermissions { get; set; }
 
     public virtual DbSet<UsSteamId> UsSteamIds { get; set; }
@@ -142,7 +144,11 @@ public partial class SpartaDbContext : DbContext
         {
             entity.ToTable("MD_Modules");
 
+            entity.HasIndex(e => e.ServerId, "IX_MD_Modules_ServerId");
+
             entity.HasIndex(e => e.TypeId, "IX_MD_Modules_TypeId");
+
+            entity.HasOne(d => d.Server).WithMany(p => p.MdModules).HasForeignKey(d => d.ServerId);
 
             entity.HasOne(d => d.Type).WithMany(p => p.MdModules).HasForeignKey(d => d.TypeId);
         });
@@ -159,6 +165,11 @@ public partial class SpartaDbContext : DbContext
             entity.HasIndex(e => e.ModuleId, "IX_MD_Parameters_ModuleId");
 
             entity.HasOne(d => d.Module).WithMany(p => p.MdParameters).HasForeignKey(d => d.ModuleId);
+        });
+
+        modelBuilder.Entity<SvServer>(entity =>
+        {
+            entity.ToTable("SV_Servers");
         });
 
         modelBuilder.Entity<UsPermission>(entity =>

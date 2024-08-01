@@ -7,9 +7,13 @@
     "SendGridKey": "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"
   },
 
+  "Battlemetrics": {
+    "Url": "https://api.battlemetrics.com/"
+  },
+
   "DataImport": {
-    "enabled": false,
     "BasicImportInterval": "10",
+    "enabled": false,
     "LogImportInterval": "50"
   },
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
 using Sparta.Core.Models;
+using Sparta.Modules.HllServerStatus;
 using Sparta.Modules.MapVote;
 using Sparta.Runner.Runners;
 
@@ -17,12 +18,15 @@ namespace Sparta.Runner
             var builder = Host.CreateApplicationBuilder(args);
 
             builder.Services.AddDbContext<SpartaDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(ConfigLoader.Load().GetConnectionString("DefaultConnection")));
-            builder.Services.AddSingleton<Updater>();
-            builder.Services.AddSingleton<DiscordAccess>();
+            builder.Services.AddScoped<Updater>();
+            builder.Services.AddScoped<DiscordAccess>();
+            builder.Services.AddScoped<RconDataAccess>();
+            builder.Services.AddScoped<BattleMetricsDataAccess>();
 
-            builder.Services.AddSingleton<ModuleRunner>();
+            builder.Services.AddScoped<ModuleRunner>();
 
-            builder.Services.AddSingleton<MapVoteModule>();
+            builder.Services.AddScoped<MapVoteModule>();
+            builder.Services.AddScoped<HllServerStatusModule>();
 
             var host = builder.Build();
 
