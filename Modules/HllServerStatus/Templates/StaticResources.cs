@@ -10,12 +10,6 @@
         {
             Graphics = new Dictionary<string, string>
             {
-                { "allied", "<:allies:1050391368406667294>" },
-                { "axis", "<:achsen:1050391399654248479>" },
-                { "soviet", "<:soviet:1087494789966082098>" },
-                { "british", "<:british:1182431903270314136>" },
-                { "error", "<:error:1084589482566754364>" },
-
                 {
                     "error_uri",
                     @"https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Flat_cross_icon.svg/1200px-Flat_cross_icon.svg.png"
@@ -53,10 +47,10 @@
                 { "Hill 400 Offensive (US)", @"https://qinaii.de/taurus/img/gsstatus/hill400us.jpg" },
                 { "Hill 400 Offensive (GER)", @"https://qinaii.de/taurus/img/gsstatus/hill400ger.jpg" },
 
-                { "Hürtgen Forest Warfare", @"https://qinaii.de/taurus/img/gsstatus/hurtgen.jpg" },
-                { "Hürtgen Forest Warfare (Night)", @"https://qinaii.de/taurus/img/gsstatus/hurtgennight.jpg" },
-                { "Hürtgen Forest Offensive (US)", @"https://qinaii.de/taurus/img/gsstatus/hurtgenus.jpg" },
-                { "Hürtgen Forest Offensive (GER)", @"https://qinaii.de/taurus/img/gsstatus/hurtgenger.jpg" },
+                { "Hurtgen Forest Warfare", @"https://qinaii.de/taurus/img/gsstatus/hurtgen.jpg" },
+                { "Hurtgen Forest Warfare (Night)", @"https://qinaii.de/taurus/img/gsstatus/hurtgennight.jpg" },
+                { "Hurtgen Forest Offensive (US)", @"https://qinaii.de/taurus/img/gsstatus/hurtgenus.jpg" },
+                { "Hurtgen Forest Offensive (GER)", @"https://qinaii.de/taurus/img/gsstatus/hurtgenger.jpg" },
 
                 { "Kharkov Warfare", @"https://qinaii.de/taurus/img/gsstatus/kharkov.jpg" },
                 { "Kharkov Warfare (Night)", @"https://qinaii.de/taurus/img/gsstatus/kharkovnight.jpg" },

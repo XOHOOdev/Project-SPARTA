@@ -194,5 +194,11 @@ namespace Sparta.Core.DataAccess
             var user = thread.Guild.Users.First(u => u.Id == userId);
             await thread.AddUserAsync(user);
         }
+
+        public async Task<IReadOnlyCollection<GuildEmote>> GetServerEmotes(ulong channelId)
+        {
+            if (await _client.GetChannelAsync(channelId) is not IGuildChannel channel) return [];
+            return await channel.Guild.GetEmotesAsync();
+        }
     }
 }

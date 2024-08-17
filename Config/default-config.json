@@ -1,10 +1,10 @@
 {
   "DiscordBot": {
-    "DiscordToken": "MTI0ODAwNjI2NjExOTM5MzMzMA.Gk_CIA.wAdG5CnuNByzsZ6rCK-xIM1aXuyO1XUC12xU_8"
+    "DiscordToken": ""
   },
 
   "SendGrid": {
-    "SendGridKey": "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"
+    "SendGridKey": ""
   },
 
   "Battlemetrics": {
@@ -12,7 +12,7 @@
   },
 
   "DataImport": {
-    "BasicImportInterval": "10",
+    "BasicImportInterval": "15",
     "enabled": false,
     "LogImportInterval": "50"
   },
