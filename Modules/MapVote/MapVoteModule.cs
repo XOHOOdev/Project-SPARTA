@@ -313,20 +313,27 @@ namespace Sparta.Modules.MapVote
             }
             else
             {
-                var messageId = discord.SendFileAsync(
-                    channelId
-                    , embed: embed
-                    , attachment: attachment).Result;
-
-                if (messageId == 0) return;
-
-                module.MdParameters.Add(new MdParameter
+                try
                 {
-                    Name = nameof(MapVoteParameters.DiscordMessage),
-                    Value = messageId.ToString()
-                });
+                    var messageId = discord.SendFileAsync(
+                        channelId
+                        , embed: embed
+                        , attachment: attachment).Result;
 
-                context.SaveChanges();
+                    if (messageId == 0) return;
+
+                    module.MdParameters.Add(new MdParameter
+                    {
+                        Name = nameof(MapVoteParameters.DiscordMessage),
+                        Value = messageId.ToString()
+                    });
+
+                    context.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
         }
 

@@ -14,7 +14,7 @@ services:
   runner:
     build: 
       dockerfile: Dockerfile.Runner
-    container_name: runner
+    container_name: sparta-runner
     environment:
      - ASPNETCORE_ENVIRONMENT=Production
     depends_on:
