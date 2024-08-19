@@ -1,18 +1,18 @@
-﻿using Sparta.Modules.Interface;
+﻿using Sparta.Modules.Interface.ModuleParameters;
 
 namespace Sparta.Modules.MapVote
 {
-    public class MapVoteParameters : ModuleParameterBase
+    public class MapVoteParameters : Interface.ModuleParametersBase
     {
-        public ulong DiscordChannel { get; set; }
+        public required DiscordChannelParameter DiscordChannel { get; set; }
 
-        public ulong Rep1 { get; set; }
+        public required DiscordUserParameter Rep1 { get; set; }
 
-        public ulong Rep2 { get; set; }
+        public required DiscordUserParameter Rep2 { get; set; }
 
-        public ulong Team1 { get; set; }
+        public required DiscordRoleParameter Team1 { get; set; }
 
-        public ulong Team2 { get; set; }
+        public required DiscordRoleParameter Team2 { get; set; }
 
         internal ulong DiscordMessage { get; set; }
 

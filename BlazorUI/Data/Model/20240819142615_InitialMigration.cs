@@ -64,6 +64,18 @@ namespace Sparta.BlazorUI.Data.Model
                 });
 
             migrationBuilder.CreateTable(
+                name: "DC_Guilds",
+                columns: table => new
+                {
+                    Id = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DC_Guilds", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DC_ReceivedMessages",
                 columns: table => new
                 {
@@ -78,6 +90,18 @@ namespace Sparta.BlazorUI.Data.Model
                 });
 
             migrationBuilder.CreateTable(
+                name: "DC_Users",
+                columns: table => new
+                {
+                    Id = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DC_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MD_ModuleType",
                 columns: table => new
                 {
@@ -88,6 +112,24 @@ namespace Sparta.BlazorUI.Data.Model
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MD_ModuleType", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SV_Servers",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Port = table.Column<int>(type: "int", nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SV_Servers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -222,6 +264,68 @@ namespace Sparta.BlazorUI.Data.Model
                 });
 
             migrationBuilder.CreateTable(
+                name: "DC_Channels",
+                columns: table => new
+                {
+                    Id = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DiscordGuildId = table.Column<decimal>(type: "decimal(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DC_Channels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DC_Channels_DC_Guilds_DiscordGuildId",
+                        column: x => x.DiscordGuildId,
+                        principalTable: "DC_Guilds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DC_Roles",
+                columns: table => new
+                {
+                    Id = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GuildId = table.Column<decimal>(type: "decimal(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DC_Roles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DC_Roles_DC_Guilds_GuildId",
+                        column: x => x.GuildId,
+                        principalTable: "DC_Guilds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DiscordGuildDiscordUser",
+                columns: table => new
+                {
+                    DiscordGuildsId = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
+                    UsersId = table.Column<decimal>(type: "decimal(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DiscordGuildDiscordUser", x => new { x.DiscordGuildsId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_DiscordGuildDiscordUser_DC_Guilds_DiscordGuildsId",
+                        column: x => x.DiscordGuildsId,
+                        principalTable: "DC_Guilds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DiscordGuildDiscordUser_DC_Users_UsersId",
+                        column: x => x.UsersId,
+                        principalTable: "DC_Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MD_Modules",
                 columns: table => new
                 {
@@ -229,7 +333,8 @@ namespace Sparta.BlazorUI.Data.Model
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Enabled = table.Column<bool>(type: "bit", nullable: false),
-                    TypeId = table.Column<long>(type: "bigint", nullable: false)
+                    TypeId = table.Column<long>(type: "bigint", nullable: false),
+                    ServerId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -240,6 +345,11 @@ namespace Sparta.BlazorUI.Data.Model
                         principalTable: "MD_ModuleType",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MD_Modules_SV_Servers_ServerId",
+                        column: x => x.ServerId,
+                        principalTable: "SV_Servers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -262,6 +372,30 @@ namespace Sparta.BlazorUI.Data.Model
                         name: "FK_ApplicationRolePermission_US_Permissions_PermissionsId",
                         column: x => x.PermissionsId,
                         principalTable: "US_Permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DiscordRoleDiscordUser",
+                columns: table => new
+                {
+                    RolesId = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
+                    UsersId = table.Column<decimal>(type: "decimal(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DiscordRoleDiscordUser", x => new { x.RolesId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_DiscordRoleDiscordUser_DC_Roles_RolesId",
+                        column: x => x.RolesId,
+                        principalTable: "DC_Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DiscordRoleDiscordUser_DC_Users_UsersId",
+                        column: x => x.UsersId,
+                        principalTable: "DC_Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -332,6 +466,31 @@ namespace Sparta.BlazorUI.Data.Model
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DC_Channels_DiscordGuildId",
+                table: "DC_Channels",
+                column: "DiscordGuildId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DC_Roles_GuildId",
+                table: "DC_Roles",
+                column: "GuildId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiscordGuildDiscordUser_UsersId",
+                table: "DiscordGuildDiscordUser",
+                column: "UsersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiscordRoleDiscordUser_UsersId",
+                table: "DiscordRoleDiscordUser",
+                column: "UsersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MD_Modules_ServerId",
+                table: "MD_Modules",
+                column: "ServerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MD_Modules_TypeId",
                 table: "MD_Modules",
                 column: "TypeId");
@@ -367,7 +526,16 @@ namespace Sparta.BlazorUI.Data.Model
                 name: "CF_Configurations");
 
             migrationBuilder.DropTable(
+                name: "DC_Channels");
+
+            migrationBuilder.DropTable(
                 name: "DC_ReceivedMessages");
+
+            migrationBuilder.DropTable(
+                name: "DiscordGuildDiscordUser");
+
+            migrationBuilder.DropTable(
+                name: "DiscordRoleDiscordUser");
 
             migrationBuilder.DropTable(
                 name: "MD_Parameters");
@@ -385,10 +553,22 @@ namespace Sparta.BlazorUI.Data.Model
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "DC_Roles");
+
+            migrationBuilder.DropTable(
+                name: "DC_Users");
+
+            migrationBuilder.DropTable(
                 name: "MD_Modules");
 
             migrationBuilder.DropTable(
+                name: "DC_Guilds");
+
+            migrationBuilder.DropTable(
                 name: "MD_ModuleType");
+
+            migrationBuilder.DropTable(
+                name: "SV_Servers");
         }
     }
 }

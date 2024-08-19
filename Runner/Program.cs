@@ -24,6 +24,7 @@ namespace Sparta.Runner
             builder.Services.AddScoped<BattleMetricsDataAccess>();
 
             builder.Services.AddScoped<ModuleRunner>();
+            builder.Services.AddScoped<DiscordUpdater>();
 
             builder.Services.AddScoped<MapVoteModule>();
             builder.Services.AddScoped<HllServerStatusModule>();

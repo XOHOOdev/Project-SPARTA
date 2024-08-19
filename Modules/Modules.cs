@@ -4,7 +4,7 @@ namespace Sparta.Modules
 {
     public static class Modules
     {
-        private static readonly string[] StringsToExclude = ["Sparta", "Modules", "DataAccess", "Dto", "Interface", "Templates"];
+        private static readonly string[] StringsToExclude = ["Sparta", "Modules", "DataAccess", "Dto", "Interface", "Templates", "ModuleParameters"];
 
         public static IEnumerable<string> GetModules()
         {

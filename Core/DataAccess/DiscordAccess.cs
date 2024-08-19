@@ -200,5 +200,47 @@ namespace Sparta.Core.DataAccess
             if (await _client.GetChannelAsync(channelId) is not IGuildChannel channel) return [];
             return await channel.Guild.GetEmotesAsync();
         }
+
+        public DcGuild[] GetGuilds()
+        {
+            return _client.Guilds.Select(g => new DcGuild
+            {
+                Id = g.Id,
+                Name = g.Name
+            }).ToArray();
+        }
+
+        public DcChannel[] GetChannels()
+        {
+            return _client.Guilds.SelectMany(g => g.Channels).Where(c => c is SocketTextChannel)
+                .Select(c => new DcChannel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    DiscordGuildId = c.Guild.Id
+                }).ToArray();
+        }
+
+        public DcUser[] GetUsers()
+        {
+            return _client.Guilds.SelectMany(g => g.Users).Where(u => !u.IsBot)
+                .Select(u => new DcUser
+                {
+                    Id = u.Id,
+                    Name = u.DisplayName,
+                    DiscordGuilds = u.MutualGuilds.Select(g => _dbContext.DcGuilds.Find((decimal)g.Id) ?? new DcGuild { Id = g.Id, Name = g.Name }).ToArray()
+                }).ToArray();
+        }
+
+        public DcRole[] GetRoles()
+        {
+            return _client.Guilds.SelectMany(g => g.Roles)
+                .Select(r => new DcRole
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    GuildId = r.Guild.Id
+                }).ToArray();
+        }
     }
 }

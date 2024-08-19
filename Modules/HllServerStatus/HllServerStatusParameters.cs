@@ -1,14 +1,15 @@
 ﻿using Sparta.Modules.Interface;
+using Sparta.Modules.Interface.ModuleParameters;
 
 namespace Sparta.Modules.HllServerStatus
 {
-    public class HllServerStatusParameters : ModuleParameterBase
+    public class HllServerStatusParameters : ModuleParametersBase
     {
-        public long ServerId { get; set; }
+        public ModuleParametersBase ServerId { get; set; } = null!;
 
-        public ulong DiscordChannel { get; set; }
+        public DiscordChannelParameter DiscordChannel { get; set; } = null!;
 
-        public long BattleMetricsId { get; set; }
+        public ModuleParametersBase BattleMetricsId { get; set; } = null!;
 
         internal ulong DiscordMessage { get; set; }
     }

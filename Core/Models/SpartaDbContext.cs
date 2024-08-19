@@ -6,7 +6,7 @@ namespace Sparta.Core.Models;
 
 public partial class SpartaDbContext : DbContext
 {
-    //Scaffold-DbContext "Server=localhost,1433;Database=SpartaDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
+    //Scaffold-DbContext "Server=localhost,1434;Database=SpartaDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
 
     public SpartaDbContext()
     {
@@ -31,7 +31,15 @@ public partial class SpartaDbContext : DbContext
 
     public virtual DbSet<CfConfiguration> CfConfigurations { get; set; }
 
+    public virtual DbSet<DcChannel> DcChannels { get; set; }
+
+    public virtual DbSet<DcGuild> DcGuilds { get; set; }
+
     public virtual DbSet<DcReceivedMessage> DcReceivedMessages { get; set; }
+
+    public virtual DbSet<DcRole> DcRoles { get; set; }
+
+    public virtual DbSet<DcUser> DcUsers { get; set; }
 
     public virtual DbSet<MdModule> MdModules { get; set; }
 
@@ -132,12 +140,64 @@ public partial class SpartaDbContext : DbContext
             entity.ToTable("CF_Configurations");
         });
 
+        modelBuilder.Entity<DcChannel>(entity =>
+        {
+            entity.ToTable("DC_Channels");
+
+            entity.HasIndex(e => e.DiscordGuildId, "IX_DC_Channels_DiscordGuildId");
+
+            entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
+            entity.Property(e => e.DiscordGuildId).HasColumnType("decimal(20, 0)");
+
+            entity.HasOne(d => d.DiscordGuild).WithMany(p => p.DcChannels).HasForeignKey(d => d.DiscordGuildId);
+        });
+
+        modelBuilder.Entity<DcGuild>(entity =>
+        {
+            entity.ToTable("DC_Guilds");
+
+            entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
+
+            entity.HasMany(d => d.Users).WithMany(p => p.DiscordGuilds)
+                .UsingEntity<Dictionary<string, object>>(
+                    "DiscordGuildDiscordUser",
+                    r => r.HasOne<DcUser>().WithMany().HasForeignKey("UsersId"),
+                    l => l.HasOne<DcGuild>().WithMany().HasForeignKey("DiscordGuildsId"),
+                    j =>
+                    {
+                        j.HasKey("DiscordGuildsId", "UsersId");
+                        j.ToTable("DiscordGuildDiscordUser");
+                        j.HasIndex(new[] { "UsersId" }, "IX_DiscordGuildDiscordUser_UsersId");
+                        j.IndexerProperty<decimal>("DiscordGuildsId").HasColumnType("decimal(20, 0)");
+                        j.IndexerProperty<decimal>("UsersId").HasColumnType("decimal(20, 0)");
+                    });
+        });
+
         modelBuilder.Entity<DcReceivedMessage>(entity =>
         {
             entity.ToTable("DC_ReceivedMessages");
 
             entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
             entity.Property(e => e.Reference).HasColumnType("decimal(20, 0)");
+        });
+
+        modelBuilder.Entity<DcRole>(entity =>
+        {
+            entity.ToTable("DC_Roles");
+
+            entity.HasIndex(e => e.GuildId, "IX_DC_Roles_GuildId");
+
+            entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
+            entity.Property(e => e.GuildId).HasColumnType("decimal(20, 0)");
+
+            entity.HasOne(d => d.Guild).WithMany(p => p.DcRoles).HasForeignKey(d => d.GuildId);
+        });
+
+        modelBuilder.Entity<DcUser>(entity =>
+        {
+            entity.ToTable("DC_Users");
+
+            entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
         });
 
         modelBuilder.Entity<MdModule>(entity =>

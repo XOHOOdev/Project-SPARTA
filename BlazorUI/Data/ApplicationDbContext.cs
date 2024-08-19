@@ -28,5 +28,13 @@ public class ApplicationDbContext<TUser, TRole, TKey>(
 
     public DbSet<DiscordReceivedMessage> DC_ReceivedMessages { get; set; }
 
+    public DbSet<DiscordGuild> DC_Guilds { get; set; }
+
+    public DbSet<DiscordChannel> DC_Channels { get; set; }
+
+    public DbSet<DiscordUser> DC_Users { get; set; }
+
+    public DbSet<DiscordRole> DC_Roles { get; set; }
+
     public DbSet<Server> SV_Servers { get; set; }
 }

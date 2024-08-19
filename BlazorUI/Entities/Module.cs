@@ -16,7 +16,5 @@ namespace Sparta.BlazorUI.Entities
         public virtual ModuleType Type { get; set; } = null!;
 
         public virtual List<ModuleParameter> Parameters { get; set; } = [];
-
-        public virtual Server? Server { get; set; }
     }
 }

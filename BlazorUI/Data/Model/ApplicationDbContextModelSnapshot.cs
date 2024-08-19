@@ -42,6 +42,36 @@ namespace Sparta.BlazorUI.Data.Model
                     b.ToTable("ApplicationRolePermission");
                 });
 
+            modelBuilder.Entity("DiscordGuildDiscordUser", b =>
+                {
+                    b.Property<decimal>("DiscordGuildsId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("UsersId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.HasKey("DiscordGuildsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("DiscordGuildDiscordUser");
+                });
+
+            modelBuilder.Entity("DiscordRoleDiscordUser", b =>
+                {
+                    b.Property<decimal>("RolesId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("UsersId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.HasKey("RolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("DiscordRoleDiscordUser");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -261,6 +291,39 @@ namespace Sparta.BlazorUI.Data.Model
                     b.ToTable("CF_Configurations");
                 });
 
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordChannel", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("DiscordGuildId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiscordGuildId");
+
+                    b.ToTable("DC_Channels");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordGuild", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DC_Guilds");
+                });
+
             modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordReceivedMessage", b =>
                 {
                     b.Property<decimal>("Id")
@@ -279,6 +342,39 @@ namespace Sparta.BlazorUI.Data.Model
                     b.HasKey("Id");
 
                     b.ToTable("DC_ReceivedMessages");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordRole", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("GuildId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildId");
+
+                    b.ToTable("DC_Roles");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordUser", b =>
+                {
+                    b.Property<decimal>("Id")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DC_Users");
                 });
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
@@ -435,6 +531,36 @@ namespace Sparta.BlazorUI.Data.Model
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DiscordGuildDiscordUser", b =>
+                {
+                    b.HasOne("Sparta.BlazorUI.Entities.DiscordGuild", null)
+                        .WithMany()
+                        .HasForeignKey("DiscordGuildsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sparta.BlazorUI.Entities.DiscordUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiscordRoleDiscordUser", b =>
+                {
+                    b.HasOne("Sparta.BlazorUI.Entities.DiscordRole", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sparta.BlazorUI.Entities.DiscordUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Sparta.BlazorUI.Entities.ApplicationRole", null)
@@ -486,9 +612,31 @@ namespace Sparta.BlazorUI.Data.Model
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordChannel", b =>
+                {
+                    b.HasOne("Sparta.BlazorUI.Entities.DiscordGuild", "DiscordGuild")
+                        .WithMany("Channels")
+                        .HasForeignKey("DiscordGuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DiscordGuild");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordRole", b =>
+                {
+                    b.HasOne("Sparta.BlazorUI.Entities.DiscordGuild", "Guild")
+                        .WithMany("Roles")
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guild");
+                });
+
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>
                 {
-                    b.HasOne("Sparta.BlazorUI.Entities.Server", "Server")
+                    b.HasOne("Sparta.BlazorUI.Entities.Server", null)
                         .WithMany("Modules")
                         .HasForeignKey("ServerId");
 
@@ -497,8 +645,6 @@ namespace Sparta.BlazorUI.Data.Model
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Server");
 
                     b.Navigation("Type");
                 });
@@ -512,6 +658,13 @@ namespace Sparta.BlazorUI.Data.Model
                         .IsRequired();
 
                     b.Navigation("Module");
+                });
+
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.DiscordGuild", b =>
+                {
+                    b.Navigation("Channels");
+
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Module", b =>

@@ -1,8 +1,9 @@
 ﻿@page "/modules"
+@using Microsoft.IdentityModel.Tokens
 @using Sparta.BlazorUI.Authorization
 @using Sparta.BlazorUI.Data.ModulesData
+@using Sparta.BlazorUI.Entities
 @using Sparta.BlazorUI.Permissions
-@using Sparta.Core.Models
 @using Sparta.Modules.Dto
 @using Sparta.Modules.Interface
 
@@ -88,10 +89,58 @@ else
                 {
                     foreach (var parameter in _params)
                     {
-                        <div class="input-group mb-3">
-                            <span class="input-group-text">@parameter.Name</span>
-                            <input type="text" class="form-control" @bind="parameter.Content">
-                        </div>
+                        switch ((ParameterType)parameter.Type)
+                        {
+                            case ParameterType.String:
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">@parameter.Name</span>
+                                    <input type="text" class="form-control" @bind="parameter.Content">
+                                </div>
+                                break;
+                            case ParameterType.DiscordChannel:
+                                <label for="channelDataList" class="form-label">@parameter.Name</label>
+                                <input class="form-control" list="channelListOptions" id="channelDataList" @bind="parameter.Content" placeholder="Type to search...">
+                                <datalist id="channelListOptions">
+                                    @foreach (var option in parameter.Options.Where(r => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordChannel)r).DiscordGuild.Id == ulong.Parse(guildParam.Content)))
+                                    {
+                                        <option label="@option.Name" value="@option.Id"/>
+                                    }
+                                </datalist>
+                                break;
+                            case ParameterType.DiscordUser:
+                                <label for="userDataList" class="form-label">@parameter.Name</label>
+                                <input class="form-control" list="userListOptions" id="userDataList" @bind="parameter.Content" placeholder="Type to search...">
+                                <datalist id="userListOptions">
+                                    @foreach (var option in parameter.Options.Where(u => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordUser)u).DiscordGuilds.Any(g=>g.Id == ulong.Parse(guildParam.Content))))
+                                    {
+                                        <option label="@option.Name" value="@option.Id"/>
+                                    }
+                                </datalist>
+                                break;
+                            case ParameterType.DiscordRole:
+                                <label for="roleDataList" class="form-label">@parameter.Name</label>
+                                                <input class="form-control" list="roleListOptions" id="roleDataList" @bind="parameter.Content" placeholder="Type to search...">
+                                <datalist id="roleListOptions">
+                                    @foreach (var option in parameter.Options.Where(r => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordRole)r).Guild.Id == ulong.Parse(guildParam.Content)))
+                                    {
+                                        <option label="@option.Name" value="@option.Id"/>
+                                    }
+                                </datalist>
+                                break;
+                            case ParameterType.DiscordGuild:
+                                <label for="guildDataList" class="form-label">@parameter.Name</label>
+                                <input class="form-control" list="guildListOptions" id="guildDataList" @bind="parameter.Content" placeholder="Type to search...">
+                                <datalist id="guildListOptions">
+                                    @foreach (var option in parameter.Options)
+                                    {
+                                        <option label="@option.Name" value="@option.Id"/>
+                                    }
+                                </datalist>
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
                     }
                 }
             </div>
@@ -106,9 +155,9 @@ else
 @code {
     private ModuleCategory? _selectedModuleCategory;
     private IEnumerable<ModuleCategory>? _moduleCategories;
-    private ModuleParameterBase? _selectedModuleParameters;
-    private Entities.Module? _currentModule;
-    private ParamInfo[]? _params;
+    private ModuleParametersBase? _selectedModuleParameters;
+    private Module? _currentModule;
+    private List<ParamInfo>? _params;
 
     protected override void OnInitialized()
     {
@@ -126,7 +175,9 @@ else
     {
         if (_selectedModuleCategory == null) return;
         _selectedModuleParameters = ModService.GetModuleParameters(_selectedModuleCategory.Name);
-        _params = _selectedModuleParameters?.AllParameters.ToArray();
+        _params = _selectedModuleParameters?.AllParameters.ToList();
+
+        if (_params != null) ModService.SetOptions(ref _params);
     }
 
     private void SetModules()
@@ -157,11 +208,13 @@ else
         ModService.SaveChanges();
     }
 
-    private void LoadModuleParameters(Entities.Module module)
+    private void LoadModuleParameters(Module module)
     {
         _selectedModuleParameters = ModService.GetModuleParameters(module);
         _currentModule = module;
-        _params = _selectedModuleParameters?.AllParameters.ToArray();
+        _params = _selectedModuleParameters?.AllParameters.ToList();
+
+        if (_params != null) ModService.SetOptions(ref _params);
     }
 
     private void DeleteModule(Entities.Module module)
