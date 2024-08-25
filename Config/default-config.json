@@ -11,17 +11,17 @@
     "Url": "https://api.battlemetrics.com/"
   },
 
-  "DataImport": {
-    "BasicImportInterval": "15",
-    "enabled": false,
-    "LogImportInterval": "50"
-  },
-
   "Runner": {
     "ImportInterval": "10"
   },
 
   "ModuleRunner": {
-    "enabled": "true"
+    "enabled": "true",
+    "ImportInterval":  "10"
+  },
+
+  "DiscordRunner": {
+    "enabled": "true",
+    "ImportInterval": "60"
   }
 }

@@ -3,29 +3,19 @@
 
 #nullable disable
 
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sparta.BlazorUI.Areas.Identity.Pages.Account;
 
-public class LoginWith2faModel : PageModel
+public class LoginWith2faModel(
+    SignInManager<IdentityUser> signInManager,
+    UserManager<IdentityUser> userManager,
+    ILogger<LoginWith2faModel> logger)
+    : PageModel
 {
-    private readonly ILogger<LoginWith2faModel> _logger;
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly UserManager<IdentityUser> _userManager;
-
-    public LoginWith2faModel(
-        SignInManager<IdentityUser> signInManager,
-        UserManager<IdentityUser> userManager,
-        ILogger<LoginWith2faModel> logger)
-    {
-        _signInManager = signInManager;
-        _userManager = userManager;
-        _logger = logger;
-    }
-
     /// <summary>
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
@@ -48,7 +38,7 @@ public class LoginWith2faModel : PageModel
     public async Task<IActionResult> OnGetAsync(bool rememberMe, string returnUrl = null)
     {
         // Ensure the user has gone through the username & password screen first
-        var user = await _signInManager.GetTwoFactorAuthenticationUserAsync() ??
+        var user = await signInManager.GetTwoFactorAuthenticationUserAsync() ??
                    throw new InvalidOperationException("Unable to load two-factor authentication user.");
         ReturnUrl = returnUrl;
         RememberMe = rememberMe;
@@ -62,29 +52,29 @@ public class LoginWith2faModel : PageModel
 
         returnUrl ??= Url.Content("~/");
 
-        var user = await _signInManager.GetTwoFactorAuthenticationUserAsync() ??
+        var user = await signInManager.GetTwoFactorAuthenticationUserAsync() ??
                    throw new InvalidOperationException("Unable to load two-factor authentication user.");
         var authenticatorCode = Input.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
 
         var result =
-            await _signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe,
+            await signInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe,
                 Input.RememberMachine);
 
-        var userId = await _userManager.GetUserIdAsync(user);
+        var userId = await userManager.GetUserIdAsync(user);
 
         if (result.Succeeded)
         {
-            _logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", user.Id);
+            logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", user.Id);
             return LocalRedirect(returnUrl);
         }
 
         if (result.IsLockedOut)
         {
-            _logger.LogWarning("User with ID '{UserId}' account locked out.", user.Id);
+            logger.LogWarning("User with ID '{UserId}' account locked out.", user.Id);
             return RedirectToPage("./Lockout");
         }
 
-        _logger.LogWarning("Invalid authenticator code entered for user with ID '{UserId}'.", user.Id);
+        logger.LogWarning("Invalid authenticator code entered for user with ID '{UserId}'.", user.Id);
         ModelState.AddModelError(string.Empty, "Invalid authenticator code.");
         return Page();
     }

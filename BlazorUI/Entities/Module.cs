@@ -5,6 +5,7 @@ namespace Sparta.BlazorUI.Entities
 {
     public class Module
     {
+        [Required]
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }

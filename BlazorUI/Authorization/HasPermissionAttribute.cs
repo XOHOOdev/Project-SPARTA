@@ -2,9 +2,4 @@
 
 namespace Sparta.BlazorUI.Authorization;
 
-public class HasPermissionAttribute : AuthorizeAttribute
-{
-    public HasPermissionAttribute(string permission) : base(permission)
-    {
-    }
-}
+public class HasPermissionAttribute(string permission) : AuthorizeAttribute(permission);

@@ -4,18 +4,11 @@ using Sparta.BlazorUI.Entities;
 
 namespace Sparta.BlazorUI.Authorization;
 
-public class PermissionService : IPermissionService
+public class PermissionService(IServiceScopeFactory serviceScopeFactory) : IPermissionService
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-
-    public PermissionService(IServiceScopeFactory serviceScopeFactory)
-    {
-        _serviceScopeFactory = serviceScopeFactory;
-    }
-
     public HashSet<string> GetPermissionAsync(string memberId)
     {
-        using var scope = _serviceScopeFactory.CreateScope();
+        using var scope = serviceScopeFactory.CreateScope();
 
         var context = scope.ServiceProvider
             .GetRequiredService<ApplicationDbContext<IdentityUser, ApplicationRole, string>>();

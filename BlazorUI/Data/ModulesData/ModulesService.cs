@@ -76,7 +76,7 @@ namespace Sparta.BlazorUI.Data.ModulesData
 
         public void SetModuleParameters(Module module, ModuleParametersBase parameters)
         {
-            module.Parameters.ForEach(p => p.Value = parameters.AllParameters.First(x => x.Name == p.Name).Content);
+            module.Parameters.ForEach(p => p.Value = parameters.AllParameters.FirstOrDefault(x => x.Name == p.Name)?.Content ?? p.Value);
 
             SaveChanges();
         }

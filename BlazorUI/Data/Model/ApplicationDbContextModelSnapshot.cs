@@ -339,6 +339,9 @@ namespace Sparta.BlazorUI.Data.Model
                     b.Property<decimal>("Reference")
                         .HasColumnType("decimal(20,0)");
 
+                    b.Property<decimal>("UserId")
+                        .HasColumnType("decimal(20,0)");
+
                     b.HasKey("Id");
 
                     b.ToTable("DC_ReceivedMessages");

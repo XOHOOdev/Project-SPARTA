@@ -2,12 +2,7 @@
 
 namespace Sparta.BlazorUI.Authorization;
 
-public class PermissionRequirement : IAuthorizationRequirement
+public class PermissionRequirement(string permission) : IAuthorizationRequirement
 {
-    public PermissionRequirement(string permission)
-    {
-        Permission = permission;
-    }
-
-    public string Permission { get; }
+    public string Permission { get; } = permission;
 }

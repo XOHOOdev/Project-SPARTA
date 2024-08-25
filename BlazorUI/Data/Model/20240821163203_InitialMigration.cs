@@ -82,6 +82,7 @@ namespace Sparta.BlazorUI.Data.Model
                     Id = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
                     Reference = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
                     MessageType = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<decimal>(type: "decimal(20,0)", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>

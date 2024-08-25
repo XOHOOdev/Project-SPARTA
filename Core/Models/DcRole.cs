@@ -12,4 +12,6 @@ public partial class DcRole
     public decimal GuildId { get; set; }
 
     public virtual DcGuild Guild { get; set; } = null!;
+
+    public virtual ICollection<DcUser> Users { get; set; } = new List<DcUser>();
 }

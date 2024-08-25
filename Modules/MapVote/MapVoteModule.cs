@@ -28,11 +28,11 @@ namespace Sparta.Modules.MapVote
 
             var votes = GetVotes(mdParameter) ?? GenerateVoteList().ToList();
 
+            context.SaveChanges();
             if (module.MdParameters.All(p => p.Name != nameof(MapVoteParameters.Sides)))
             {
-                context.Add(new MdParameter
+                module.MdParameters.Add(new MdParameter
                 {
-                    Module = module,
                     Name = nameof(MapVoteParameters.Sides),
                     Value = Convert.ToBoolean(new Random().Next(0, 1)).ToString()
                 });
@@ -45,8 +45,20 @@ namespace Sparta.Modules.MapVote
             var embed = GenerateEmbed(discord, module, votes, lastBan, imageName);
             var image = GenerateImage(module, votes);
 
+            if (CoinFlipReceived(module) is { } message)
+            {
+                GenerateFinalEmbed(discord, module, votes, imageName, message, image);
+                return;
+            }
             if (lastBan == null && GetVoteCount(votes) > 0) return;
-            SendFile(module, embed, new FileAttachment(stream: image, fileName: imageName));
+            try
+            {
+                SendFile(module, embed, votes, new FileAttachment(stream: image, fileName: imageName));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             SaveVotes(votes, mdParameter, module);
         }
 
@@ -66,10 +78,72 @@ namespace Sparta.Modules.MapVote
 
         private static int GetVoteCount(List<MapVoteItem> votes) => votes.Count(v => v.State > 0);
 
+        private DcReceivedMessage? CoinFlipReceived(MdModule module)
+        {
+            if (module.MdParameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage)) is not { } paramMessage) return null;
+
+            var messageId = decimal.Parse(paramMessage.Value);
+            var message = context.DcReceivedMessages.FirstOrDefault(m => m.Reference == messageId);
+
+            if (message == null) return message;
+            context.DcReceivedMessages.Remove(message);
+            context.SaveChanges();
+
+            return message;
+        }
+
+        private static void GenerateFinalEmbed(DiscordAccess discord, MdModule module, List<MapVoteItem> votes, string imageName, DcReceivedMessage message, MemoryStream image)
+        {
+            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
+            var messageId = ulong.Parse(module.MdParameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage))?.Value ?? "0");
+            var mapVoteMessageBuilder = new StringBuilder(messageId == 0 ? "" : discord.GetMessageEmbed(channelId, messageId).Result?.Description);
+
+            var users = new[]
+            {
+                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value),
+                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value)
+            };
+
+            if (users.All(u => message.UserId != u)) return;
+
+            var roles = new[]
+            {
+                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team1)).Value),
+                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team2)).Value)
+            }.Select(r => discord.GetRoleMentionAsync(channelId, r).Result).ToArray();
+
+            Random.Shared.Shuffle(roles);
+
+            var embed = new EmbedBuilder()
+                .WithTitle("Map Vote")
+                .WithDescription(mapVoteMessageBuilder.ToString())
+                .WithImageUrl($"attachment://{imageName}")
+                .WithFields(
+                    new EmbedFieldBuilder()
+                        .WithName("Map")
+                        .WithValue(votes.First(v => v.State == MapVoteState.Unknown).MapName)
+                        .WithIsInline(true)
+                    , new EmbedFieldBuilder()
+                        .WithName("Allies")
+                        .WithValue(roles[0])
+                        .WithIsInline(true)
+                    , new EmbedFieldBuilder()
+                        .WithName("Axis")
+                        .WithValue(roles[1])
+                        .WithIsInline(true))
+                .Build();
+
+            discord.ModifyFileAsync(
+                channelId
+                , messageId
+                , embed: embed
+                , attachment: new FileAttachment(stream: image, fileName: imageName)
+                , component: new ComponentBuilder().Build()
+                ).Wait();
+        }
+
         private static Embed GenerateEmbed(DiscordAccess discord, MdModule module, List<MapVoteItem> votes, string? lastBan, string imageName)
         {
-            Embed embed;
-
             var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
             var messageId = ulong.Parse(module.MdParameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage))?.Value ?? "0");
             var sides = bool.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Sides)).Value);
@@ -94,43 +168,11 @@ namespace Sparta.Modules.MapVote
                 votes.First(v => v.MapName == lastBan).State = currentVoter.State;
             }
 
-            if (GetVoteCount(votes) == votes.Count - 1)
-            {
-                var order = Convert.ToInt32(sides);
-
-                var roles = new ulong[]
-                {
-                    ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team1)).Value),
-                    ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team2)).Value)
-                }.Select(r => discord.GetRoleMentionAsync(channelId, r).Result).ToArray();
-
-                embed = new EmbedBuilder()
-                    .WithTitle("Map Vote")
-                    .WithDescription(mapVoteMessageBuilder.ToString())
-                    .WithImageUrl($"attachment://{imageName}")
-                    .WithFields(
-                        new EmbedFieldBuilder()
-                            .WithName("Map")
-                            .WithValue(votes.First(v => v.State == MapVoteState.Unknown).MapName)
-                            .WithIsInline(true)
-                        , new EmbedFieldBuilder()
-                            .WithName("Allies")
-                            .WithValue(roles[0])
-                            .WithIsInline(true)
-                        , new EmbedFieldBuilder()
-                            .WithName("Axis")
-                            .WithValue(roles[1])
-                            .WithIsInline(true))
-                    .Build();
-            }
-            else
-            {
-                embed = new EmbedBuilder()
-                    .WithTitle("Map Vote")
-                    .WithDescription(mapVoteMessageBuilder.ToString())
-                    .WithImageUrl($"attachment://{imageName}")
-                    .Build();
-            }
+            var embed = new EmbedBuilder()
+                .WithTitle("Map Vote")
+                .WithDescription(mapVoteMessageBuilder.ToString())
+                .WithImageUrl($"attachment://{imageName}")
+                .Build();
 
             return embed;
         }
@@ -279,7 +321,7 @@ namespace Sparta.Modules.MapVote
             return memStream;
         }
 
-        private void SendFile(MdModule module, Embed embed, FileAttachment attachment)
+        private void SendFile(MdModule module, Embed embed, List<MapVoteItem> votes, FileAttachment attachment)
         {
             const string threadName = "match-orga";
 
@@ -298,11 +340,31 @@ namespace Sparta.Modules.MapVote
 
             if (module.MdParameters.Any(p => p.Name == nameof(MapVoteParameters.DiscordMessage)))
             {
-                var messageId = discord.ModifyFileAsync(
-                    channelId
-                    , ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage)).Value)
-                    , embed: embed
-                    , attachment: attachment).Result;
+                ulong messageId;
+
+                if (GetVoteCount(votes) == votes.Count - 1)
+                {
+                    var component = new ComponentBuilder()
+                        .WithButton("Coin-Flip", new Guid().ToString())
+                        .Build();
+
+                    messageId = discord.ModifyFileAsync(
+                        channelId
+                        , ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage))
+                            .Value)
+                        , embed: embed
+                        , attachment: attachment
+                        , component: component).Result;
+                }
+                else
+                {
+                    messageId = discord.ModifyFileAsync(
+                        channelId
+                        , ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage))
+                            .Value)
+                        , embed: embed
+                        , attachment: attachment).Result;
+                }
 
                 if (messageId != 0) return;
 

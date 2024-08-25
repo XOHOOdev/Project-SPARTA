@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Sparta.Core.Helpers;
 using Sparta.Core.Models;
 
@@ -55,7 +56,24 @@ namespace Sparta.Core.DataAccess
 
         private async Task ButtonHandler(SocketMessageComponent arg)
         {
-            throw new NotImplementedException();
+            var embed = new EmbedBuilder()
+                .WithTitle("Your request is being handled")
+                .WithDescription("Please stand by")
+                .Build();
+            await arg.RespondAsync(embed: embed, ephemeral: true);
+
+            var user = await _dbContext.DcUsers.FindAsync((decimal)arg.User.Id);
+
+            _dbContext.DcReceivedMessages.Add(new DcReceivedMessage
+            {
+                Id = arg.Id,
+                Content = arg.Data.Value.IsNullOrEmpty() ? "Button Press" : arg.Data.Value,
+                MessageType = 2,
+                Reference = arg.Message.Id,
+                UserId = arg.User.Id
+            });
+
+            await _dbContext.SaveChangesAsync();
         }
 
         private async Task SlashCommandHandler(SocketSlashCommand arg)
@@ -102,7 +120,7 @@ namespace Sparta.Core.DataAccess
             return message.Id;
         }
 
-        public async Task<ulong> ModifyFileAsync(ulong channelId, ulong messageId, FileAttachment attachment, string? content = null, Embed? embed = null)
+        public async Task<ulong> ModifyFileAsync(ulong channelId, ulong messageId, FileAttachment attachment, string? content = null, Embed? embed = null, MessageComponent? component = null)
         {
             if (_client.ConnectionState != ConnectionState.Connected) return 1;
             if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return 0;
@@ -114,6 +132,7 @@ namespace Sparta.Core.DataAccess
                     m.Content = content;
                     m.Embed = embed;
                     m.Attachments = new Optional<IEnumerable<FileAttachment>>([attachment]);
+                    m.Components = component;
                 });
                 return message.Id;
             }
@@ -124,7 +143,7 @@ namespace Sparta.Core.DataAccess
             }
         }
 
-        public async Task<ulong> ModifyMessageAsync(ulong channelId, ulong messageId, string? content = null, Embed? embed = null)
+        public async Task<ulong> ModifyMessageAsync(ulong channelId, ulong messageId, string? content = null, Embed? embed = null, MessageComponent? component = null)
         {
             if (_client.ConnectionState != ConnectionState.Connected) return 1;
             if (await _client.GetChannelAsync(channelId) is not SocketTextChannel channel) return 0;
@@ -134,6 +153,7 @@ namespace Sparta.Core.DataAccess
                 {
                     m.Content = content;
                     m.Embed = embed;
+                    m.Components = component;
                 });
                 return message.Id;
             }
@@ -206,41 +226,46 @@ namespace Sparta.Core.DataAccess
             return _client.Guilds.Select(g => new DcGuild
             {
                 Id = g.Id,
-                Name = g.Name
-            }).ToArray();
-        }
-
-        public DcChannel[] GetChannels()
-        {
-            return _client.Guilds.SelectMany(g => g.Channels).Where(c => c is SocketTextChannel)
-                .Select(c => new DcChannel
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    DiscordGuildId = c.Guild.Id
-                }).ToArray();
-        }
-
-        public DcUser[] GetUsers()
-        {
-            return _client.Guilds.SelectMany(g => g.Users).Where(u => !u.IsBot)
-                .Select(u => new DcUser
+                Name = g.Name,
+                Users = g.Users.Where(u => !u.IsBot).Select(u => new DcUser
                 {
                     Id = u.Id,
                     Name = u.DisplayName,
-                    DiscordGuilds = u.MutualGuilds.Select(g => _dbContext.DcGuilds.Find((decimal)g.Id) ?? new DcGuild { Id = g.Id, Name = g.Name }).ToArray()
-                }).ToArray();
-        }
-
-        public DcRole[] GetRoles()
-        {
-            return _client.Guilds.SelectMany(g => g.Roles)
-                .Select(r => new DcRole
+                }).ToArray(),
+                DcRoles = g.Roles.Select(r => new DcRole
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    GuildId = r.Guild.Id
-                }).ToArray();
+
+                }).ToArray(),
+                DcChannels = g.Channels.Where(c => c is SocketTextChannel).Select(c => new DcChannel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                }).ToArray()
+            }).ToArray();
+        }
+
+        public void ConnectUserRoles()
+        {
+            var users = _client.Guilds.SelectMany(g => g.Users).Where(u => !u.IsBot).ToArray();
+            foreach (var user in users)
+            {
+                if (user == null) continue;
+                var dbUser = _dbContext.DcUsers.Find((decimal)user.Id);
+                if (dbUser == null) continue;
+
+                foreach (var role in user.Roles)
+                {
+                    if (role == null) continue;
+                    var dbRole = _dbContext.DcRoles.Find((decimal)role.Id);
+                    if (dbRole == null) continue;
+
+                    dbUser.Roles.Add(dbRole);
+                }
+            }
+
+            _dbContext.SaveChanges();
         }
     }
 }

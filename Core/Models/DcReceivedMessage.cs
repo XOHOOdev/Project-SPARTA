@@ -11,5 +11,7 @@ public partial class DcReceivedMessage
 
     public int MessageType { get; set; }
 
+    public decimal UserId { get; set; }
+
     public string Content { get; set; } = null!;
 }

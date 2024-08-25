@@ -14,6 +14,8 @@ namespace Sparta.BlazorUI.Entities
 
         public DiscordMessageType MessageType { get; set; }
 
+        public ulong UserId { get; set; }
+
         public string Content { get; set; } = null!;
     }
 }

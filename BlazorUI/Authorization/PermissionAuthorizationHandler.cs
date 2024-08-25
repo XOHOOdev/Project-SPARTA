@@ -5,19 +5,13 @@ using Sparta.BlazorUI.Entities;
 
 namespace Sparta.BlazorUI.Authorization;
 
-public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
+public class PermissionAuthorizationHandler(IServiceScopeFactory serviceScopeFactory)
+    : AuthorizationHandler<PermissionRequirement>
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
-
-    public PermissionAuthorizationHandler(IServiceScopeFactory serviceScopeFactory)
-    {
-        _serviceScopeFactory = serviceScopeFactory;
-    }
-
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        using var scope = _serviceScopeFactory.CreateScope();
+        using var scope = serviceScopeFactory.CreateScope();
         if (context.User.Identity == null) return;
 
         var dbContext = scope.ServiceProvider

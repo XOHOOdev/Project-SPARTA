@@ -179,6 +179,7 @@ public partial class SpartaDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
             entity.Property(e => e.Reference).HasColumnType("decimal(20, 0)");
+            entity.Property(e => e.UserId).HasColumnType("decimal(20, 0)");
         });
 
         modelBuilder.Entity<DcRole>(entity =>
@@ -191,6 +192,20 @@ public partial class SpartaDbContext : DbContext
             entity.Property(e => e.GuildId).HasColumnType("decimal(20, 0)");
 
             entity.HasOne(d => d.Guild).WithMany(p => p.DcRoles).HasForeignKey(d => d.GuildId);
+
+            entity.HasMany(d => d.Users).WithMany(p => p.Roles)
+                .UsingEntity<Dictionary<string, object>>(
+                    "DiscordRoleDiscordUser",
+                    r => r.HasOne<DcUser>().WithMany().HasForeignKey("UsersId"),
+                    l => l.HasOne<DcRole>().WithMany().HasForeignKey("RolesId"),
+                    j =>
+                    {
+                        j.HasKey("RolesId", "UsersId");
+                        j.ToTable("DiscordRoleDiscordUser");
+                        j.HasIndex(new[] { "UsersId" }, "IX_DiscordRoleDiscordUser_UsersId");
+                        j.IndexerProperty<decimal>("RolesId").HasColumnType("decimal(20, 0)");
+                        j.IndexerProperty<decimal>("UsersId").HasColumnType("decimal(20, 0)");
+                    });
         });
 
         modelBuilder.Entity<DcUser>(entity =>

@@ -11,8 +11,6 @@ public partial class MdParameter
 
     public string Value { get; set; } = null!;
 
-    public int ParameterType { get; set; }
-
     public long ModuleId { get; set; }
 
     public virtual MdModule Module { get; set; } = null!;

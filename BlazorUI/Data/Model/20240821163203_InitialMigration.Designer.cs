@@ -14,7 +14,7 @@ using Sparta.BlazorUI.Entities;
 namespace Sparta.BlazorUI.Data.Model
 {
     [DbContext(typeof(ApplicationDbContext<IdentityUser, ApplicationRole, string>))]
-    [Migration("20240819142615_InitialMigration")]
+    [Migration("20240821163203_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -340,6 +340,9 @@ namespace Sparta.BlazorUI.Data.Model
                         .HasColumnType("int");
 
                     b.Property<decimal>("Reference")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<decimal>("UserId")
                         .HasColumnType("decimal(20,0)");
 
                     b.HasKey("Id");

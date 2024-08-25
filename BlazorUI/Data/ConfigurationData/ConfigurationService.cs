@@ -13,21 +13,21 @@ public class ConfigurationService(ApplicationDbContext<IdentityUser, Application
         var dbConfigs = context.CF_Configurations.ToList();
 
         List<ConfigurationCategory> configurations = [];
-        foreach (var dbconfig in dbConfigs)
+        foreach (var dbConfig in dbConfigs)
         {
-            var config = configurations.FirstOrDefault(x => x.Name == dbconfig.Class);
+            var config = configurations.FirstOrDefault(x => x.Name == dbConfig.Class);
             if (config == null)
             {
                 config = new ConfigurationCategory
                 {
-                    Name = dbconfig.Class,
+                    Name = dbConfig.Class,
                     ConfigurationElements = []
                 };
                 configurations.Add(config);
             }
 
             config.ConfigurationElements.Add(new ConfigurationElement
-            { Value = dbconfig.Value, Name = dbconfig.Property });
+            { Value = dbConfig.Value, Name = dbConfig.Property });
         }
 
         return configurations.ToArray();

@@ -13,8 +13,7 @@ namespace Sparta.Modules.Interface
                 return from prop in ((TypeInfo)GetType()).GetProperties().Where(p => !string.Equals(p.Name,
                         nameof(AllParameters),
                         StringComparison.Ordinal))
-                       let val = prop.GetValue(this) ?? Activator.CreateInstance(prop.PropertyType)
-                       let par = val as ModuleParameterBase
+                       let par = (prop.GetValue(this) ?? Activator.CreateInstance(prop.PropertyType)) as ModuleParameterBase
                        select new ParamInfo { Name = prop.Name, Type = par?.GetId() ?? 0, Content = par?.Content ?? string.Empty };
             }
             set

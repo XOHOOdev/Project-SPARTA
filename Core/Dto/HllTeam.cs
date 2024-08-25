@@ -33,7 +33,7 @@ namespace Sparta.Core.Dto
 
         private List<HllPlayer> GetPlayers()
         {
-            var players = Squads?.Select(s => s.Value).SelectMany(p => p.Players).ToList();
+            var players = Squads?.Select(s => s.Value).SelectMany(p => p.Players ?? []).ToList();
             if (Commander != null) players?.Add(Commander);
 
             return players ?? [];
@@ -53,7 +53,7 @@ namespace Sparta.Core.Dto
 
         public int GetTaurusPlayers()
         {
-            return GetPlayers().Count(p => p.Name.StartsWith("Λ"));
+            return GetPlayers().Count(p => p.Name?.StartsWith("Λ") ?? false);
         }
 
         public int GetPlayersInTeam(List<long> steamIds)

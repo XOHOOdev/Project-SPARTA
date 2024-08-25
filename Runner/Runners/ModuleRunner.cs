@@ -15,13 +15,21 @@ namespace Sparta.Runner.Runners
                 if (provider.GetRequiredService(typeof(Modules.Modules).Assembly
                         .GetTypes()
                         .First(t =>
-                            t.Namespace != null && t.Namespace.Contains(module.Type?.Name ?? "") && t.FullName != null &&
+                            t.Namespace != null && t.Namespace.Contains(module.Type.Name) && t.FullName != null &&
                             t.FullName.EndsWith("Module"))) is not IModule moduleObj) continue;
 
-                moduleObj.Run(module, cancellationToken);
+                try
+                {
+                    moduleObj.Run(module, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
 
-            var delay = int.Parse(ConfigHelper.GetConfig("Runner", "ImportInterval") ?? "60");
+            var delay = int.Parse(ConfigHelper.GetConfig("ModuleRunner", "ImportInterval") ?? "60");
             Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken).ContinueWith(t => Run(cancellationToken), cancellationToken);
         }
     }

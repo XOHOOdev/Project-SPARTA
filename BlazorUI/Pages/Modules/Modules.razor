@@ -1,4 +1,5 @@
 ﻿@page "/modules"
+@using Castle.Components.DictionaryAdapter.Xml
 @using Microsoft.IdentityModel.Tokens
 @using Sparta.BlazorUI.Authorization
 @using Sparta.BlazorUI.Data.ModulesData
@@ -98,44 +99,74 @@ else
                                 </div>
                                 break;
                             case ParameterType.DiscordChannel:
-                                <label for="channelDataList" class="form-label">@parameter.Name</label>
-                                <input class="form-control" list="channelListOptions" id="channelDataList" @bind="parameter.Content" placeholder="Type to search...">
-                                <datalist id="channelListOptions">
-                                    @foreach (var option in parameter.Options.Where(r => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordChannel)r).DiscordGuild.Id == ulong.Parse(guildParam.Content)))
-                                    {
-                                        <option label="@option.Name" value="@option.Id"/>
-                                    }
-                                </datalist>
+                                <div class="input-group mb-3">
+                                    <span for="channelDataList" class="input-group-text">@parameter.Name</span>
+                                    <input type="search" class="form-control" list="channelListOptions" id="channelDataList" @bind="parameter.Content" placeholder="Type to search...">
+                                    <datalist id="channelListOptions">
+                                        @foreach (var option in parameter.Options.Where(r => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordChannel)r).DiscordGuild.Id == ulong.Parse(guildParam.Content)))
+                                        {
+                                            <option value="@option.Id">@option.Name</option>
+                                        }
+                                    </datalist>
+                                </div>
                                 break;
                             case ParameterType.DiscordUser:
-                                <label for="userDataList" class="form-label">@parameter.Name</label>
-                                <input class="form-control" list="userListOptions" id="userDataList" @bind="parameter.Content" placeholder="Type to search...">
-                                <datalist id="userListOptions">
-                                    @foreach (var option in parameter.Options.Where(u => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordUser)u).DiscordGuilds.Any(g=>g.Id == ulong.Parse(guildParam.Content))))
-                                    {
-                                        <option label="@option.Name" value="@option.Id"/>
-                                    }
-                                </datalist>
+                                <div class="input-group mb-3">
+                                    <span for="@($"userDataList{parameter.Name}")" class="input-group-text">@parameter.Name</span>
+                                    <input type="search" class="form-control" list="@($"userListOptions{parameter.Name}")" id="@($"userDataList{parameter.Name}")" @bind="parameter.Content" placeholder="Type to search...">
+                                    <datalist id="@($"userListOptions{parameter.Name}")">
+                                        @{
+                                            var userOptions = parameter.Options.Where(u =>
+                                            (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam
+                                            || guildParam.Content.IsNullOrEmpty()
+                                            || ((DiscordUser)u).DiscordGuilds.Any(g => g.Id == ulong.Parse(guildParam.Content)))
+                                            && (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordRole && (!char.IsDigit(parameter.Name.Last()) || parameter.Name.Last() == p.Name.Last())) is not { } roleParams
+                                            || roleParams.Content.IsNullOrEmpty()
+                                            || ((DiscordUser)u).Roles.Any(r => r.Id == ulong.Parse(roleParams.Content)))
+                                            );
+
+                                            foreach (var option in userOptions)
+                                            {
+                                                <option value="@option.Id">@option.Name</option>
+                                            }
+                                        }
+                                    </datalist>
+                                </div>
                                 break;
                             case ParameterType.DiscordRole:
-                                <label for="roleDataList" class="form-label">@parameter.Name</label>
-                                                <input class="form-control" list="roleListOptions" id="roleDataList" @bind="parameter.Content" placeholder="Type to search...">
-                                <datalist id="roleListOptions">
-                                    @foreach (var option in parameter.Options.Where(r => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordRole)r).Guild.Id == ulong.Parse(guildParam.Content)))
-                                    {
-                                        <option label="@option.Name" value="@option.Id"/>
-                                    }
-                                </datalist>
+                                <div class="input-group mb-3">
+                                    <span for="@($"roleDataList{parameter.Name}")" class="input-group-text">@parameter.Name</span>
+                                    <input type="search" class="form-control" list="@($"roleListOptions{parameter.Name}")" id="@($"roleDataList{parameter.Name}")" @bind="parameter.Content" placeholder="Type to search...">
+                                    <datalist id="@($"roleListOptions{parameter.Name}")">
+                                        @{
+                                            var roleOptions = parameter.Options.Where(r =>
+                                            (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam
+                                            || guildParam.Content.IsNullOrEmpty()
+                                            || ((DiscordRole)r).Guild.Id == ulong.Parse(guildParam.Content))
+                                            && (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordUser && (!char.IsDigit(parameter.Name.Last()) || parameter.Name.Last() == p.Name.Last())) is not { } userParams
+                                            || userParams.Content.IsNullOrEmpty()
+                                            || ((DiscordRole)r).Users.Any(u => u.Id == ulong.Parse(userParams.Content)))
+                                            ).ToArray();
+
+                                            foreach (var option in roleOptions)
+                                            {
+                                                <option value="@option.Id">@option.Name</option>
+                                            }
+                                        }
+                                    </datalist>
+                                </div>
                                 break;
                             case ParameterType.DiscordGuild:
-                                <label for="guildDataList" class="form-label">@parameter.Name</label>
-                                <input class="form-control" list="guildListOptions" id="guildDataList" @bind="parameter.Content" placeholder="Type to search...">
-                                <datalist id="guildListOptions">
-                                    @foreach (var option in parameter.Options)
-                                    {
-                                        <option label="@option.Name" value="@option.Id"/>
-                                    }
-                                </datalist>
+                                <div class="input-group mb-3">
+                                    <span for="guildDataList" class="input-group-text">@parameter.Name</span>
+                                    <input type="search" class="form-control" list="guildListOptions" id="guildDataList" @bind="parameter.Content" placeholder="Type to search...">
+                                    <datalist id="guildListOptions">
+                                        @foreach (var option in parameter.Options)
+                                        {
+                                            <option label="@option.Name" value="@option.Id" />
+                                        }
+                                    </datalist>
+                                </div>
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
