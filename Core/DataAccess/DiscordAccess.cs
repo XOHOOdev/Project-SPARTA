@@ -223,7 +223,7 @@ namespace Sparta.Core.DataAccess
 
         public DcGuild[] GetGuilds()
         {
-            return _client.Guilds.Select(g => new DcGuild
+            var guilds = _client.Guilds.Select(g => new DcGuild
             {
                 Id = g.Id,
                 Name = g.Name,
@@ -236,7 +236,6 @@ namespace Sparta.Core.DataAccess
                 {
                     Id = r.Id,
                     Name = r.Name,
-
                 }).ToArray(),
                 DcChannels = g.Channels.Where(c => c is SocketTextChannel).Select(c => new DcChannel
                 {
@@ -244,28 +243,20 @@ namespace Sparta.Core.DataAccess
                     Name = c.Name,
                 }).ToArray()
             }).ToArray();
-        }
 
-        public void ConnectUserRoles()
-        {
-            var users = _client.Guilds.SelectMany(g => g.Users).Where(u => !u.IsBot).ToArray();
-            foreach (var user in users)
+            foreach (var guild in guilds)
             {
-                if (user == null) continue;
-                var dbUser = _dbContext.DcUsers.Find((decimal)user.Id);
-                if (dbUser == null) continue;
+                var dcGuild = _client.GetGuild((ulong)guild.Id);
+                if (dcGuild == null) continue;
 
-                foreach (var role in user.Roles)
+                foreach (var user in guild.Users)
                 {
-                    if (role == null) continue;
-                    var dbRole = _dbContext.DcRoles.Find((decimal)role.Id);
-                    if (dbRole == null) continue;
-
-                    dbUser.Roles.Add(dbRole);
+                    user.Roles = dcGuild.GetUser((ulong)user.Id).Roles
+                        .Select(r => guild.DcRoles.FirstOrDefault(dr => dr.Id == r.Id) ?? new DcRole()).ToList();
                 }
             }
 
-            _dbContext.SaveChanges();
+            return guilds;
         }
     }
 }

@@ -35,8 +35,6 @@ namespace Sparta.Runner.Runners
 
                 context.DcGuilds.AddRange(guilds);
                 await context.SaveChangesAsync(cancellationToken);
-
-                discord.ConnectUserRoles();
             }
 
         }
