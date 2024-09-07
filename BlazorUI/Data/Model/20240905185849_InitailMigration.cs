@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Sparta.BlazorUI.Data.Model
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitailMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -100,6 +100,24 @@ namespace Sparta.BlazorUI.Data.Model
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DC_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LG_LogMessages",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Severity = table.Column<int>(type: "int", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShortSource = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShortMessage = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Time = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LG_LogMessages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -537,6 +555,9 @@ namespace Sparta.BlazorUI.Data.Model
 
             migrationBuilder.DropTable(
                 name: "DiscordRoleDiscordUser");
+
+            migrationBuilder.DropTable(
+                name: "LG_LogMessages");
 
             migrationBuilder.DropTable(
                 name: "MD_Parameters");

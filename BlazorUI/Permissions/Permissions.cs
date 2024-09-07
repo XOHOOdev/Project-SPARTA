@@ -16,6 +16,11 @@ public class Permissions
         public const string Edit = "Configuration.Edit";
     }
 
+    public class Logging
+    {
+        public const string View = "Logging.View";
+    }
+
     public class Modules
     {
         public const string View = "Modules.View";

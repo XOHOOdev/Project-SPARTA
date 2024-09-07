@@ -1,20 +1,12 @@
 ﻿@inherits LayoutComponentBase
 
 <PageTitle>Project Sparta</PageTitle>
-<Images/>
+<Images />
 <div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+    <NavMenu />
 
-    <main>
-        <div class="top-row px-4 auth">
-            <LoginDisplay/>
-            <ColorSelector/>
-            <CultureSelector/>
-        </div>
-
-        <article class="content px-4">
+    <main style="padding-left:15rem">
+        <article class="content px-4" style="margin-top: 3.5rem; height: calc(100vh - 3.5rem); overflow: auto; box-sizing: border-box;">
             @Body
         </article>
     </main>

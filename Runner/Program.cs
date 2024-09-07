@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
+using Sparta.Core.Logger;
 using Sparta.Core.Models;
 using Sparta.Modules.HllServerStatus;
 using Sparta.Modules.MapVote;
@@ -28,6 +29,8 @@ namespace Sparta.Runner
 
             builder.Services.AddScoped<MapVoteModule>();
             builder.Services.AddScoped<HllServerStatusModule>();
+
+            builder.Services.AddSingleton<SpartaLogger>();
 
             var host = builder.Build();
 

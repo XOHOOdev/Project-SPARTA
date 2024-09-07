@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sparta.Core.Helpers;
+using Sparta.Core.Logger;
 using Sparta.Core.Models;
 using Sparta.Modules.Interface;
 
 namespace Sparta.Runner.Runners
 {
-    public class ModuleRunner(SpartaDbContext context, IServiceProvider provider) : IRunner
+    public class ModuleRunner(SpartaDbContext context, IServiceProvider provider, SpartaLogger logger) : IRunner
     {
         public void Run(CancellationToken cancellationToken)
         {
@@ -20,12 +21,12 @@ namespace Sparta.Runner.Runners
 
                 try
                 {
+                    logger.LogInfo($"Running Module {module.Type}({module.Id})");
                     moduleObj.Run(module, cancellationToken);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(e);
-                    throw;
+                    logger.LogException(ex);
                 }
             }
 

@@ -1,9 +1,10 @@
 ﻿using Sparta.Core.Helpers;
+using Sparta.Core.Logger;
 using Sparta.Runner.Runners;
 
 namespace Sparta.Runner
 {
-    public class Updater(ModuleRunner moduleRunner, DiscordRunner discordRunner)
+    public class Updater(ModuleRunner moduleRunner, DiscordRunner discordRunner, SpartaLogger logger)
     {
         private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens = [];
 
@@ -26,6 +27,7 @@ namespace Sparta.Runner
                 case true when !_cancellationTokens.ContainsKey(dictionaryName):
                     {
                         CancellationTokenSource cts = new();
+                        logger.LogInfo($"Running {runner.GetType().Name}");
                         runner.Run(cts.Token);
                         _cancellationTokens.Add(dictionaryName, cts);
                         break;

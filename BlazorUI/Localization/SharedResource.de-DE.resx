@@ -154,4 +154,7 @@
   <data name="Servers" xml:space="preserve">
     <value>Server</value>
   </data>
+  <data name="Logging" xml:space="preserve">
+    <value>Logs</value>
+  </data>
 </root>

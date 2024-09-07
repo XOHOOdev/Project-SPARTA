@@ -37,4 +37,6 @@ public class ApplicationDbContext<TUser, TRole, TKey>(
     public DbSet<DiscordRole> DC_Roles { get; set; }
 
     public DbSet<Server> SV_Servers { get; set; }
+
+    public DbSet<LogMessage> LG_LogMessages { get; set; }
 }

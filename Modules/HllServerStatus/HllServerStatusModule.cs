@@ -1,13 +1,14 @@
 ﻿using Discord;
 using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
+using Sparta.Core.Logger;
 using Sparta.Core.Models;
 using Sparta.Modules.HllServerStatus.Templates;
 using Sparta.Modules.Interface;
 
 namespace Sparta.Modules.HllServerStatus
 {
-    public class HllServerStatusModule(DiscordAccess discord, SpartaDbContext context, RconDataAccess rcon, BattleMetricsDataAccess bm) : IModule
+    public class HllServerStatusModule(DiscordAccess discord, SpartaDbContext context, RconDataAccess rcon, BattleMetricsDataAccess bm, SpartaLogger logger) : IModule
     {
         public void Run(MdModule module, CancellationToken token)
         {
@@ -104,7 +105,7 @@ namespace Sparta.Modules.HllServerStatus
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                logger.LogException(ex);
                 return new EmbedBuilder()
                     .WithColor(new Color(43, 45, 49))
                     .WithThumbnailUrl(StaticResources.Graphics["taurus"])

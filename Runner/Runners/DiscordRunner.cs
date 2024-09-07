@@ -1,14 +1,16 @@
 ﻿using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
+using Sparta.Core.Logger;
 using Sparta.Core.Models;
 
 namespace Sparta.Runner.Runners
 {
-    public class DiscordRunner(SpartaDbContext context, DiscordAccess discord) : IRunner
+    public class DiscordRunner(SpartaDbContext context, DiscordAccess discord, SpartaLogger logger) : IRunner
     {
         public async Task UpdateAsync(CancellationToken cancellationToken)
         {
             var guilds = discord.GetGuilds();
+            logger.LogInfo($"Received {guilds.Length} guilds. Deleting old records...");
             if (guilds.Length > 0)
             {
                 foreach (var guild in context.DcGuilds)
@@ -33,6 +35,7 @@ namespace Sparta.Runner.Runners
 
                 await context.SaveChangesAsync(cancellationToken);
 
+                logger.LogInfo("Finished deleting old records, writing new ones...");
                 context.DcGuilds.AddRange(guilds);
                 await context.SaveChangesAsync(cancellationToken);
             }
@@ -47,7 +50,7 @@ namespace Sparta.Runner.Runners
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                logger.LogException(ex);
             }
 
             var delay = int.Parse(ConfigHelper.GetConfig("DiscordRunner", "ImportInterval") ?? "60");

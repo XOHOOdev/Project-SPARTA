@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Sparta.Core.Helpers;
+using Sparta.Core.Logger;
 using Sparta.Core.Models;
 
 namespace Sparta.Core.DataAccess
@@ -14,11 +15,13 @@ namespace Sparta.Core.DataAccess
         private readonly DiscordSocketClient _client;
         private readonly IServiceProvider _services;
         private readonly SpartaDbContext _dbContext;
+        private readonly SpartaLogger _logger;
 
-        public DiscordAccess(SpartaDbContext dbContext)
+        public DiscordAccess(SpartaDbContext dbContext, SpartaLogger logger)
         {
             _dbContext = dbContext;
             _token = ConfigHelper.GetConfig("DiscordBot", "DiscordToken") ?? "";
+            _logger = logger;
 
             DiscordSocketConfig discordSocketConfig = new()
             {
@@ -88,12 +91,21 @@ namespace Sparta.Core.DataAccess
             //SetupHelper.BuildStatsMessages(this);
 
             await _client.DownloadUsersAsync(_client.Guilds);
-            Console.WriteLine($"Started as \"{_client.CurrentUser.Username}\"");
+
+            _logger.LogInfo($"Started Discord Bot as \"{_client.CurrentUser.Username}\"");
         }
 
-        private static Task Log(LogMessage msg)
+        private Task Log(LogMessage msg)
         {
-            Console.WriteLine(msg.ToString());
+            if (msg.Exception != null)
+            {
+                _logger.LogException(msg.Exception);
+            }
+            else
+            {
+                _logger.LogMessage(msg.Message, (Logger.LogSeverity)msg.Severity);
+            }
+
             return Task.CompletedTask;
         }
 
@@ -138,7 +150,7 @@ namespace Sparta.Core.DataAccess
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogException(ex);
                 return 0;
             }
         }
@@ -159,7 +171,7 @@ namespace Sparta.Core.DataAccess
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                _logger.LogException(ex);
                 return 0;
             }
         }

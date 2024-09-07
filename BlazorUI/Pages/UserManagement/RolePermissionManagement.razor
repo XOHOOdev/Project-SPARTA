@@ -20,7 +20,7 @@
             </tr>
             </thead>
             <tbody>
-            @foreach (var role in roles)
+            @foreach (var role in _roles)
             {
                 <tr>
                     <td>@role.Name</td>
@@ -57,7 +57,7 @@
         {
             <div class="card-footer">
                 <div class="input-group">
-                    <input name="roleName" class="form-control w-25" @bind=newRoleName>
+                    <input name="roleName" class="form-control w-25" @bind=_newRoleName>
                     <button class="btn btn-info" @onclick=AddNewRoleAsync>@Localizer["NewRole"]</button>
                 </div>
             </div>
@@ -74,7 +74,7 @@
             </div>
             <div class="modal-body">
                 <ul class="list-group list-group-flush">
-                    <PermissionManagement Permissions="rolePermissions.RolePermissions"/>
+                    <PermissionManagement Permissions="_rolePermissions.RolePermissions"/>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -86,20 +86,19 @@
 </div>
 
 @code {
-    private IEnumerable<ApplicationRole> roles = null!;
-    private RolePermission rolePermissions = null!;
-    private string? newRoleName;
-    private bool checkedTest = false;
+    private IEnumerable<ApplicationRole> _roles = null!;
+    private RolePermission _rolePermissions = null!;
+    private string? _newRoleName;
 
     protected override void OnInitialized()
     {
-        roles = ManagementService.GetRoles();
-        rolePermissions = new RolePermission { RolePermissions = new List<IPermissionModel>() };
+        _roles = ManagementService.GetRoles();
+        _rolePermissions = new RolePermission { RolePermissions = new List<IPermissionModel>() };
     }
 
     private async Task AddNewRoleAsync()
     {
-        await ManagementService.AddNewRoleAsync(newRoleName);
+        await ManagementService.AddNewRoleAsync(_newRoleName);
     }
 
     private void DeleteRole(ApplicationRole role)
@@ -109,12 +108,12 @@
 
     private void LoadPermissions(ApplicationRole role)
     {
-        rolePermissions = ManagementService.GetPermissions(role);
+        _rolePermissions = ManagementService.GetPermissions(role);
     }
 
     private void SavePermissions()
     {
-        ManagementService.SavePermissions(rolePermissions);
+        ManagementService.SavePermissions(_rolePermissions);
     }
 
 }

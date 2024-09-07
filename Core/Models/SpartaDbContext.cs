@@ -41,6 +41,8 @@ public partial class SpartaDbContext : DbContext
 
     public virtual DbSet<DcUser> DcUsers { get; set; }
 
+    public virtual DbSet<LgLogMessage> LgLogMessages { get; set; }
+
     public virtual DbSet<MdModule> MdModules { get; set; }
 
     public virtual DbSet<MdModuleType> MdModuleTypes { get; set; }
@@ -213,6 +215,14 @@ public partial class SpartaDbContext : DbContext
             entity.ToTable("DC_Users");
 
             entity.Property(e => e.Id).HasColumnType("decimal(20, 0)");
+        });
+
+        modelBuilder.Entity<LgLogMessage>(entity =>
+        {
+            entity.ToTable("LG_LogMessages");
+
+            entity.Property(e => e.ShortMessage).HasMaxLength(30);
+            entity.Property(e => e.ShortSource).HasMaxLength(30);
         });
 
         modelBuilder.Entity<MdModule>(entity =>

@@ -8,6 +8,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Sparta.Core.DataAccess;
+using Sparta.Core.Logger;
 using Sparta.Core.Models;
 using Sparta.Modules.Interface;
 using Sparta.Modules.MapVote.Dto;
@@ -19,7 +20,7 @@ using Path = System.IO.Path;
 
 namespace Sparta.Modules.MapVote
 {
-    public class MapVoteModule(DiscordAccess discord, SpartaDbContext context) : IModule
+    public class MapVoteModule(DiscordAccess discord, SpartaDbContext context, SpartaLogger logger) : IModule
     {
         public void Run(MdModule module, CancellationToken token)
         {
@@ -47,17 +48,19 @@ namespace Sparta.Modules.MapVote
 
             if (CoinFlipReceived(module) is { } message)
             {
+                logger.LogInfo("Coin flip received");
                 GenerateFinalEmbed(discord, module, votes, imageName, message, image);
                 return;
             }
             if (lastBan == null && GetVoteCount(votes) > 0) return;
+            logger.LogInfo($"Ban received: \"{lastBan}\"");
             try
             {
                 SendFile(module, embed, votes, new FileAttachment(stream: image, fileName: imageName));
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
+                logger.LogException(ex);
             }
             SaveVotes(votes, mdParameter, module);
         }
@@ -394,7 +397,7 @@ namespace Sparta.Modules.MapVote
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    logger.LogException(ex);
                 }
             }
         }
