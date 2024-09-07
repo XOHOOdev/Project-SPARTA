@@ -5,7 +5,7 @@ namespace Sparta.Core.Models;
 
 public partial class SvServer
 {
-    public long Id { get; set; }
+    public decimal Id { get; set; }
 
     public string Name { get; set; } = null!;
 

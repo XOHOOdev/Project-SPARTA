@@ -380,7 +380,7 @@ namespace Sparta.BlazorUI.Data.Model
                     b.ToTable("DC_Users");
                 });
 
-            modelBuilder.Entity("Sparta.BlazorUI.Entities.LogInfo", b =>
+            modelBuilder.Entity("Sparta.BlazorUI.Entities.LogMessage", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -432,8 +432,8 @@ namespace Sparta.BlazorUI.Data.Model
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("ServerId")
-                        .HasColumnType("bigint");
+                    b.Property<decimal?>("ServerId")
+                        .HasColumnType("decimal(20,0)");
 
                     b.Property<long>("TypeId")
                         .HasColumnType("bigint");
@@ -510,11 +510,11 @@ namespace Sparta.BlazorUI.Data.Model
 
             modelBuilder.Entity("Sparta.BlazorUI.Entities.Server", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("decimal(20,0)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<decimal>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()

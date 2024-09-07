@@ -11,7 +11,11 @@ namespace Sparta.Runner.Runners
     {
         public void Run(CancellationToken cancellationToken)
         {
-            foreach (var module in context.MdModules.Include(mdModule => mdModule.Type).Where(m => m.Enabled))
+            var modules = context.MdModules.Include(mdModule => mdModule.Type).Where(m => m.Enabled).ToArray();
+
+            logger.LogDebug($"Found {modules.Length} module(s) [{string.Join(", ", modules.Select(m => $"{m.Type.Name}({m.Id})]"))}");
+
+            foreach (var module in modules)
             {
                 if (provider.GetRequiredService(typeof(Modules.Modules).Assembly
                         .GetTypes()
@@ -21,7 +25,7 @@ namespace Sparta.Runner.Runners
 
                 try
                 {
-                    logger.LogInfo($"Running Module {module.Type}({module.Id})");
+                    logger.LogVerbose($"Running Module \"{module.Type.Name}({module.Id})\"");
                     moduleObj.Run(module, cancellationToken);
                 }
                 catch (Exception ex)

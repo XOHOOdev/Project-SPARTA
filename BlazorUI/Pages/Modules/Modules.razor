@@ -97,14 +97,33 @@ else
                                     <input type="text" class="form-control" @bind="parameter.Content">
                                 </div>
                                 break;
+                            case ParameterType.HllServer:
+                                <div class="input-group mb-3">
+                                    <span for="hllServerDataList" class="input-group-text">@parameter.Name</span>
+                                    <input type="search" class="form-control" list="hllServerListOptions" id="hllServerDataList" @bind="parameter.Content" placeholder="Type to search...">
+                                    <datalist id="hllServerListOptions">
+                                        @foreach (var option in parameter.Options)
+                                        {
+                                            <option label="@option.Name" value="@option.Id" />
+                                        }
+                                    </datalist>
+                                </div>
+                                break;
                             case ParameterType.DiscordChannel:
                                 <div class="input-group mb-3">
                                     <span for="channelDataList" class="input-group-text">@parameter.Name</span>
                                     <input type="search" class="form-control" list="channelListOptions" id="channelDataList" @bind="parameter.Content" placeholder="Type to search...">
                                     <datalist id="channelListOptions">
-                                        @foreach (var option in parameter.Options.Where(r => _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam || guildParam.Content.IsNullOrEmpty() || ((DiscordChannel)r).DiscordGuild.Id == ulong.Parse(guildParam.Content)))
-                                        {
-                                            <option value="@option.Id">@option.Name</option>
+                                        @{
+                                            var channelOptions = parameter.Options.Where(r =>
+                                            _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam
+                                            || guildParam.Content.IsNullOrEmpty()
+                                            || ((DiscordChannel)r).DiscordGuild.Id == ulong.Parse(guildParam.Content));
+
+                                            foreach (var option in channelOptions)
+                                            {
+                                                <option value="@option.Id">@option.Name</option>
+                                            }
                                         }
                                     </datalist>
                                 </div>

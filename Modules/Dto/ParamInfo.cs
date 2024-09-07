@@ -8,5 +8,5 @@ public class ParamInfo
 
     public int Type { get; set; }
 
-    public IDiscordType[] Options { get; set; } = null!;
+    public IModuleParameterType[] Options { get; set; } = null!;
 }

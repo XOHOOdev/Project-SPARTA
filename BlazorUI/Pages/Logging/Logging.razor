@@ -143,7 +143,6 @@ else
     private DateTimeOffset _logTimeMin;
     private DateTimeOffset _logTimeMax;
     private int _severityNum = 3;
-    private int _reloadProgress = 75;
 
     protected override void OnInitialized()
     {
@@ -155,10 +154,5 @@ else
         _logs = LogService.GetLogs(_logCount, _logTimeMin, _logTimeMax, (LogSeverity)_severityNum).ToList();
 
         if (_logs == null || !_logs.Any()) return;
-
-        _logTimeMin = _logs.Last().Time;
-        _logTimeMax = _logs.First().Time;
-
-        _reloadProgress = 75;
     }
 }

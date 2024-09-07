@@ -1,6 +1,6 @@
 ﻿namespace Sparta.Modules.Dto
 {
-    public interface IDiscordType
+    public interface IModuleParameterType
     {
         ulong Id { get; }
 

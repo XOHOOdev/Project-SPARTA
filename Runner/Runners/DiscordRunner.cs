@@ -10,7 +10,7 @@ namespace Sparta.Runner.Runners
         public async Task UpdateAsync(CancellationToken cancellationToken)
         {
             var guilds = discord.GetGuilds();
-            logger.LogInfo($"Received {guilds.Length} guilds. Deleting old records...");
+            logger.LogVerbose($"Received {guilds.Length} guilds. Deleting old records...");
             if (guilds.Length > 0)
             {
                 foreach (var guild in context.DcGuilds)
@@ -35,7 +35,7 @@ namespace Sparta.Runner.Runners
 
                 await context.SaveChangesAsync(cancellationToken);
 
-                logger.LogInfo("Finished deleting old records, writing new ones...");
+                logger.LogVerbose("Finished deleting old records, writing new ones...");
                 context.DcGuilds.AddRange(guilds);
                 await context.SaveChangesAsync(cancellationToken);
             }

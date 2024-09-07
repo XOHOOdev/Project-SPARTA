@@ -13,7 +13,7 @@ public partial class MdModule
 
     public long TypeId { get; set; }
 
-    public long? ServerId { get; set; }
+    public decimal? ServerId { get; set; }
 
     public virtual ICollection<MdParameter> MdParameters { get; set; } = new List<MdParameter>();
 

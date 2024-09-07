@@ -118,4 +118,10 @@
   <data name="Name" xml:space="preserve">
     <value>Name</value>
   </data>
+  <data name="HllServerStatus" xml:space="preserve">
+    <value>HLL Serverstatus</value>
+  </data>
+  <data name="HllServerMessaging" xml:space="preserve">
+    <value>HLL Serverbenachrichtigungen</value>
+  </data>
 </root>

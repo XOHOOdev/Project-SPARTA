@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Sparta.BlazorUI.Data.Model
 {
     /// <inheritdoc />
-    public partial class InitailMigration : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -137,7 +137,7 @@ namespace Sparta.BlazorUI.Data.Model
                 name: "SV_Servers",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<decimal>(type: "decimal(20,0)", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -353,7 +353,7 @@ namespace Sparta.BlazorUI.Data.Model
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Enabled = table.Column<bool>(type: "bit", nullable: false),
                     TypeId = table.Column<long>(type: "bigint", nullable: false),
-                    ServerId = table.Column<long>(type: "bigint", nullable: true)
+                    ServerId = table.Column<decimal>(type: "decimal(20,0)", nullable: true)
                 },
                 constraints: table =>
                 {

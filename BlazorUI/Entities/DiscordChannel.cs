@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sparta.BlazorUI.Entities
 {
-    public class DiscordChannel : IDiscordType
+    public class DiscordChannel : IModuleParameterType
     {
         [Required]
         [Key]

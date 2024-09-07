@@ -20,7 +20,9 @@ namespace Sparta.Core.Logger
 
         public void LogMessage(string message, LogSeverity severity) => Log(message, message, severity);
 
-        private void Log(string message, string shortMessage, LogSeverity severity)
+        public void LogMessage(string message, LogSeverity severity, string source) => Log(message, message, severity, source);
+
+        private void Log(string message, string shortMessage, LogSeverity severity, string? source = null)
         {
             using var scope = serviceProvider.CreateScope();
             using var context = scope.ServiceProvider.GetRequiredService<SpartaDbContext>();
@@ -28,7 +30,7 @@ namespace Sparta.Core.Logger
             var trace = new StackTrace();
             var frame = trace.GetFrame(2);
 
-            var shortSource = $"{frame?.GetMethod()?.DeclaringType?.Name}.{frame?.GetMethod()?.Name}";
+            var shortSource = source ?? $"{frame?.GetMethod()?.DeclaringType?.Name}.{frame?.GetMethod()?.Name}";
 
             var truncatedMessage = shortMessage.Length > 30 ? $"{new string(shortMessage.Take(27).ToArray())}..." : shortMessage;
             var truncatedSource = shortSource.Length > 30 ? $"{new string(shortSource.Take(27).ToArray())}..." : shortSource;

@@ -233,6 +233,8 @@ public partial class SpartaDbContext : DbContext
 
             entity.HasIndex(e => e.TypeId, "IX_MD_Modules_TypeId");
 
+            entity.Property(e => e.ServerId).HasColumnType("decimal(20, 0)");
+
             entity.HasOne(d => d.Server).WithMany(p => p.MdModules).HasForeignKey(d => d.ServerId);
 
             entity.HasOne(d => d.Type).WithMany(p => p.MdModules).HasForeignKey(d => d.TypeId);
@@ -255,6 +257,10 @@ public partial class SpartaDbContext : DbContext
         modelBuilder.Entity<SvServer>(entity =>
         {
             entity.ToTable("SV_Servers");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnType("decimal(20, 0)");
         });
 
         modelBuilder.Entity<UsPermission>(entity =>

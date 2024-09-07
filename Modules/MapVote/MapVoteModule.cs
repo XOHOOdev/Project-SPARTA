@@ -16,6 +16,7 @@ using System.Numerics;
 using System.Text;
 using Color = SixLabors.ImageSharp.Color;
 using Image = SixLabors.ImageSharp.Image;
+using LogSeverity = Sparta.Core.Logger.LogSeverity;
 using Path = System.IO.Path;
 
 namespace Sparta.Modules.MapVote
@@ -28,14 +29,21 @@ namespace Sparta.Modules.MapVote
                 .FirstOrDefault(p => p.Name == nameof(MapVoteParameters.Votes));
 
             var votes = GetVotes(mdParameter) ?? GenerateVoteList().ToList();
+            logger.LogMessage($"Current votes: {mdParameter?.Value}", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
 
             context.SaveChanges();
             if (module.MdParameters.All(p => p.Name != nameof(MapVoteParameters.Sides)))
             {
+                logger.LogMessage("No sides decided yet", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
+
+                var winner = Convert.ToBoolean(new Random().Next(0, 2)).ToString();
+
+                logger.LogMessage($"Result: {winner}", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
+
                 module.MdParameters.Add(new MdParameter
                 {
                     Name = nameof(MapVoteParameters.Sides),
-                    Value = Convert.ToBoolean(new Random().Next(0, 1)).ToString()
+                    Value = winner
                 });
                 context.SaveChanges();
             }
@@ -48,12 +56,12 @@ namespace Sparta.Modules.MapVote
 
             if (CoinFlipReceived(module) is { } message)
             {
-                logger.LogInfo("Coin flip received");
+                logger.LogMessage("Coin flip command received", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
                 GenerateFinalEmbed(discord, module, votes, imageName, message, image);
                 return;
             }
             if (lastBan == null && GetVoteCount(votes) > 0) return;
-            logger.LogInfo($"Ban received: \"{lastBan}\"");
+            logger.LogMessage($"Ban received: \"{lastBan}\"", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
             try
             {
                 SendFile(module, embed, votes, new FileAttachment(stream: image, fileName: imageName));

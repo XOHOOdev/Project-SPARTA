@@ -83,13 +83,16 @@ namespace Sparta.BlazorUI.Data.ModulesData
 
         public void SetOptions(ref List<ParamInfo> parameters)
         {
-            if (parameters.Any(p => p.Type > 0)) parameters.Insert(0, new ParamInfo { Name = "DiscordGuild", Type = (int)ParameterType.DiscordGuild });
+            if (parameters.Any(p => p.Type > 1)) parameters.Insert(0, new ParamInfo { Name = "ModuleParameterGuild", Type = (int)ParameterType.DiscordGuild });
 
             foreach (var parameter in parameters)
             {
                 switch ((ParameterType)parameter.Type)
                 {
                     case ParameterType.String:
+                        break;
+                    case ParameterType.HllServer:
+                        parameter.Options = context.SV_Servers.ToArray();
                         break;
                     case ParameterType.DiscordChannel:
                         parameter.Options = context.DC_Channels.ToArray();

@@ -13,7 +13,7 @@ namespace Sparta.Modules.HllServerStatus
         public void Run(MdModule module, CancellationToken token)
         {
             var serverId = long.Parse(module.MdParameters
-                .First(p => p.Name == nameof(HllServerStatusParameters.ServerId)).Value);
+                .First(p => p.Name == nameof(HllServerStatusParameters.Server)).Value);
 
             module.Server ??= context.SvServers.First(s => s.Id == serverId);
             context.SaveChanges();

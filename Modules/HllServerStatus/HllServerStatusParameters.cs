@@ -5,7 +5,7 @@ namespace Sparta.Modules.HllServerStatus
 {
     public class HllServerStatusParameters : ModuleParametersBase
     {
-        public StringParameter ServerId { get; set; } = null!;
+        public HllServerParameter Server { get; set; } = null!;
 
         public DiscordChannelParameter DiscordChannel { get; set; } = null!;
 

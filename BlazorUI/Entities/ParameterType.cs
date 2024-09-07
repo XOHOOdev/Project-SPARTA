@@ -3,8 +3,9 @@
 public enum ParameterType
 {
     String = 0,
-    DiscordChannel = 1,
-    DiscordUser = 2,
-    DiscordRole = 3,
-    DiscordGuild = 4,
+    HllServer = 1,
+    DiscordChannel = 2,
+    DiscordUser = 3,
+    DiscordRole = 4,
+    DiscordGuild = 5,
 }

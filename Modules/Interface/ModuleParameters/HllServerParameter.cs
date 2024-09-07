@@ -1,10 +1,10 @@
 ﻿namespace Sparta.Modules.Interface.ModuleParameters
 {
-    public class DiscordRoleParameter : ModuleParameterBase
+    public class HllServerParameter : ModuleParameterBase
     {
         public override int GetId()
         {
-            return 4;
+            return 1;
         }
     }
 }

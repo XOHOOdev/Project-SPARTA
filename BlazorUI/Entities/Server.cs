@@ -1,13 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sparta.Modules.Dto;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sparta.BlazorUI.Entities
 {
-    public class Server
+    public class Server : IModuleParameterType
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+        public ulong Id { get; set; }
 
         public string Name { get; set; } = null!;
 
