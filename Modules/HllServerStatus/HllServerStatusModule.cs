@@ -32,8 +32,10 @@ namespace Sparta.Modules.HllServerStatus
                     return new EmbedBuilder().Build();
                 }
 
-                var emotes = discord.GetServerEmotes(ulong.Parse(module.MdParameters.First(m =>
-                    m.Name == nameof(HllServerStatusParameters.DiscordChannel)).Value)).Result.ToDictionary(e => e.Name, e => $"<:{e.Name}:{e.Id}>");
+                var serverEmotes = discord.GetServerEmotes(ulong.Parse(module.MdParameters.First(m =>
+                    m.Name == nameof(HllServerStatusParameters.DiscordChannel)).Value)).Result;
+
+                var emotes = serverEmotes.Select(e => new KeyValuePair<string, string>(e.Name, $"<:{e.Name}:{e.Id}>")).ToArray();
 
                 var info = rcon.GetServerInfo(module.Server);
                 var teamView = rcon.GetTeamView(module.Server);
@@ -60,8 +62,8 @@ namespace Sparta.Modules.HllServerStatus
                 var winning = info.Score.First(x => x.Value == info.Score.Max(s => s.Value)).Key;
                 var losing = info.Score.First(s => s.Key != winning).Key;
 
-                var winningEmote = emotes[winning];
-                var losingEmote = emotes[losing];
+                var winningEmote = emotes.First(e => e.Key == winning).Value;
+                var losingEmote = emotes.First(e => e.Key == losing).Value;
 
                 var winningTeam = winning == "axis" ? teamView.Axis : teamView.Allies;
                 var losingTeam = losing == "axis" ? teamView.Axis : teamView.Allies;
