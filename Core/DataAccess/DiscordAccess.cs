@@ -235,15 +235,18 @@ namespace Sparta.Core.DataAccess
 
         public DcGuild[] GetGuilds()
         {
-            var guilds = _client.Guilds.Select(g => new DcGuild
+            var dcGuilds = _client.Guilds;
+            var users = dcGuilds.SelectMany(g => g.Users).Distinct().Where(u => !u.IsBot).Select(u => new DcUser
+            {
+                Id = u.Id,
+                Name = u.DisplayName,
+            }).ToArray();
+
+            var guilds = dcGuilds.Select(g => new DcGuild
             {
                 Id = g.Id,
                 Name = g.Name,
-                Users = g.Users.Where(u => !u.IsBot).Select(u => new DcUser
-                {
-                    Id = u.Id,
-                    Name = u.DisplayName,
-                }).ToArray(),
+                Users = g.Users.Where(u => !u.IsBot).Select(u => users.First(du => du.Id == u.Id)).ToArray(),
                 DcRoles = g.Roles.Select(r => new DcRole
                 {
                     Id = r.Id,
