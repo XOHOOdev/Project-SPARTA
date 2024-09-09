@@ -59,7 +59,7 @@ namespace Sparta.Core.DataAccess
 
         public List<HllMod> GetInGameMods(SvServer server) => GetFromApi<List<HllMod>>(server.Url, server.Port, server.Username, server.Password, "get_ingame_mods");
 
-        public void SendMessage(SvServer server, ulong steamId, string message, string by = "")
+        public void SendMessage(SvServer server, string steamId, string message, string by = "")
         {
             JsonObject jsonObject = new()
             {

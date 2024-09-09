@@ -73,7 +73,7 @@ namespace Sparta.Modules.HllServerSeeding
 
             foreach (var player in players)
             {
-                rcon.SendMessage(module.Server, ulong.Parse(player.SteamId ?? "0"), message, messageBy);
+                rcon.SendMessage(module.Server, player.SteamId ?? "0", message, messageBy);
             }
 
         }
