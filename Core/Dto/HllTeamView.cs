@@ -7,6 +7,9 @@ namespace Sparta.Core.Dto
         [JsonProperty(PropertyName = "fail_count")]
         public int FailCount { get; set; }
 
+        [JsonProperty(PropertyName = "none")]
+        public HllTeam? None { get; set; }
+
         [JsonProperty(PropertyName = "allies")]
         public HllTeam? Allies { get; set; }
 

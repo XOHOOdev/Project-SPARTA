@@ -121,7 +121,7 @@
   <data name="HllServerStatus" xml:space="preserve">
     <value>HLL Server Status</value>
   </data>
-  <data name="HllServerMessaging" xml:space="preserve">
-    <value>HLL Server Messaging</value>
+  <data name="HllServerSeeding" xml:space="preserve">
+    <value>HLL Server Seeding</value>
   </data>
 </root>

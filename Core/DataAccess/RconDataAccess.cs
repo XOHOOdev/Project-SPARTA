@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Sparta.Core.Dto;
+using Sparta.Core.Models;
 using System.Text.Json.Nodes;
 
 namespace Sparta.Core.DataAccess
@@ -40,10 +41,34 @@ namespace Sparta.Core.DataAccess
             return deserializedResponse.Result;
         }
 
-        public HllServerInfo GetServerInfo(string url, int port, string username, string password) => GetFromApi<HllServerInfo>(url, port, username, password, "public_info");
+        private T PostToAPI<T>(string url, int port, string username, string password, string requestUri, JsonObject json) where T : new()
+        {
+            HttpClient client = new() { BaseAddress = new Uri($"{url}:{port}/api/") };
+            Login(client, username, password);
 
-        public HllTeamView GetTeamView(string url, int port, string username, string password) => GetFromApi<HllTeamView>(url, port, username, password, "get_team_view");
+            var response = client.PostAsync(requestUri, new StringContent(System.Text.Json.JsonSerializer.Serialize(json))).Result;
 
-        public List<HllMod> GetIngameMods(string url, int port, string username, string password) => GetFromApi<List<HllMod>>(url, port, username, password, "get_ingame_mods");
+            Logout(client);
+
+            return new T();
+        }
+
+        public HllServerInfo GetServerInfo(SvServer server) => GetFromApi<HllServerInfo>(server.Url, server.Port, server.Username, server.Password, "public_info");
+
+        public HllTeamView GetTeamView(SvServer server) => GetFromApi<HllTeamView>(server.Url, server.Port, server.Username, server.Password, "get_team_view");
+
+        public List<HllMod> GetInGameMods(SvServer server) => GetFromApi<List<HllMod>>(server.Url, server.Port, server.Username, server.Password, "get_ingame_mods");
+
+        public void SendMessage(SvServer server, ulong steamId, string message, string by = "")
+        {
+            JsonObject jsonObject = new()
+            {
+                {"steam_id_64",steamId},
+                {"message",message},
+                {"by",by}
+            };
+
+            PostToAPI<HllTeamView>(server.Url, server.Port, server.Username, server.Password, "do_message_player", jsonObject);
+        }
     }
 }

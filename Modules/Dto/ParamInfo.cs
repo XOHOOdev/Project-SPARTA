@@ -6,7 +6,7 @@ public class ParamInfo
 
     public string Content { get; set; } = null!;
 
-    public int Type { get; set; }
+    public ParameterType Type { get; set; }
 
     public IModuleParameterType[] Options { get; set; } = null!;
 }

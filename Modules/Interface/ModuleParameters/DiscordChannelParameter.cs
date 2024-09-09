@@ -1,10 +1,12 @@
-﻿namespace Sparta.Modules.Interface.ModuleParameters
+﻿using Sparta.Modules.Dto;
+
+namespace Sparta.Modules.Interface.ModuleParameters
 {
     public class DiscordChannelParameter : ModuleParameterBase
     {
-        public override int GetId()
+        public override ParameterType GetParameterType()
         {
-            return 2;
+            return ParameterType.DiscordChannel;
         }
     }
 }

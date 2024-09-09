@@ -31,7 +31,7 @@ namespace Sparta.Core.Dto
         [JsonProperty(PropertyName = "count")]
         public int Count { get; set; }
 
-        private List<HllPlayer> GetPlayers()
+        public List<HllPlayer> GetPlayers()
         {
             var players = Squads?.Select(s => s.Value).SelectMany(p => p.Players ?? []).ToList();
             if (Commander != null) players?.Add(Commander);

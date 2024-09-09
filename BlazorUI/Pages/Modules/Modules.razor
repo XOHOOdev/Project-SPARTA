@@ -78,7 +78,7 @@ else
 }
 
 <div class="modal fade" id="createEditModule" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">@Localizer["CreateModule"]</h5>
@@ -89,12 +89,30 @@ else
                 {
                     foreach (var parameter in _params)
                     {
-                        switch ((ParameterType)parameter.Type)
+                        switch (parameter.Type)
                         {
-                            case ParameterType.String:
+                            case ParameterType.Text:
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">@parameter.Name</span>
                                     <input type="text" class="form-control" @bind="parameter.Content">
+                                </div>
+                                break;
+                            case ParameterType.LargeText:
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">@parameter.Name</span>
+                                    <textarea class="form-control" @bind="parameter.Content"></textarea>
+                                </div>
+                                break;
+                            case ParameterType.Number:
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">@parameter.Name</span>
+                                    <input type="number" class="form-control" @bind="parameter.Content">
+                                </div>
+                                break;
+                            case ParameterType.Bool:
+                                <div class="input-group mb-3">
+                                    <input type="checkbox" class="btn-check" @bind="parameter.Content" id="@parameter.Name" />
+                                    <label class="btn btn-outline-primary" for="@parameter.Name">@parameter.Name</label>
                                 </div>
                                 break;
                             case ParameterType.HllServer:
@@ -116,7 +134,7 @@ else
                                     <datalist id="channelListOptions">
                                         @{
                                             var channelOptions = parameter.Options.Where(r =>
-                                            _params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam
+                                            _params.FirstOrDefault(p => p.Type == ParameterType.DiscordGuild) is not { } guildParam
                                             || guildParam.Content.IsNullOrEmpty()
                                             || ((DiscordChannel)r).DiscordGuild.Id == ulong.Parse(guildParam.Content));
 
@@ -135,10 +153,10 @@ else
                                     <datalist id="@($"userListOptions{parameter.Name}")">
                                         @{
                                             var userOptions = parameter.Options.Where(u =>
-                                            (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam
+                                            (_params.FirstOrDefault(p => p.Type == ParameterType.DiscordGuild) is not { } guildParam
                                             || guildParam.Content.IsNullOrEmpty()
                                             || ((DiscordUser)u).DiscordGuilds.Any(g => g.Id == ulong.Parse(guildParam.Content)))
-                                            && (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordRole && (!char.IsDigit(parameter.Name.Last()) || parameter.Name.Last() == p.Name.Last())) is not { } roleParams
+                                            && (_params.FirstOrDefault(p => p.Type == ParameterType.DiscordRole && (!char.IsDigit(parameter.Name.Last()) || parameter.Name.Last() == p.Name.Last())) is not { } roleParams
                                             || roleParams.Content.IsNullOrEmpty()
                                             || ((DiscordUser)u).Roles.Any(r => r.Id == ulong.Parse(roleParams.Content)))
                                             );
@@ -158,10 +176,10 @@ else
                                     <datalist id="@($"roleListOptions{parameter.Name}")">
                                         @{
                                             var roleOptions = parameter.Options.Where(r =>
-                                            (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordGuild) is not { } guildParam
+                                            (_params.FirstOrDefault(p => p.Type == ParameterType.DiscordGuild) is not { } guildParam
                                             || guildParam.Content.IsNullOrEmpty()
                                             || ((DiscordRole)r).Guild.Id == ulong.Parse(guildParam.Content))
-                                            && (_params.FirstOrDefault(p => p.Type == (int)ParameterType.DiscordUser && (!char.IsDigit(parameter.Name.Last()) || parameter.Name.Last() == p.Name.Last())) is not { } userParams
+                                            && (_params.FirstOrDefault(p => p.Type == ParameterType.DiscordUser && (!char.IsDigit(parameter.Name.Last()) || parameter.Name.Last() == p.Name.Last())) is not { } userParams
                                             || userParams.Content.IsNullOrEmpty()
                                             || ((DiscordRole)r).Users.Any(u => u.Id == ulong.Parse(userParams.Content)))
                                             ).ToArray();

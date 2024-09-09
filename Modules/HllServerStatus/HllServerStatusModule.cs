@@ -5,6 +5,7 @@ using Sparta.Core.Logger;
 using Sparta.Core.Models;
 using Sparta.Modules.HllServerStatus.Templates;
 using Sparta.Modules.Interface;
+using LogSeverity = Sparta.Core.Logger.LogSeverity;
 
 namespace Sparta.Modules.HllServerStatus
 {
@@ -15,7 +16,7 @@ namespace Sparta.Modules.HllServerStatus
             var serverId = long.Parse(module.MdParameters
                 .First(p => p.Name == nameof(HllServerStatusParameters.Server)).Value);
 
-            module.Server ??= context.SvServers.First(s => s.Id == serverId);
+            module.Server ??= context.SvServers.FirstOrDefault(s => s.Id == serverId);
             context.SaveChanges();
 
             SendEmbed(module, GenerateEmbed(module));
@@ -25,18 +26,18 @@ namespace Sparta.Modules.HllServerStatus
         {
             try
             {
-                if (module.Server == null) return new EmbedBuilder().Build();
+                if (module.Server == null)
+                {
+                    logger.LogMessage("The Server could not be found", LogSeverity.Warning, $"HllServerStatusModule[{module.Id}].GenerateEmbed");
+                    return new EmbedBuilder().Build();
+                }
 
                 var emotes = discord.GetServerEmotes(ulong.Parse(module.MdParameters.First(m =>
                     m.Name == nameof(HllServerStatusParameters.DiscordChannel)).Value)).Result.ToDictionary(e => e.Name, e => $"<:{e.Name}:{e.Id}>");
 
-                var info = rcon.GetServerInfo(module.Server.Url, module.Server.Port, module.Server.Username,
-                    module.Server.Password);
-                var teamView = rcon.GetTeamView(module.Server.Url, module.Server.Port, module.Server.Username,
-                    module.Server.Password);
-                var mods = rcon
-                    .GetIngameMods(module.Server.Url, module.Server.Port, module.Server.Username,
-                        module.Server.Password).Select(m => long.Parse(m.SteamId ?? "0")).ToList();
+                var info = rcon.GetServerInfo(module.Server);
+                var teamView = rcon.GetTeamView(module.Server);
+                var mods = rcon.GetInGameMods(module.Server).Select(m => long.Parse(m.SteamId ?? "0")).ToList();
                 var battleMetricsRank = bm.GetBattlemetricsRank(ConfigHelper.GetConfig("Battlemetrics", "Url") ?? "",
                     long.Parse(module.MdParameters
                         .First(p => p.Name == nameof(HllServerStatusParameters.BattleMetricsId)).Value));

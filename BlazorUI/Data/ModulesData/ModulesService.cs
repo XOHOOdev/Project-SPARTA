@@ -29,7 +29,9 @@ namespace Sparta.BlazorUI.Data.ModulesData
                     t.Namespace != null && t.Namespace.Contains(moduleName) && t.FullName != null &&
                     t.FullName.EndsWith("Parameters"));
 
-            return Activator.CreateInstance(type) as ModuleParametersBase;
+            var instance = Activator.CreateInstance(type);
+
+            return instance as ModuleParametersBase;
         }
 
         public ModuleParametersBase? GetModuleParameters(Module module)
@@ -83,32 +85,20 @@ namespace Sparta.BlazorUI.Data.ModulesData
 
         public void SetOptions(ref List<ParamInfo> parameters)
         {
-            if (parameters.Any(p => p.Type > 1)) parameters.Insert(0, new ParamInfo { Name = "ModuleParameterGuild", Type = (int)ParameterType.DiscordGuild });
+            if (parameters.Any(p => (int)p.Type >= (int)ParameterType.DiscordChannel)) parameters.Insert(0, new ParamInfo { Name = "ModuleParameterGuild", Type = ParameterType.DiscordGuild });
 
             foreach (var parameter in parameters)
             {
-                switch ((ParameterType)parameter.Type)
+                parameter.Options = parameter.Type switch
                 {
-                    case ParameterType.String:
-                        break;
-                    case ParameterType.HllServer:
-                        parameter.Options = context.SV_Servers.ToArray();
-                        break;
-                    case ParameterType.DiscordChannel:
-                        parameter.Options = context.DC_Channels.ToArray();
-                        break;
-                    case ParameterType.DiscordUser:
-                        parameter.Options = context.DC_Users.ToArray();
-                        break;
-                    case ParameterType.DiscordRole:
-                        parameter.Options = context.DC_Roles.ToArray();
-                        break;
-                    case ParameterType.DiscordGuild:
-                        parameter.Options = context.DC_Guilds.ToArray();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    ParameterType.Text or ParameterType.LargeText or ParameterType.Number or ParameterType.Bool => null,
+                    ParameterType.HllServer => context.SV_Servers.ToArray(),
+                    ParameterType.DiscordChannel => context.DC_Channels.ToArray(),
+                    ParameterType.DiscordUser => context.DC_Users.ToArray(),
+                    ParameterType.DiscordRole => context.DC_Roles.ToArray(),
+                    ParameterType.DiscordGuild => context.DC_Guilds.ToArray(),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
             }
         }
 

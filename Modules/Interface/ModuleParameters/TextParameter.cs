@@ -1,6 +1,6 @@
 ﻿namespace Sparta.Modules.Interface.ModuleParameters
 {
-    public class StringParameter : ModuleParameterBase
+    public class TextParameter : ModuleParameterBase
     {
     }
 }

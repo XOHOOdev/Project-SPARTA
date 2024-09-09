@@ -6,6 +6,7 @@ using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
 using Sparta.Core.Models;
+using Sparta.Modules.HllServerSeeding;
 using Sparta.Modules.HllServerStatus;
 using Sparta.Modules.MapVote;
 using Sparta.Runner.Runners;
@@ -29,6 +30,7 @@ namespace Sparta.Runner
 
             builder.Services.AddScoped<MapVoteModule>();
             builder.Services.AddScoped<HllServerStatusModule>();
+            builder.Services.AddScoped<HllServerSeedingModule>();
 
             builder.Services.AddSingleton<SpartaLogger>();
 
