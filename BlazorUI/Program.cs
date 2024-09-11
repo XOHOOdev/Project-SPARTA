@@ -15,6 +15,7 @@ using Sparta.BlazorUI.Entities;
 using Sparta.BlazorUI.Permissions;
 using Sparta.BlazorUI.Services;
 using Sparta.Core.Helpers;
+using Sparta.Core.Logger;
 
 namespace Sparta.BlazorUI;
 
@@ -52,6 +53,8 @@ internal class Program
         builder.Services.AddScoped<ModulesService>();
         builder.Services.AddScoped<ServerService>();
         builder.Services.AddScoped<LoggingService>();
+
+        builder.Services.AddScoped<SpartaLogger>();
         builder.Services.AddHttpClient();
 
         builder.Services.AddTransient<IEmailSender, EmailSender>();

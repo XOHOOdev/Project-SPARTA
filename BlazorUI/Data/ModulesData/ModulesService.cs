@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Sparta.BlazorUI.Authorization;
 using Sparta.BlazorUI.Entities;
+using Sparta.Core.Logger;
 using Sparta.Modules.Dto;
 using Sparta.Modules.Interface;
 using Sparta.Modules.Interface.ModuleParameters;
@@ -11,7 +12,7 @@ using Module = Sparta.BlazorUI.Entities.Module;
 namespace Sparta.BlazorUI.Data.ModulesData
 {
     [HasPermission(Permissions.Permissions.Modules.View)]
-    public class ModulesService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
+    public class ModulesService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context, SpartaLogger logger)
     {
         public IEnumerable<ModuleCategory> GetModuleCategories()
         {
@@ -123,6 +124,18 @@ namespace Sparta.BlazorUI.Data.ModulesData
             context.SaveChanges();
         }
 
-        private static bool CheckParameters(List<ParamInfo> parameters) => parameters.All(parameter => parameter.Options.Select(o => o.Id.ToString()).Contains(parameter.Content));
+        private bool CheckParameters(List<ParamInfo> parameters)
+        {
+            try
+            {
+                return parameters.All(parameter =>
+                    parameter.Options.Select(o => o.Id.ToString()).Contains(parameter.Content));
+            }
+            catch (Exception ex)
+            {
+                logger.LogException(ex);
+                return false;
+            }
+        }
     }
 }
