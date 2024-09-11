@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Sparta.Core.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using System.Diagnostics;
 
 namespace Sparta.Core.Logger
@@ -25,7 +27,7 @@ namespace Sparta.Core.Logger
         private void Log(string message, string shortMessage, LogSeverity severity, string? source = null)
         {
             using var scope = serviceProvider.CreateScope();
-            using var context = scope.ServiceProvider.GetRequiredService<SpartaDbContext>();
+            using var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext<IdentityUser, ApplicationRole, string>>();
 
             var trace = new StackTrace();
             var frame = trace.GetFrame(2);
@@ -35,14 +37,14 @@ namespace Sparta.Core.Logger
             var truncatedMessage = shortMessage.Length > 30 ? $"{new string(shortMessage.Take(27).ToArray())}..." : shortMessage;
             var truncatedSource = shortSource.Length > 30 ? $"{new string(shortSource.Take(27).ToArray())}..." : shortSource;
 
-            context.LgLogMessages.Add(new LgLogMessage
+            context.LG_LogMessages.Add(new LogMessage()
             {
                 Message = message,
                 ShortMessage = truncatedMessage,
                 Source = $"{frame?.GetMethod()?.DeclaringType?.FullName}.{frame?.GetMethod()?.Name}",
                 ShortSource = truncatedSource,
                 Time = DateTimeOffset.Now,
-                Severity = (int)severity
+                Severity = severity
             });
             context.SaveChanges();
         }

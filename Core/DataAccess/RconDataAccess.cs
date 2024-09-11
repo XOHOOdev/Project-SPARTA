@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Sparta.Core.Dto;
-using Sparta.Core.Models;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
+using Sparta.Core.Dto.Rcon;
 using System.Text.Json.Nodes;
 
 namespace Sparta.Core.DataAccess
@@ -53,13 +53,13 @@ namespace Sparta.Core.DataAccess
             return new T();
         }
 
-        public HllServerInfo GetServerInfo(SvServer server) => GetFromApi<HllServerInfo>(server.Url, server.Port, server.Username, server.Password, "public_info");
+        public HllServerInfo GetServerInfo(Server server) => GetFromApi<HllServerInfo>(server.Url, server.Port, server.Username, server.Password, "public_info");
 
-        public HllTeamView GetTeamView(SvServer server) => GetFromApi<HllTeamView>(server.Url, server.Port, server.Username, server.Password, "get_team_view");
+        public HllTeamView GetTeamView(Server server) => GetFromApi<HllTeamView>(server.Url, server.Port, server.Username, server.Password, "get_team_view");
 
-        public List<HllMod> GetInGameMods(SvServer server) => GetFromApi<List<HllMod>>(server.Url, server.Port, server.Username, server.Password, "get_ingame_mods");
+        public List<HllMod> GetInGameMods(Server server) => GetFromApi<List<HllMod>>(server.Url, server.Port, server.Username, server.Password, "get_ingame_mods");
 
-        public void SendMessage(SvServer server, string steamId, string message, string by = "")
+        public void SendMessage(Server server, string steamId, string message, string by = "")
         {
             JsonObject jsonObject = new()
             {

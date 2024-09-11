@@ -1,11 +1,10 @@
 ﻿using Sparta.Core.DataAccess;
 using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
-using Sparta.Core.Models;
 
 namespace Sparta.Runner.Runners
 {
-    public class DiscordRunner(SpartaDbContext context, DiscordAccess discord, SpartaLogger logger) : IRunner
+    public class DiscordRunner(DiscordAccess discord, SpartaLogger logger, ConfigHelper config) : IRunner
     {
         public void UpdateAsync(CancellationToken cancellationToken)
         {
@@ -23,7 +22,7 @@ namespace Sparta.Runner.Runners
                 logger.LogException(ex);
             }
 
-            var delay = int.Parse(ConfigHelper.GetConfig("DiscordRunner", "ImportInterval") ?? "60");
+            var delay = int.Parse(config.GetConfig("DiscordRunner", "ImportInterval") ?? "60");
             Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken).ContinueWith(t => Run(cancellationToken), cancellationToken);
         }
     }

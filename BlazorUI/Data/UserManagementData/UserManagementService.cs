@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sparta.BlazorUI.Authorization;
-using Sparta.BlazorUI.Entities;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
 namespace Sparta.BlazorUI.Data.UserManagementData;
 
@@ -184,7 +185,7 @@ public class UserManagementService(ApplicationDbContext<IdentityUser, Applicatio
         var userSteamID = context.US_SteamIds.FirstOrDefault(x => x.UserId == userSteam.User.Id);
         if (userSteamID == null)
         {
-            userSteamID = new Entities.UserSteamId { UserId = userSteam.User.Id };
+            userSteamID = new Sparta.Core.DataAccess.DatabaseAccess.Entities.UserSteamId { UserId = userSteam.User.Id };
             context.US_SteamIds.Add(userSteamID);
         }
 

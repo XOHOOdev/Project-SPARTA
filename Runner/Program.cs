@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Sparta.Core.DataAccess;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
-using Sparta.Core.Models;
 using Sparta.Modules.HllServerSeeding;
 using Sparta.Modules.HllServerStatus;
 using Sparta.Modules.MapVote;
@@ -18,8 +20,14 @@ namespace Sparta.Runner
         public static void Main(string[] args)
         {
             var builder = Host.CreateApplicationBuilder(args);
+            builder.Configuration.AddConfiguration(ConfigLoader.Load());
 
-            builder.Services.AddDbContext<SpartaDbContext>(options => options.UseLazyLoadingProxies().EnableSensitiveDataLogging().UseSqlServer(ConfigLoader.Load().GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                                   throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+            builder.Services.AddDbContext<ApplicationDbContext<IdentityUser, ApplicationRole, string>>(options =>
+                options.UseLazyLoadingProxies()
+                    .UseSqlServer(connectionString));
             builder.Services.AddScoped<Updater>();
             builder.Services.AddScoped<DiscordAccess>();
             builder.Services.AddScoped<RconDataAccess>();
@@ -31,6 +39,8 @@ namespace Sparta.Runner
             builder.Services.AddScoped<MapVoteModule>();
             builder.Services.AddScoped<HllServerStatusModule>();
             builder.Services.AddScoped<HllServerSeedingModule>();
+
+            builder.Services.AddScoped<ConfigHelper>();
 
             builder.Services.AddSingleton<SpartaLogger>();
 

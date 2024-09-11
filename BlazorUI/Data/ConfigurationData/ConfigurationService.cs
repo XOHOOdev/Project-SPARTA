@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Sparta.BlazorUI.Authorization;
-using Sparta.BlazorUI.Entities;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Helpers;
 
 namespace Sparta.BlazorUI.Data.ConfigurationData;
 
 [HasPermission(Permissions.Permissions.Configuration.View)]
-public class ConfigurationService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
+public class ConfigurationService(ApplicationDbContext<IdentityUser, ApplicationRole, string> context, ConfigHelper config)
 {
     public ConfigurationCategory[] GetConfigurations()
     {
@@ -46,7 +47,7 @@ public class ConfigurationService(ApplicationDbContext<IdentityUser, Application
     [HasPermission(Permissions.Permissions.Configuration.Edit)]
     public void SaveConfiguration()
     {
-        var jsonString = ConfigHelper.GetConfigAsJson();
+        var jsonString = config.GetConfigAsJson();
         var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "default-config.json");
         File.WriteAllText(path, jsonString);
     }

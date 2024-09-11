@@ -4,7 +4,7 @@ using Sparta.Runner.Runners;
 
 namespace Sparta.Runner
 {
-    public class Updater(ModuleRunner moduleRunner, DiscordRunner discordRunner, SpartaLogger logger)
+    public class Updater(ModuleRunner moduleRunner, DiscordRunner discordRunner, SpartaLogger logger, ConfigHelper config)
     {
         private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens = [];
 
@@ -14,13 +14,13 @@ namespace Sparta.Runner
 
             UpdateComponent("Discord", "DiscordRunner", discordRunner);
 
-            var delay = int.Parse(ConfigHelper.GetConfig("Runner", "ImportInterval") ?? "60");
+            var delay = int.Parse(config.GetConfig("Runner", "ImportInterval") ?? "60");
             Task.Delay(TimeSpan.FromSeconds(delay)).ContinueWith(t => Update());
         }
 
         private void UpdateComponent(string dictionaryName, string configName, IRunner runner)
         {
-            var enabled = bool.Parse(ConfigHelper.GetConfig(configName, "enabled") ?? "false");
+            var enabled = bool.Parse(config.GetConfig(configName, "enabled") ?? "false");
 
             switch (enabled)
             {

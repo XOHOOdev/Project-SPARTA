@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,8 +9,9 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Sparta.Core.DataAccess;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Logger;
-using Sparta.Core.Models;
 using Sparta.Modules.Interface;
 using Sparta.Modules.MapVote.Dto;
 using System.Numerics;
@@ -21,18 +23,18 @@ using Path = System.IO.Path;
 
 namespace Sparta.Modules.MapVote
 {
-    public class MapVoteModule(DiscordAccess discord, SpartaDbContext context, SpartaLogger logger) : IModule
+    public class MapVoteModule(DiscordAccess discord, ApplicationDbContext<IdentityUser, ApplicationRole, string> context, SpartaLogger logger) : IModule
     {
-        public void Run(MdModule module, CancellationToken token)
+        public void Run(Module module, CancellationToken token)
         {
-            var mdParameter = module.MdParameters
+            var mdParameter = module.Parameters
                 .FirstOrDefault(p => p.Name == nameof(MapVoteParameters.Votes));
 
             var votes = GetVotes(mdParameter) ?? GenerateVoteList().ToList();
             logger.LogMessage($"Current votes: {mdParameter?.Value}", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
 
             context.SaveChanges();
-            if (module.MdParameters.All(p => p.Name != nameof(MapVoteParameters.Sides)))
+            if (module.Parameters.All(p => p.Name != nameof(MapVoteParameters.Sides)))
             {
                 logger.LogMessage("No sides decided yet", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
 
@@ -40,7 +42,7 @@ namespace Sparta.Modules.MapVote
 
                 logger.LogMessage($"Result: {winner}", LogSeverity.Debug, $"MapVoteModule[{module.Id}].Run");
 
-                module.MdParameters.Add(new MdParameter
+                module.Parameters.Add(new ModuleParameter
                 {
                     Name = nameof(MapVoteParameters.Sides),
                     Value = winner
@@ -73,14 +75,14 @@ namespace Sparta.Modules.MapVote
             SaveVotes(votes, mdParameter, module);
         }
 
-        private static List<MapVoteItem>? GetVotes(MdParameter? parameter)
+        private static List<MapVoteItem>? GetVotes(ModuleParameter? parameter)
         {
             return parameter == null ? null : JsonConvert.DeserializeObject<List<MapVoteItem>>(parameter.Value);
         }
 
-        private void SaveVotes(List<MapVoteItem> votes, MdParameter? parameter, MdModule module)
+        private void SaveVotes(List<MapVoteItem> votes, ModuleParameter? parameter, Module module)
         {
-            parameter ??= new MdParameter { Module = module, Name = nameof(MapVoteParameters.Votes) };
+            parameter ??= new ModuleParameter { Module = module, Name = nameof(MapVoteParameters.Votes) };
 
             parameter.Value = JsonConvert.SerializeObject(votes);
             context.Update(parameter);
@@ -89,38 +91,38 @@ namespace Sparta.Modules.MapVote
 
         private static int GetVoteCount(List<MapVoteItem> votes) => votes.Count(v => v.State > 0);
 
-        private DcReceivedMessage? CoinFlipReceived(MdModule module)
+        private DiscordReceivedMessage? CoinFlipReceived(Module module)
         {
-            if (module.MdParameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage)) is not { } paramMessage) return null;
+            if (module.Parameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage)) is not { } paramMessage) return null;
 
             var messageId = decimal.Parse(paramMessage.Value);
-            var message = context.DcReceivedMessages.FirstOrDefault(m => m.Reference == messageId);
+            var message = context.DC_ReceivedMessages.FirstOrDefault(m => m.Reference == messageId);
 
             if (message == null) return message;
-            context.DcReceivedMessages.Remove(message);
+            context.DC_ReceivedMessages.Remove(message);
             context.SaveChanges();
 
             return message;
         }
 
-        private static void GenerateFinalEmbed(DiscordAccess discord, MdModule module, List<MapVoteItem> votes, string imageName, DcReceivedMessage message, MemoryStream image)
+        private static void GenerateFinalEmbed(DiscordAccess discord, Module module, List<MapVoteItem> votes, string imageName, DiscordReceivedMessage message, MemoryStream image)
         {
-            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
-            var messageId = ulong.Parse(module.MdParameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage))?.Value ?? "0");
+            var channelId = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
+            var messageId = ulong.Parse(module.Parameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage))?.Value ?? "0");
             var mapVoteMessageBuilder = new StringBuilder(messageId == 0 ? "" : discord.GetMessageEmbed(channelId, messageId).Result?.Description);
 
             var users = new[]
             {
-                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value),
-                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value)
+                ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value),
+                ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value)
             };
 
             if (users.All(u => message.UserId != u)) return;
 
             var roles = new[]
             {
-                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team1)).Value),
-                ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team2)).Value)
+                ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Team1)).Value),
+                ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Team2)).Value)
             }.Select(r => discord.GetRoleMentionAsync(channelId, r).Result).ToArray();
 
             Random.Shared.Shuffle(roles);
@@ -153,12 +155,12 @@ namespace Sparta.Modules.MapVote
                 ).Wait();
         }
 
-        private static Embed GenerateEmbed(DiscordAccess discord, MdModule module, List<MapVoteItem> votes, string? lastBan, string imageName)
+        private static Embed GenerateEmbed(DiscordAccess discord, Module module, List<MapVoteItem> votes, string? lastBan, string imageName)
         {
-            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
-            var messageId = ulong.Parse(module.MdParameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage))?.Value ?? "0");
-            var sides = bool.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Sides)).Value);
-            var coinFlipRoleId = ulong.Parse(module.MdParameters.First(p => p.Name == (sides ? nameof(MapVoteParameters.Team1) : nameof(MapVoteParameters.Team2))).Value);
+            var channelId = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
+            var messageId = ulong.Parse(module.Parameters.FirstOrDefault(p => p.Name == nameof(MapVoteParameters.DiscordMessage))?.Value ?? "0");
+            var sides = bool.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Sides)).Value);
+            var coinFlipRoleId = ulong.Parse(module.Parameters.First(p => p.Name == (sides ? nameof(MapVoteParameters.Team1) : nameof(MapVoteParameters.Team2))).Value);
             var currentVoter = GetCurrentVoter(discord, votes, module);
 
             var mapVoteMessageBuilder = new StringBuilder(messageId == 0 ? "" : discord.GetMessageEmbed(channelId, messageId).Result?.Description);
@@ -188,26 +190,26 @@ namespace Sparta.Modules.MapVote
             return embed;
         }
 
-        private IEnumerable<string> GetTeamNames(MdModule module)
+        private IEnumerable<string> GetTeamNames(Module module)
         {
-            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
-            return module.MdParameters
+            var channelId = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
+            return module.Parameters
                 .Where(p => p.Name is nameof(MapVoteParameters.Team1) or nameof(MapVoteParameters.Team2))
                 .Select(p => discord.GetRoleNameAsync(channelId, ulong.Parse(p.Value)).Result);
         }
 
-        private static MapVoter GetCurrentVoter(DiscordAccess discord, List<MapVoteItem> votes, MdModule module)
+        private static MapVoter GetCurrentVoter(DiscordAccess discord, List<MapVoteItem> votes, Module module)
         {
-            var sides = bool.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Sides)).Value);
-            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
+            var sides = bool.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Sides)).Value);
+            var channelId = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
 
             var voteCount = (GetVoteCount(votes) + (sides ? 0 : 1));
             var switchCondition = voteCount % 2;
             switch (switchCondition)
             {
                 default:
-                    var roleId1 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team1)).Value);
-                    var userId1 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value);
+                    var roleId1 = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Team1)).Value);
+                    var userId1 = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value);
                     return new MapVoter
                     {
                         RoleId = roleId1,
@@ -216,8 +218,8 @@ namespace Sparta.Modules.MapVote
                         UserId = userId1
                     };
                 case 1:
-                    var roleId2 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Team2)).Value);
-                    var userId2 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value);
+                    var roleId2 = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Team2)).Value);
+                    var userId2 = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value);
                     return new MapVoter
                     {
                         RoleId = roleId2,
@@ -228,7 +230,7 @@ namespace Sparta.Modules.MapVote
             }
         }
 
-        private MemoryStream GenerateImage(MdModule module, List<MapVoteItem> votes)
+        private MemoryStream GenerateImage(Module module, List<MapVoteItem> votes)
         {
             var teamNames = GetTeamNames(module).ToArray();
             const int imgWidth = 4000;
@@ -332,24 +334,24 @@ namespace Sparta.Modules.MapVote
             return memStream;
         }
 
-        private void SendFile(MdModule module, Embed embed, List<MapVoteItem> votes, FileAttachment attachment)
+        private void SendFile(Module module, Embed embed, List<MapVoteItem> votes, FileAttachment attachment)
         {
             const string threadName = "match-orga";
 
-            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
+            var channelId = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
             if (!discord.ChannelHasThread(channelId, threadName).Result)
             {
                 var thread = discord.CreateThread(channelId, threadName).Result;
                 if (thread == null) return;
 
-                var rep1 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value);
-                var rep2 = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value);
+                var rep1 = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Rep1)).Value);
+                var rep2 = ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.Rep2)).Value);
 
                 discord.AddUserToThread(thread.Id, rep1).Wait();
                 discord.AddUserToThread(thread.Id, rep2).Wait();
             }
 
-            if (module.MdParameters.Any(p => p.Name == nameof(MapVoteParameters.DiscordMessage)))
+            if (module.Parameters.Any(p => p.Name == nameof(MapVoteParameters.DiscordMessage)))
             {
                 ulong messageId;
 
@@ -361,7 +363,7 @@ namespace Sparta.Modules.MapVote
 
                     messageId = discord.ModifyFileAsync(
                         channelId
-                        , ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage))
+                        , ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage))
                             .Value)
                         , embed: embed
                         , attachment: attachment
@@ -371,7 +373,7 @@ namespace Sparta.Modules.MapVote
                 {
                     messageId = discord.ModifyFileAsync(
                         channelId
-                        , ulong.Parse(module.MdParameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage))
+                        , ulong.Parse(module.Parameters.First(p => p.Name == nameof(MapVoteParameters.DiscordMessage))
                             .Value)
                         , embed: embed
                         , attachment: attachment).Result;
@@ -379,7 +381,7 @@ namespace Sparta.Modules.MapVote
 
                 if (messageId != 0) return;
 
-                module.MdParameters.Remove(module.MdParameters.First(p =>
+                module.Parameters.Remove(module.Parameters.First(p =>
                     p.Name == nameof(MapVoteParameters.DiscordMessage)));
 
                 context.SaveChanges();
@@ -395,11 +397,11 @@ namespace Sparta.Modules.MapVote
 
                     if (messageId == 0) return;
 
-                    context.MdParameters.Add(new MdParameter
+                    context.MD_Parameters.Add(new ModuleParameter
                     {
                         Name = nameof(MapVoteParameters.DiscordMessage),
                         Value = messageId.ToString(),
-                        ModuleId = module.Id
+                        Module = module
                     });
 
                     context.SaveChanges();
@@ -419,11 +421,11 @@ namespace Sparta.Modules.MapVote
             return mapList == null ? [] : mapList.Select(m => new MapVoteItem { MapName = m, State = MapVoteState.Unknown });
         }
 
-        private string? GetMessagesAndVote(List<MapVoteItem> votes, MdModule module)
+        private string? GetMessagesAndVote(List<MapVoteItem> votes, Module module)
         {
             var userId = GetCurrentVoter(discord, votes, module).UserId;
 
-            var channelId = ulong.Parse(module.MdParameters
+            var channelId = ulong.Parse(module.Parameters
                 .First(p => p.Name == nameof(MapVoteParameters.DiscordChannel)).Value);
 
             var messages = discord
@@ -541,7 +543,7 @@ namespace Sparta.Modules.MapVote
             }
 
             var result = dCurrent[maxi];
-            return (result > threshold) ? int.MaxValue : result;
+            return result > threshold ? int.MaxValue : result;
         }
 
         private static void Swap<T>(ref T arg1, ref T arg2) => (arg1, arg2) = (arg2, arg1);

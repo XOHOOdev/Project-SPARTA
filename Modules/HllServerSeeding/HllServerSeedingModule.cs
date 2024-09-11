@@ -1,49 +1,52 @@
-﻿using Sparta.Core.DataAccess;
-using Sparta.Core.Dto;
+﻿using Microsoft.AspNetCore.Identity;
+using Sparta.Core.DataAccess;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
+using Sparta.Core.Dto.Rcon;
 using Sparta.Core.Logger;
-using Sparta.Core.Models;
 using Sparta.Modules.Interface;
 
 namespace Sparta.Modules.HllServerSeeding
 {
-    public class HllServerSeedingModule(SpartaDbContext context, RconDataAccess rcon, SpartaLogger logger) : IModule
+    public class HllServerSeedingModule(ApplicationDbContext<IdentityUser, ApplicationRole, string> context, RconDataAccess rcon, SpartaLogger logger) : IModule
     {
-        public void Run(MdModule module, CancellationToken token)
+        public void Run(Module module, CancellationToken token)
         {
-            var serverId = long.Parse(module.MdParameters
+            var serverId = ulong.Parse(module.Parameters
                 .First(p => p.Name == nameof(HllServerSeedingParameters.Server)).Value);
 
-            var maxPlayers = long.Parse(module.MdParameters
+            var maxPlayers = long.Parse(module.Parameters
                 .First(p => p.Name == nameof(HllServerSeedingParameters.MaxPlayerCount)).Value);
 
-            var seedingParameter = module.MdParameters
+            var seedingParameter = module.Parameters
                 .FirstOrDefault(p => p.Name == nameof(HllServerSeedingParameters.IsSeeding));
 
             if (seedingParameter == null)
             {
-                seedingParameter = new MdParameter
+                seedingParameter = new ModuleParameter
                 {
                     Name = nameof(HllServerSeedingParameters.IsSeeding),
                     Value = "false"
                 };
 
-                module.MdParameters.Add(seedingParameter);
+                module.Parameters.Add(seedingParameter);
                 context.SaveChanges();
             }
 
             var currentlySeeding = bool.Parse(seedingParameter.Value);
 
-            module.Server ??= context.SvServers.FirstOrDefault(s => s.Id == serverId);
+            var server = context.SV_Servers.FirstOrDefault(s => s.Id == serverId);
+
             context.SaveChanges();
 
-            if (module.Server == null)
+            if (server == null)
             {
                 logger.LogMessage("The Server could not be found", LogSeverity.Warning,
                     $"HllServerSeedingModule[{module.Id}].Run");
                 return;
             }
 
-            var serverInfo = rcon.GetServerInfo(module.Server);
+            var serverInfo = rcon.GetServerInfo(server);
 
             if (!currentlySeeding && serverInfo.PlayerCount <= maxPlayers)
             {
@@ -61,21 +64,20 @@ namespace Sparta.Modules.HllServerSeeding
             seedingParameter.Value = "false";
             context.SaveChanges();
 
-            var teams = rcon.GetTeamView(module.Server);
+            var teams = rcon.GetTeamView(server);
 
             var players = (teams.Axis ?? new HllTeam()).GetPlayers()
                 .Concat((teams.Allies ?? new HllTeam()).GetPlayers())
                 .Concat((teams.None ?? new HllTeam()).GetPlayers());
 
-            var messageBy = module.MdParameters.First(p => p.Name == nameof(HllServerSeedingParameters.MessageBy)).Value;
+            var messageBy = module.Parameters.First(p => p.Name == nameof(HllServerSeedingParameters.MessageBy)).Value;
 
-            var message = module.MdParameters.First(p => p.Name == nameof(HllServerSeedingParameters.Message)).Value;
+            var message = module.Parameters.First(p => p.Name == nameof(HllServerSeedingParameters.Message)).Value;
 
             foreach (var player in players)
             {
-                rcon.SendMessage(module.Server, player.SteamId ?? "0", message, messageBy);
+                rcon.SendMessage(server, player.SteamId ?? "0", message, messageBy);
             }
-
         }
     }
 }

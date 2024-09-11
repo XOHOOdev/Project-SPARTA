@@ -1,11 +1,14 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
-using Sparta.Core.Models;
+using LogMessage = Discord.LogMessage;
 
 namespace Sparta.Core.DataAccess
 {
@@ -14,15 +17,15 @@ namespace Sparta.Core.DataAccess
         private readonly string _token;
         private readonly DiscordSocketClient _client;
         private readonly IServiceProvider _services;
-        private readonly SpartaDbContext _dbContext;
+        private readonly ApplicationDbContext<IdentityUser, ApplicationRole, string> _dbContext;
         private readonly SpartaLogger _logger;
 
         private bool _isReady = false;
 
-        public DiscordAccess(SpartaDbContext dbContext, SpartaLogger logger)
+        public DiscordAccess(ApplicationDbContext<IdentityUser, ApplicationRole, string> dbContext, SpartaLogger logger, ConfigHelper config)
         {
             _dbContext = dbContext;
-            _token = ConfigHelper.GetConfig("DiscordBot", "DiscordToken") ?? "";
+            _token = config.GetConfig("DiscordBot", "DiscordToken") ?? "";
             _logger = logger;
 
             DiscordSocketConfig discordSocketConfig = new()
@@ -67,13 +70,13 @@ namespace Sparta.Core.DataAccess
                 .Build();
             await arg.RespondAsync(embed: embed, ephemeral: true);
 
-            var user = await _dbContext.DcUsers.FindAsync((decimal)arg.User.Id);
+            var user = await _dbContext.DC_Users.FindAsync((decimal)arg.User.Id);
 
-            _dbContext.DcReceivedMessages.Add(new DcReceivedMessage
+            _dbContext.DC_ReceivedMessages.Add(new DiscordReceivedMessage()
             {
                 Id = arg.Id,
                 Content = arg.Data.Value.IsNullOrEmpty() ? "Button Press" : arg.Data.Value,
-                MessageType = 2,
+                MessageType = DiscordMessageType.Component,
                 Reference = arg.Message.Id,
                 UserId = arg.User.Id
             });
@@ -241,52 +244,53 @@ namespace Sparta.Core.DataAccess
         {
             if (!_isReady) return;
 
-            var dcGuilds = _client.Guilds.Select(g => new DcGuild
+            var dcGuilds = _client.Guilds.Select(g => new DiscordGuild()
             {
                 Id = g.Id,
                 Name = g.Name,
             }).ToArray();
-            var dbGuilds = _dbContext.DcGuilds.ToArray();
+            var dbGuilds = _dbContext.DC_Guilds.ToArray();
 
-            _dbContext.DcGuilds.AddRange(dcGuilds.Except(dbGuilds));
-            _dbContext.DcGuilds.RemoveRange(dbGuilds.Except(dcGuilds));
-
-            var dcChannels = _client.Guilds.SelectMany(g => g.Channels).Where(c => c is SocketTextChannel).Select(c => new DcChannel
-            {
-                Id = c.Id,
-                Name = c.Name,
-                DiscordGuildId = c.Guild.Id
-            }).ToArray();
-            var dbChannels = _dbContext.DcChannels.ToArray();
-
-            _dbContext.DcChannels.AddRange(dcChannels.Except(dbChannels));
-            _dbContext.DcChannels.RemoveRange(dbChannels.Except(dcChannels));
-
-            var dcRoles = _client.Guilds.SelectMany(g => g.Roles).Select(r => new DcRole
-            {
-                Id = r.Id,
-                Name = r.Name,
-                GuildId = r.Guild.Id
-            }).ToArray();
-            var dbRoles = _dbContext.DcRoles.ToArray();
-
-            _dbContext.DcRoles.AddRange(dcRoles.Except(dbRoles));
-            _dbContext.DcRoles.RemoveRange(dbRoles.Except(dcRoles));
+            _dbContext.DC_Guilds.AddRange(dcGuilds.Except(dbGuilds));
+            _dbContext.DC_Guilds.RemoveRange(dbGuilds.Except(dcGuilds));
 
             var allGuilds = dbGuilds.ToList();
             allGuilds.AddRange(dcGuilds);
             allGuilds = allGuilds.Intersect(dcGuilds).ToList();
 
-            var dcUsers = _client.Guilds.SelectMany(g => g.Users).DistinctBy(u => u.Id).Where(u => !u.IsBot).Select(u => new DcUser
+            var dcChannels = _client.Guilds.SelectMany(g => g.Channels).Where(c => c is SocketTextChannel).Select(c => new DiscordChannel()
+            {
+                Id = c.Id,
+                Name = c.Name,
+                DiscordGuild = allGuilds.First(g => g.Id == c.Guild.Id)
+            }).ToArray();
+            var dbChannels = _dbContext.DC_Channels.ToArray();
+
+            _dbContext.DC_Channels.AddRange(dcChannels.Except(dbChannels));
+            _dbContext.DC_Channels.RemoveRange(dbChannels.Except(dcChannels));
+
+            var dcRoles = _client.Guilds.SelectMany(g => g.Roles).Select(r => new DiscordRole()
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Guild = allGuilds.First(g => g.Id == r.Guild.Id)
+            }).ToArray();
+            var dbRoles = _dbContext.DC_Roles.ToArray();
+
+            _dbContext.DC_Roles.AddRange(dcRoles.Except(dbRoles));
+            _dbContext.DC_Roles.RemoveRange(dbRoles.Except(dcRoles));
+
+
+            var dcUsers = _client.Guilds.SelectMany(g => g.Users).DistinctBy(u => u.Id).Where(u => !u.IsBot).Select(u => new DiscordUser()
             {
                 Id = u.Id,
                 Name = u.DisplayName,
-                DiscordGuilds = u.MutualGuilds.Select(g => allGuilds.FirstOrDefault(gdb => gdb.Id == g.Id)).OfType<DcGuild>().ToArray(),
+                DiscordGuilds = u.MutualGuilds.Select(g => allGuilds.FirstOrDefault(gdb => gdb.Id == g.Id)).OfType<DiscordGuild>().ToList(),
             }).ToArray();
-            var dbUsers = _dbContext.DcUsers.ToArray();
+            var dbUsers = _dbContext.DC_Users.ToArray();
 
-            _dbContext.DcUsers.AddRange(dcUsers.Except(dbUsers));
-            _dbContext.DcUsers.RemoveRange(dbUsers.Except(dbUsers));
+            _dbContext.DC_Users.AddRange(dcUsers.Except(dbUsers));
+            _dbContext.DC_Users.RemoveRange(dbUsers.Except(dbUsers));
 
             var allUsers = dbUsers.ToList();
             allUsers.AddRange(dcUsers);
@@ -312,7 +316,7 @@ namespace Sparta.Core.DataAccess
                     (x, y) => new { role = x, dcRoles = y })
                     .Where(x => !x.dcRoles.IsNullOrEmpty())
                     .Select(x => x.role)
-                    .ToArray();
+                    .ToList();
             }
 
             _dbContext.SaveChanges();

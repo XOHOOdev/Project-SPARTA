@@ -1,8 +1,7 @@
 ﻿@using Sparta.BlazorUI.Authorization
 @using Sparta.BlazorUI.Data.UserManagementData
-@using Sparta.BlazorUI.Entities
 @using Sparta.BlazorUI.Permissions
-@using Sparta.Core.Models
+@using Sparta.Core.DataAccess.DatabaseAccess.Entities
 @inject IStringLocalizer<UserManagement> Localizer
 @inject UserManagementService ManagementService
 @attribute [HasPermission(Permissions.UserManagement.View)]

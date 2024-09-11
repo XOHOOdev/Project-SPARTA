@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Sparta.BlazorUI.Authorization;
-using Sparta.BlazorUI.Entities;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
+using Sparta.Core.Dto.Modules;
 using Sparta.Core.Logger;
-using Sparta.Modules.Dto;
 using Sparta.Modules.Interface;
 using Sparta.Modules.Interface.ModuleParameters;
 using System.Reflection;
 using System.Security.Claims;
-using Module = Sparta.BlazorUI.Entities.Module;
+using Module = Sparta.Core.DataAccess.DatabaseAccess.Entities.Module;
 
 namespace Sparta.BlazorUI.Data.ModulesData
 {

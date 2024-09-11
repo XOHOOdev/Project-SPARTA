@@ -5,10 +5,10 @@ using Sparta.Core.Helpers;
 
 namespace Sparta.BlazorUI.Services;
 
-public class EmailSender(ILogger<EmailSender> logger) : IEmailSender
+public class EmailSender(ILogger<EmailSender> logger, ConfigHelper config) : IEmailSender
 {
     private readonly ILogger _logger = logger;
-    private readonly string _sendGridKey = ConfigHelper.GetConfig("SendGrid", "SendGridKey") ?? string.Empty;
+    private readonly string _sendGridKey = config.GetConfig("SendGrid", "SendGridKey") ?? string.Empty;
 
     public async Task SendEmailAsync(string toEmail, string subject, string message)
     {

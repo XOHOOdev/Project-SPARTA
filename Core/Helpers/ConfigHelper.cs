@@ -1,5 +1,7 @@
-﻿using Sparta.Core.Converters;
-using Sparta.Core.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Sparta.Core.Converters;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
 /**
  * Update Migration
@@ -8,37 +10,33 @@ using Sparta.Core.Models;
 
 namespace Sparta.Core.Helpers
 {
-    public class ConfigHelper
+    public class ConfigHelper(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
     {
-        public static void SetConfig(string json)
+        public void SetConfig(string json)
         {
-            using SpartaDbContext dbContext = new();
-
-            if (dbContext.CfConfigurations.Any()) return;
+            if (context.CF_Configurations.Any()) return;
 
             foreach (var config in ConfigConverter.Deserialize(json))
             {
-                var reqObj = dbContext.Find(typeof(CfConfiguration), [config.Class, config.Property]);
+                var reqObj = context.Find(typeof(Configuration), [config.Class, config.Property]);
                 if (reqObj != null)
                 {
-                    ((CfConfiguration)reqObj).Value = config.Value;
+                    ((Configuration)reqObj).Value = config.Value;
                     continue;
                 }
-                dbContext.Add(config);
+                context.Add(config);
             }
-            dbContext.SaveChanges();
+            context.SaveChanges();
         }
 
-        public static string? GetConfig(string className, string config)
+        public string? GetConfig(string className, string config)
         {
-            using SpartaDbContext dbContext = new();
-            return (dbContext.Find(typeof(CfConfiguration), [className, config]) as CfConfiguration)?.Value;
+            return (context.Find(typeof(Configuration), [className, config]) as Configuration)?.Value;
         }
 
-        public static string GetConfigAsJson()
+        public string GetConfigAsJson()
         {
-            using SpartaDbContext dbContext = new();
-            return ConfigConverter.Serialize(dbContext.CfConfigurations.ToArray());
+            return ConfigConverter.Serialize(context.CF_Configurations.ToArray());
         }
     }
 }

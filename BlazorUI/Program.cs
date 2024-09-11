@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Sparta.BlazorUI.Areas.Identity;
 using Sparta.BlazorUI.Authorization;
-using Sparta.BlazorUI.Data;
 using Sparta.BlazorUI.Data.ConfigurationData;
 using Sparta.BlazorUI.Data.LoggingData;
 using Sparta.BlazorUI.Data.ModulesData;
 using Sparta.BlazorUI.Data.ServerData;
 using Sparta.BlazorUI.Data.UserManagementData;
-using Sparta.BlazorUI.Entities;
 using Sparta.BlazorUI.Permissions;
 using Sparta.BlazorUI.Services;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
 
@@ -53,6 +53,7 @@ internal class Program
         builder.Services.AddScoped<ModulesService>();
         builder.Services.AddScoped<ServerService>();
         builder.Services.AddScoped<LoggingService>();
+        builder.Services.AddScoped<ConfigHelper>();
 
         builder.Services.AddScoped<SpartaLogger>();
         builder.Services.AddHttpClient();
@@ -67,7 +68,7 @@ internal class Program
             CreatePermissions(serviceProvider).Wait();
             CreateRoles(serviceProvider).Wait();
             CreateDefaultUser(serviceProvider).Wait();
-            LoadDefaultConfig();
+            LoadDefaultConfig(serviceProvider);
 
             UserExtensions.Configure(serviceScope.ServiceProvider.GetService<IAuthorizationHandler>());
         }
@@ -193,11 +194,13 @@ internal class Program
         context.Database.Migrate();
     }
 
-    private static void LoadDefaultConfig()
+    private static void LoadDefaultConfig(IServiceProvider serviceProvider)
     {
+        var config = serviceProvider.GetRequiredService<ConfigHelper>();
+
         var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "default-config.json");
         using StreamReader r = new(path);
         var json = r.ReadToEnd();
-        ConfigHelper.SetConfig(json);
+        config.SetConfig(json);
     }
 }

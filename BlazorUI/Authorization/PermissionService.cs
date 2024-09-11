@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Sparta.BlazorUI.Data;
-using Sparta.BlazorUI.Entities;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
 namespace Sparta.BlazorUI.Authorization;
 

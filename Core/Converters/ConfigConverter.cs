@@ -1,21 +1,21 @@
 ﻿using Newtonsoft.Json.Linq;
-using Sparta.Core.Models;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
 namespace Sparta.Core.Converters
 {
     public class ConfigConverter
     {
-        public static CfConfiguration[] Deserialize(string json)
+        public static Configuration[] Deserialize(string json)
         {
-            List<CfConfiguration> configs = [];
+            List<Configuration> configs = [];
 
             var jsonObject = JObject.Parse(json);
-            configs.AddRange(from item in jsonObject.Children() from item2 in item.First().Children() let prop = item2 as JProperty select new CfConfiguration { Class = item.Path, Property = prop?.Name ?? "", Value = prop?.Value.ToString() ?? "" });
+            configs.AddRange(from item in jsonObject.Children() from item2 in item.First().Children() let prop = item2 as JProperty select new Configuration { Class = item.Path, Property = prop?.Name ?? "", Value = prop?.Value.ToString() ?? "" });
 
             return configs.ToArray();
         }
 
-        public static string Serialize(CfConfiguration[] dbConfigurations)
+        public static string Serialize(Configuration[] dbConfigurations)
         {
             JObject jsonObject = new();
             foreach (var config in dbConfigurations)

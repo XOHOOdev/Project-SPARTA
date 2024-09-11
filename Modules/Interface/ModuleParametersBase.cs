@@ -1,4 +1,4 @@
-﻿using Sparta.Modules.Dto;
+﻿using Sparta.Core.Dto.Modules;
 using Sparta.Modules.Interface.ModuleParameters;
 using System.Reflection;
 

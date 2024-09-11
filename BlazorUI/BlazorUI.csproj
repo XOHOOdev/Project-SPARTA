@@ -11,10 +11,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Entities\RolePermissions.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Content Remove="wwwroot\img\Sparta.svg" />
 	</ItemGroup>
 
@@ -57,7 +53,6 @@
 
 	<ItemGroup>
 		<Folder Include="Config\" />
-		<Folder Include="Data\Model\" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,4 +1,4 @@
-﻿using Sparta.BlazorUI.Entities;
+﻿using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
 namespace Sparta.BlazorUI.Data.ModulesData
 {

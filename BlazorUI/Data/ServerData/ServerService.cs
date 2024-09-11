@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Sparta.BlazorUI.Authorization;
-using Sparta.BlazorUI.Entities;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
 namespace Sparta.BlazorUI.Data.ServerData
 {

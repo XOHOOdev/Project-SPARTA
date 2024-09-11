@@ -1,17 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
-using Sparta.Core.Models;
 using Sparta.Modules.Interface;
 
 namespace Sparta.Runner.Runners
 {
-    public class ModuleRunner(SpartaDbContext context, IServiceProvider provider, SpartaLogger logger) : IRunner
+    public class ModuleRunner(ApplicationDbContext<IdentityUser, ApplicationRole, string> context, IServiceProvider provider, SpartaLogger logger, ConfigHelper config) : IRunner
     {
         public void Run(CancellationToken cancellationToken)
         {
-            var modules = context.MdModules.Include(mdModule => mdModule.Type).Where(m => m.Enabled).ToArray();
+            var modules = context.MD_Modules.Include(mdModule => mdModule.Type).Where(m => m.Enabled).ToArray();
 
             logger.LogDebug($"Found {modules.Length} module(s) [{string.Join(", ", modules.Select(m => $"{m.Type.Name}({m.Id})]"))}");
 
@@ -34,7 +36,7 @@ namespace Sparta.Runner.Runners
                 }
             }
 
-            var delay = int.Parse(ConfigHelper.GetConfig("ModuleRunner", "ImportInterval") ?? "60");
+            var delay = int.Parse(config.GetConfig("ModuleRunner", "ImportInterval") ?? "60");
             Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken).ContinueWith(t => Run(cancellationToken), cancellationToken);
         }
     }

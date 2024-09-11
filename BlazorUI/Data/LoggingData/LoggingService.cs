@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Sparta.BlazorUI.Entities;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Logger;
 
 namespace Sparta.BlazorUI.Data.LoggingData

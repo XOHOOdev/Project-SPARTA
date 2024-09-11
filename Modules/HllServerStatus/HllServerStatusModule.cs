@@ -1,47 +1,49 @@
 ﻿using Discord;
+using Microsoft.AspNetCore.Identity;
 using Sparta.Core.DataAccess;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
-using Sparta.Core.Models;
 using Sparta.Modules.HllServerStatus.Templates;
 using Sparta.Modules.Interface;
 using LogSeverity = Sparta.Core.Logger.LogSeverity;
 
 namespace Sparta.Modules.HllServerStatus
 {
-    public class HllServerStatusModule(DiscordAccess discord, SpartaDbContext context, RconDataAccess rcon, BattleMetricsDataAccess bm, SpartaLogger logger) : IModule
+    public class HllServerStatusModule(DiscordAccess discord, ApplicationDbContext<IdentityUser, ApplicationRole, string> context, RconDataAccess rcon, BattleMetricsDataAccess bm, SpartaLogger logger, ConfigHelper config) : IModule
     {
-        public void Run(MdModule module, CancellationToken token)
+        public void Run(Module module, CancellationToken token)
         {
-            var serverId = long.Parse(module.MdParameters
+            var serverId = ulong.Parse(module.Parameters
                 .First(p => p.Name == nameof(HllServerStatusParameters.Server)).Value);
 
-            module.Server ??= context.SvServers.FirstOrDefault(s => s.Id == serverId);
+            var server = context.SV_Servers.FirstOrDefault(s => s.Id == serverId);
             context.SaveChanges();
 
-            SendEmbed(module, GenerateEmbed(module));
+            SendEmbed(module, GenerateEmbed(module, server));
         }
 
-        private Embed GenerateEmbed(MdModule module)
+        private Embed GenerateEmbed(Module module, Server? server)
         {
             try
             {
-                if (module.Server == null)
+                if (server == null)
                 {
                     logger.LogMessage("The Server could not be found", LogSeverity.Warning, $"HllServerStatusModule[{module.Id}].GenerateEmbed");
                     return new EmbedBuilder().Build();
                 }
 
-                var serverEmotes = discord.GetServerEmotes(ulong.Parse(module.MdParameters.First(m =>
+                var serverEmotes = discord.GetServerEmotes(ulong.Parse(module.Parameters.First(m =>
                     m.Name == nameof(HllServerStatusParameters.DiscordChannel)).Value)).Result;
 
                 var emotes = serverEmotes.Select(e => new KeyValuePair<string, string>(e.Name, $"<:{e.Name}:{e.Id}>")).ToArray();
 
-                var info = rcon.GetServerInfo(module.Server);
-                var teamView = rcon.GetTeamView(module.Server);
-                var mods = rcon.GetInGameMods(module.Server).Select(m => long.Parse(m.SteamId ?? "0")).ToList();
-                var battleMetricsRank = bm.GetBattlemetricsRank(ConfigHelper.GetConfig("Battlemetrics", "Url") ?? "",
-                    long.Parse(module.MdParameters
+                var info = rcon.GetServerInfo(server);
+                var teamView = rcon.GetTeamView(server);
+                var mods = rcon.GetInGameMods(server).Select(m => long.Parse(m.SteamId ?? "0")).ToList();
+                var battleMetricsRank = bm.GetBattlemetricsRank(config.GetConfig("Battlemetrics", "Url") ?? "",
+                    long.Parse(module.Parameters
                         .First(p => p.Name == nameof(HllServerStatusParameters.BattleMetricsId)).Value));
 
                 if (info.Score == null) return new EmbedBuilder().Build();
@@ -116,20 +118,20 @@ namespace Sparta.Modules.HllServerStatus
             }
         }
 
-        private void SendEmbed(MdModule module, Embed embed)
+        private void SendEmbed(Module module, Embed embed)
         {
-            var channelId = ulong.Parse(module.MdParameters.First(p => p.Name == nameof(HllServerStatusParameters.DiscordChannel)).Value);
+            var channelId = ulong.Parse(module.Parameters.First(p => p.Name == nameof(HllServerStatusParameters.DiscordChannel)).Value);
 
-            if (module.MdParameters.Any(p => p.Name == nameof(HllServerStatusParameters.DiscordMessage)))
+            if (module.Parameters.Any(p => p.Name == nameof(HllServerStatusParameters.DiscordMessage)))
             {
                 var messageId = discord.ModifyMessageAsync(
                     channelId,
-                    ulong.Parse(module.MdParameters.First(p => p.Name == nameof(HllServerStatusParameters.DiscordMessage)).Value),
+                    ulong.Parse(module.Parameters.First(p => p.Name == nameof(HllServerStatusParameters.DiscordMessage)).Value),
                     embed: embed).Result;
 
                 if (messageId != 0) return;
 
-                module.MdParameters.Remove(module.MdParameters.First(p =>
+                module.Parameters.Remove(module.Parameters.First(p =>
                     p.Name == nameof(HllServerStatusParameters.DiscordMessage)));
 
                 context.SaveChanges();
@@ -142,11 +144,11 @@ namespace Sparta.Modules.HllServerStatus
 
                 if (messageId == 0) return;
 
-                context.MdParameters.Add(new MdParameter
+                context.MD_Parameters.Add(new ModuleParameter()
                 {
                     Name = nameof(HllServerStatusParameters.DiscordMessage),
                     Value = messageId.ToString(),
-                    ModuleId = module.Id
+                    Module = module
                 });
 
                 context.SaveChanges();
