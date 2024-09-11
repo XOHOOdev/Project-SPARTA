@@ -15,5 +15,16 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Entities
         public virtual List<DiscordGuild> DiscordGuilds { get; set; } = [];
 
         public virtual List<DiscordRole> Roles { get; set; } = [];
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not DiscordUser user) return false;
+            return Id == user.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id);
+        }
     }
 }

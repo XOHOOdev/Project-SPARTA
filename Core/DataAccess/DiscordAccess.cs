@@ -94,9 +94,6 @@ namespace Sparta.Core.DataAccess
             //await _client.BulkOverwriteGlobalApplicationCommandsAsync(SetupHelper.BuildSlashCommands().ToArray());
 
             //SetupHelper.BuildStatsMessages(this);
-
-            await _client.DownloadUsersAsync(_client.Guilds);
-
             _logger.LogInfo($"Started Discord Bot as \"{_client.CurrentUser.Username}\"");
 
             _isReady = true;
@@ -240,86 +237,94 @@ namespace Sparta.Core.DataAccess
             return await channel.Guild.GetEmotesAsync();
         }
 
-        public void UpdateGuilds()
+        public async Task UpdateGuilds(CancellationToken ct)
         {
             if (!_isReady) return;
+
+            await _client.DownloadUsersAsync(_client.Guilds);
 
             var dcGuilds = _client.Guilds.Select(g => new DiscordGuild()
             {
                 Id = g.Id,
                 Name = g.Name,
             }).ToArray();
-            var dbGuilds = _dbContext.DC_Guilds.ToArray();
+            var dbGuilds = _dbContext.DC_Guilds.ToList();
 
-            _dbContext.DC_Guilds.AddRange(dcGuilds.Except(dbGuilds));
-            _dbContext.DC_Guilds.RemoveRange(dbGuilds.Except(dcGuilds));
+            var guildsToAdd = dcGuilds.Except(dbGuilds).ToArray();
+            var guildsToRemove = dbGuilds.Except(dcGuilds).ToArray();
 
-            var allGuilds = dbGuilds.ToList();
-            allGuilds.AddRange(dcGuilds);
-            allGuilds = allGuilds.Intersect(dcGuilds).ToList();
+            _dbContext.DC_Guilds.AddRange(guildsToAdd);
+            _dbContext.DC_Guilds.RemoveRange(guildsToRemove);
+
+            dbGuilds.AddRange(guildsToAdd);
 
             var dcChannels = _client.Guilds.SelectMany(g => g.Channels).Where(c => c is SocketTextChannel).Select(c => new DiscordChannel()
             {
                 Id = c.Id,
                 Name = c.Name,
-                DiscordGuild = allGuilds.First(g => g.Id == c.Guild.Id)
+                DiscordGuild = dbGuilds.First(g => g.Id == c.Guild.Id)
             }).ToArray();
             var dbChannels = _dbContext.DC_Channels.ToArray();
 
-            _dbContext.DC_Channels.AddRange(dcChannels.Except(dbChannels));
-            _dbContext.DC_Channels.RemoveRange(dbChannels.Except(dcChannels));
+            var channelsToAdd = dcChannels.Except(dbChannels).ToArray();
+            var channelsToRemove = dbChannels.Except(dcChannels).ToArray();
+
+            _dbContext.DC_Channels.AddRange(channelsToAdd);
+            _dbContext.DC_Channels.RemoveRange(channelsToRemove);
 
             var dcRoles = _client.Guilds.SelectMany(g => g.Roles).Select(r => new DiscordRole()
             {
                 Id = r.Id,
                 Name = r.Name,
-                Guild = allGuilds.First(g => g.Id == r.Guild.Id)
+                Guild = dbGuilds.First(g => g.Id == r.Guild.Id)
             }).ToArray();
-            var dbRoles = _dbContext.DC_Roles.ToArray();
+            var dbRoles = _dbContext.DC_Roles.ToList();
 
-            _dbContext.DC_Roles.AddRange(dcRoles.Except(dbRoles));
-            _dbContext.DC_Roles.RemoveRange(dbRoles.Except(dcRoles));
+            var rolesToAdd = dcRoles.Except(dbRoles).ToArray();
+            var rolesToRemove = dbRoles.Except(dcRoles).ToArray();
 
+            _dbContext.DC_Roles.AddRange(rolesToAdd);
+            _dbContext.DC_Roles.RemoveRange(rolesToRemove);
+
+            dbRoles.AddRange(rolesToAdd);
 
             var dcUsers = _client.Guilds.SelectMany(g => g.Users).DistinctBy(u => u.Id).Where(u => !u.IsBot).Select(u => new DiscordUser()
             {
                 Id = u.Id,
                 Name = u.DisplayName,
-                DiscordGuilds = u.MutualGuilds.Select(g => allGuilds.FirstOrDefault(gdb => gdb.Id == g.Id)).OfType<DiscordGuild>().ToList(),
+                DiscordGuilds = u.MutualGuilds.Select(g => dbGuilds.FirstOrDefault(gdb => gdb.Id == g.Id)).OfType<DiscordGuild>().ToList(),
             }).ToArray();
-            var dbUsers = _dbContext.DC_Users.ToArray();
+            var dbUsers = _dbContext.DC_Users.ToList();
 
-            _dbContext.DC_Users.AddRange(dcUsers.Except(dbUsers));
-            _dbContext.DC_Users.RemoveRange(dbUsers.Except(dbUsers));
+            var usersToAdd = dcUsers.Except(dbUsers).ToArray();
+            var usersToRemove = dbUsers.Except(dbUsers).ToArray();
 
-            var allUsers = dbUsers.ToList();
-            allUsers.AddRange(dcUsers);
-            allUsers = allUsers.Intersect(dcUsers).ToList();
+            _dbContext.DC_Users.AddRange(usersToAdd);
+            _dbContext.DC_Users.RemoveRange(usersToRemove);
 
-            var allRoles = dbRoles.ToList();
-            allRoles.AddRange(dcRoles);
-            allRoles = allRoles.Intersect(dcRoles).ToList();
+            dbUsers.AddRange(usersToAdd);
 
-            foreach (var user in allUsers)
+            foreach (var user in dbUsers)
             {
-                var roles = _client.GetUser((ulong)user.Id).MutualGuilds
+                var roles = _client.GetUser(user.Id).MutualGuilds
                     .SelectMany(g => g.Users)
                     .Where(u => u.Id == user.Id)
                     .SelectMany(u => u.Roles)
                     .ToArray();
 
-                user.Roles = allRoles
-                    .GroupJoin(
-                    roles,
-                    au => au.Id,
-                    du => du.Id,
-                    (x, y) => new { role = x, dcRoles = y })
-                    .Where(x => !x.dcRoles.IsNullOrEmpty())
-                    .Select(x => x.role)
-                    .ToList();
+                dcRoles = roles.Select(r => dbRoles.First(dr => dr.Id == r.Id)).ToArray();
+
+                rolesToAdd = user.Roles.Except(dcRoles).ToArray();
+                rolesToRemove = user.Roles.Except(dcRoles).ToArray();
+
+                user.Roles.AddRange(rolesToAdd);
+                foreach (var discordRole in rolesToRemove)
+                {
+                    user.Roles.Remove(discordRole);
+                }
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync(ct);
         }
     }
 }

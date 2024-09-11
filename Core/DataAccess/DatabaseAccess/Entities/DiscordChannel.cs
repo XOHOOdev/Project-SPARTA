@@ -13,5 +13,16 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Entities
         public string Name { get; set; } = null!;
 
         public virtual DiscordGuild DiscordGuild { get; set; } = null!;
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not DiscordChannel channel) return false;
+            return Id == channel.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id);
+        }
     }
 }

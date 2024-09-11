@@ -8,7 +8,7 @@ namespace Sparta.Runner.Runners
     {
         public void UpdateAsync(CancellationToken cancellationToken)
         {
-            discord.UpdateGuilds();
+            discord.UpdateGuilds(cancellationToken).Wait(cancellationToken);
         }
 
         public void Run(CancellationToken cancellationToken)

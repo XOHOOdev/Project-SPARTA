@@ -30,7 +30,9 @@ internal class Program
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         builder.Services.AddDbContext<ApplicationDbContext<IdentityUser, ApplicationRole, string>>(options =>
-            options.UseLazyLoadingProxies()
+            options
+                .UseLazyLoadingProxies()
+                .EnableSensitiveDataLogging()
                 .UseSqlServer(connectionString));
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Sparta.BlazorUI.Authorization;
 using Sparta.Core.DataAccess.DatabaseAccess;
 using Sparta.Core.DataAccess.DatabaseAccess.Entities;
@@ -129,7 +130,7 @@ namespace Sparta.BlazorUI.Data.ModulesData
         {
             try
             {
-                return parameters.All(parameter =>
+                return parameters.All(parameter => parameter.Options.IsNullOrEmpty() ||
                     parameter.Options.Select(o => o.Id.ToString()).Contains(parameter.Content));
             }
             catch (Exception ex)
