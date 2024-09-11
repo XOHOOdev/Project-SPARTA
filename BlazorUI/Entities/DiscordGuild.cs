@@ -17,5 +17,7 @@ namespace Sparta.BlazorUI.Entities
         public virtual List<DiscordUser> Users { get; set; } = [];
 
         public virtual List<DiscordRole> Roles { get; set; } = [];
+
+        public virtual List<ApplicationRole> ApplicationRoles { get; set; } = [];
     }
 }

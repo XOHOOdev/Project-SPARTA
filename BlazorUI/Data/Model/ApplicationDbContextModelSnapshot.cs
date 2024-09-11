@@ -27,6 +27,21 @@ namespace Sparta.BlazorUI.Data.Model
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ApplicationRoleDiscordGuild", b =>
+                {
+                    b.Property<string>("ApplicationRolesId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("DiscordGuildsId")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.HasKey("ApplicationRolesId", "DiscordGuildsId");
+
+                    b.HasIndex("DiscordGuildsId");
+
+                    b.ToTable("ApplicationRoleDiscordGuild");
+                });
+
             modelBuilder.Entity("ApplicationRolePermission", b =>
                 {
                     b.Property<string>("PermissionsId")
@@ -554,6 +569,21 @@ namespace Sparta.BlazorUI.Data.Model
                     b.HasKey("UserId");
 
                     b.ToTable("US_SteamIds");
+                });
+
+            modelBuilder.Entity("ApplicationRoleDiscordGuild", b =>
+                {
+                    b.HasOne("Sparta.BlazorUI.Entities.ApplicationRole", null)
+                        .WithMany()
+                        .HasForeignKey("ApplicationRolesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sparta.BlazorUI.Entities.DiscordGuild", null)
+                        .WithMany()
+                        .HasForeignKey("DiscordGuildsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ApplicationRolePermission", b =>

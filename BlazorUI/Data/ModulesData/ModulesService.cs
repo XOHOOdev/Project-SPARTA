@@ -5,6 +5,7 @@ using Sparta.Modules.Dto;
 using Sparta.Modules.Interface;
 using Sparta.Modules.Interface.ModuleParameters;
 using System.Reflection;
+using System.Security.Claims;
 using Module = Sparta.BlazorUI.Entities.Module;
 
 namespace Sparta.BlazorUI.Data.ModulesData
@@ -57,15 +58,16 @@ namespace Sparta.BlazorUI.Data.ModulesData
             return parameters;
         }
 
-        public void CreateModule(ModuleParametersBase parameters, ModuleCategory category)
+        public void CreateModule(List<ParamInfo>? parameters, ModuleCategory category)
         {
+            if (parameters == null || !CheckParameters(parameters)) return;
             var moduleType = context.MD_ModuleType.FirstOrDefault(t => t.Name == category.Name) ?? context.Add(new ModuleType { Name = category.Name }).Entity;
 
             context.Add(new Module
             {
                 Name = "New Module",
                 Enabled = false,
-                Parameters = parameters.AllParameters.Select(p => new ModuleParameter
+                Parameters = parameters.Select(p => new ModuleParameter
                 {
                     Name = p.Name,
                     Value = p.Content
@@ -76,16 +78,23 @@ namespace Sparta.BlazorUI.Data.ModulesData
             SaveChanges();
         }
 
-        public void SetModuleParameters(Module module, ModuleParametersBase parameters)
+        public void SetModuleParameters(Module module, List<ParamInfo>? parameters)
         {
-            module.Parameters.ForEach(p => p.Value = parameters.AllParameters.FirstOrDefault(x => x.Name == p.Name)?.Content ?? p.Value);
+            if (parameters == null || !CheckParameters(parameters)) return;
+            module.Parameters.ForEach(p => p.Value = parameters.FirstOrDefault(x => x.Name == p.Name)?.Content ?? p.Value);
 
             SaveChanges();
         }
 
-        public void SetOptions(ref List<ParamInfo> parameters)
+        public void SetOptions(ref List<ParamInfo> parameters, ClaimsPrincipal user)
         {
             if (parameters.Any(p => (int)p.Type >= (int)ParameterType.DiscordChannel)) parameters.Insert(0, new ParamInfo { Name = "ModuleParameterGuild", Type = ParameterType.DiscordGuild });
+            if (user.Identity is not { } identity) return;
+            if (context.Users.FirstOrDefault(x => x.UserName == identity.Name) is not { } identityUser) return;
+
+            var userRoles = context.UserRoles.Where(r => r.UserId == identityUser.Id).Select(r => r.RoleId).ToArray();
+
+            var availableGuilds = context.DC_Guilds.Where(g => g.ApplicationRoles.Any(r => userRoles.Contains(r.Id))).ToArray();
 
             foreach (var parameter in parameters)
             {
@@ -93,10 +102,10 @@ namespace Sparta.BlazorUI.Data.ModulesData
                 {
                     ParameterType.Text or ParameterType.LargeText or ParameterType.Number or ParameterType.Bool => null,
                     ParameterType.HllServer => context.SV_Servers.ToArray(),
-                    ParameterType.DiscordChannel => context.DC_Channels.ToArray(),
-                    ParameterType.DiscordUser => context.DC_Users.ToArray(),
-                    ParameterType.DiscordRole => context.DC_Roles.ToArray(),
-                    ParameterType.DiscordGuild => context.DC_Guilds.ToArray(),
+                    ParameterType.DiscordChannel => context.DC_Channels.Where(c => availableGuilds.Contains(c.DiscordGuild)).ToArray(),
+                    ParameterType.DiscordUser => context.DC_Users.Where(u => u.DiscordGuilds.Any(g => availableGuilds.Contains(g))).ToArray(),
+                    ParameterType.DiscordRole => context.DC_Roles.Where(r => availableGuilds.Contains(r.Guild)).ToArray(),
+                    ParameterType.DiscordGuild => availableGuilds,
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
@@ -113,5 +122,7 @@ namespace Sparta.BlazorUI.Data.ModulesData
         {
             context.SaveChanges();
         }
+
+        private static bool CheckParameters(List<ParamInfo> parameters) => parameters.All(parameter => parameter.Options.Select(o => o.Id.ToString()).Contains(parameter.Content));
     }
 }

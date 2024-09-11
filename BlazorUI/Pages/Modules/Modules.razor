@@ -1,4 +1,5 @@
 ﻿@page "/modules"
+@using System.Security.Claims
 @using Microsoft.IdentityModel.Tokens
 @using Sparta.BlazorUI.Authorization
 @using Sparta.BlazorUI.Data.ModulesData
@@ -55,7 +56,7 @@ else
                         <AuthorizeView>
                             @if (context.User.Authorize(Permissions.Modules.Edit))
                             {
-                                <i class="btn btn-secondary bi-wrench" @onclick='(()=>LoadModuleParameters(module))' data-bs-toggle="modal" data-bs-target="#createEditModule"></i>
+                                <i class="btn btn-secondary bi-wrench" @onclick='()=>LoadModuleParameters(module, context.User)' data-bs-toggle="modal" data-bs-target="#createEditModule"></i>
                             }
                             @if (context.User.Authorize(Permissions.Modules.Delete))
                             {
@@ -69,7 +70,7 @@ else
                 @if (context.User.Authorize(Permissions.Modules.Create))
                 {
                     <div class="card-footer">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEditModule" @onclick="CreateNewParams">@Localizer["CreateModule"]</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEditModule" @onclick="()=>CreateNewParams(context.User)">@Localizer["CreateModule"]</button>
                     </div>
                 }
             </AuthorizeView>
@@ -238,13 +239,13 @@ else
         _selectedModuleCategory = category;
     }
 
-    private void CreateNewParams()
+    private void CreateNewParams(ClaimsPrincipal user)
     {
         if (_selectedModuleCategory == null) return;
         _selectedModuleParameters = ModService.GetModuleParameters(_selectedModuleCategory.Name);
         _params = _selectedModuleParameters?.AllParameters.ToList();
 
-        if (_params != null) ModService.SetOptions(ref _params);
+        if (_params != null) ModService.SetOptions(ref _params, user);
     }
 
     private void SetModules()
@@ -256,14 +257,13 @@ else
     private void CreateModule()
     {
         if (_selectedModuleParameters == null || _params == null || _selectedModuleCategory == null) return;
-        _selectedModuleParameters.AllParameters = _params;
         if (_currentModule == null)
         {
-            ModService.CreateModule(_selectedModuleParameters, _selectedModuleCategory);
+            ModService.CreateModule(_params, _selectedModuleCategory);
         }
         else
         {
-            ModService.SetModuleParameters(_currentModule, _selectedModuleParameters);
+            ModService.SetModuleParameters(_currentModule, _params);
             _currentModule = null;
         }
 
@@ -275,16 +275,16 @@ else
         ModService.SaveChanges();
     }
 
-    private void LoadModuleParameters(Module module)
+    private void LoadModuleParameters(Module module, ClaimsPrincipal user)
     {
         _selectedModuleParameters = ModService.GetModuleParameters(module);
         _currentModule = module;
         _params = _selectedModuleParameters?.AllParameters.ToList();
 
-        if (_params != null) ModService.SetOptions(ref _params);
+        if (_params != null) ModService.SetOptions(ref _params, user);
     }
 
-    private void DeleteModule(Entities.Module module)
+    private void DeleteModule(Module module)
     {
         //TODO add modal to confirm delete
         ModService.DeleteModule(module);

@@ -7,46 +7,16 @@ namespace Sparta.Runner.Runners
 {
     public class DiscordRunner(SpartaDbContext context, DiscordAccess discord, SpartaLogger logger) : IRunner
     {
-        public async Task UpdateAsync(CancellationToken cancellationToken)
+        public void UpdateAsync(CancellationToken cancellationToken)
         {
-            var guilds = discord.GetGuilds();
-            logger.LogVerbose($"Received {guilds.Length} guilds. Deleting old records...");
-            if (guilds.Length > 0)
-            {
-                foreach (var guild in context.DcGuilds)
-                {
-                    context.Remove(guild);
-                }
-
-                foreach (var user in context.DcUsers)
-                {
-                    context.Remove(user);
-                }
-
-                foreach (var role in context.DcRoles)
-                {
-                    context.Remove(role);
-                }
-
-                foreach (var channel in context.DcChannels)
-                {
-                    context.Remove(channel);
-                }
-
-                await context.SaveChangesAsync(cancellationToken);
-
-                logger.LogVerbose("Finished deleting old records, writing new ones...");
-                context.DcGuilds.AddRange(guilds);
-                await context.SaveChangesAsync(cancellationToken);
-            }
-
+            discord.UpdateGuilds();
         }
 
         public void Run(CancellationToken cancellationToken)
         {
             try
             {
-                UpdateAsync(cancellationToken).Wait(cancellationToken);
+                UpdateAsync(cancellationToken);
             }
             catch (Exception ex)
             {

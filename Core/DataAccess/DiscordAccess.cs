@@ -17,6 +17,8 @@ namespace Sparta.Core.DataAccess
         private readonly SpartaDbContext _dbContext;
         private readonly SpartaLogger _logger;
 
+        private bool _isReady = false;
+
         public DiscordAccess(SpartaDbContext dbContext, SpartaLogger logger)
         {
             _dbContext = dbContext;
@@ -93,6 +95,8 @@ namespace Sparta.Core.DataAccess
             await _client.DownloadUsersAsync(_client.Guilds);
 
             _logger.LogInfo($"Started Discord Bot as \"{_client.CurrentUser.Username}\"");
+
+            _isReady = true;
         }
 
         private Task Log(LogMessage msg)
@@ -233,45 +237,85 @@ namespace Sparta.Core.DataAccess
             return await channel.Guild.GetEmotesAsync();
         }
 
-        public DcGuild[] GetGuilds()
+        public void UpdateGuilds()
         {
-            var dcGuilds = _client.Guilds;
-            var users = dcGuilds.SelectMany(g => g.Users).Distinct().Where(u => !u.IsBot).Select(u => new DcUser
-            {
-                Id = u.Id,
-                Name = u.DisplayName,
-            }).ToArray();
+            if (!_isReady) return;
 
-            var guilds = dcGuilds.Select(g => new DcGuild
+            var dcGuilds = _client.Guilds.Select(g => new DcGuild
             {
                 Id = g.Id,
                 Name = g.Name,
-                Users = g.Users.Where(u => !u.IsBot).Select(u => users.First(du => du.Id == u.Id)).ToArray(),
-                DcRoles = g.Roles.Select(r => new DcRole
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                }).ToArray(),
-                DcChannels = g.Channels.Where(c => c is SocketTextChannel).Select(c => new DcChannel
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                }).ToArray()
             }).ToArray();
+            var dbGuilds = _dbContext.DcGuilds.ToArray();
 
-            foreach (var guild in guilds)
+            _dbContext.DcGuilds.AddRange(dcGuilds.Except(dbGuilds));
+            _dbContext.DcGuilds.RemoveRange(dbGuilds.Except(dcGuilds));
+
+            var dcChannels = _client.Guilds.SelectMany(g => g.Channels).Where(c => c is SocketTextChannel).Select(c => new DcChannel
             {
-                var dcGuild = _client.GetGuild((ulong)guild.Id);
-                if (dcGuild == null) continue;
+                Id = c.Id,
+                Name = c.Name,
+                DiscordGuildId = c.Guild.Id
+            }).ToArray();
+            var dbChannels = _dbContext.DcChannels.ToArray();
 
-                foreach (var user in guild.Users)
-                {
-                    user.Roles = dcGuild.GetUser((ulong)user.Id).Roles
-                        .Select(r => guild.DcRoles.FirstOrDefault(dr => dr.Id == r.Id) ?? new DcRole()).ToList();
-                }
+            _dbContext.DcChannels.AddRange(dcChannels.Except(dbChannels));
+            _dbContext.DcChannels.RemoveRange(dbChannels.Except(dcChannels));
+
+            var dcRoles = _client.Guilds.SelectMany(g => g.Roles).Select(r => new DcRole
+            {
+                Id = r.Id,
+                Name = r.Name,
+                GuildId = r.Guild.Id
+            }).ToArray();
+            var dbRoles = _dbContext.DcRoles.ToArray();
+
+            _dbContext.DcRoles.AddRange(dcRoles.Except(dbRoles));
+            _dbContext.DcRoles.RemoveRange(dbRoles.Except(dcRoles));
+
+            var allGuilds = dbGuilds.ToList();
+            allGuilds.AddRange(dcGuilds);
+            allGuilds = allGuilds.Intersect(dcGuilds).ToList();
+
+            var dcUsers = _client.Guilds.SelectMany(g => g.Users).DistinctBy(u => u.Id).Where(u => !u.IsBot).Select(u => new DcUser
+            {
+                Id = u.Id,
+                Name = u.DisplayName,
+                DiscordGuilds = u.MutualGuilds.Select(g => allGuilds.FirstOrDefault(gdb => gdb.Id == g.Id)).OfType<DcGuild>().ToArray(),
+            }).ToArray();
+            var dbUsers = _dbContext.DcUsers.ToArray();
+
+            _dbContext.DcUsers.AddRange(dcUsers.Except(dbUsers));
+            _dbContext.DcUsers.RemoveRange(dbUsers.Except(dbUsers));
+
+            var allUsers = dbUsers.ToList();
+            allUsers.AddRange(dcUsers);
+            allUsers = allUsers.Intersect(dcUsers).ToList();
+
+            var allRoles = dbRoles.ToList();
+            allRoles.AddRange(dcRoles);
+            allRoles = allRoles.Intersect(dcRoles).ToList();
+
+            foreach (var user in allUsers)
+            {
+                var roles = _client.GetUser((ulong)user.Id).MutualGuilds
+                    .SelectMany(g => g.Users)
+                    .Where(u => u.Id == user.Id)
+                    .SelectMany(u => u.Roles)
+                    .ToArray();
+
+                user.Roles = allRoles
+                    .GroupJoin(
+                    roles,
+                    au => au.Id,
+                    du => du.Id,
+                    (x, y) => new { role = x, dcRoles = y })
+                    .Where(x => !x.dcRoles.IsNullOrEmpty())
+                    .Select(x => x.role)
+                    .ToArray();
             }
 
-            return guilds;
+            _dbContext.SaveChanges();
         }
     }
 }

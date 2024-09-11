@@ -283,6 +283,30 @@ namespace Sparta.BlazorUI.Data.Model
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApplicationRoleDiscordGuild",
+                columns: table => new
+                {
+                    ApplicationRolesId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DiscordGuildsId = table.Column<decimal>(type: "decimal(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationRoleDiscordGuild", x => new { x.ApplicationRolesId, x.DiscordGuildsId });
+                    table.ForeignKey(
+                        name: "FK_ApplicationRoleDiscordGuild_AspNetRoles_ApplicationRolesId",
+                        column: x => x.ApplicationRolesId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationRoleDiscordGuild_DC_Guilds_DiscordGuildsId",
+                        column: x => x.DiscordGuildsId,
+                        principalTable: "DC_Guilds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DC_Channels",
                 columns: table => new
                 {
@@ -441,6 +465,11 @@ namespace Sparta.BlazorUI.Data.Model
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationRoleDiscordGuild_DiscordGuildsId",
+                table: "ApplicationRoleDiscordGuild",
+                column: "DiscordGuildsId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ApplicationRolePermission_RolesId",
                 table: "ApplicationRolePermission",
                 column: "RolesId");
@@ -523,6 +552,9 @@ namespace Sparta.BlazorUI.Data.Model
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ApplicationRoleDiscordGuild");
+
             migrationBuilder.DropTable(
                 name: "ApplicationRolePermission");
 

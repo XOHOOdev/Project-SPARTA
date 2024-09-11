@@ -180,4 +180,7 @@
   <data name="SteamId" xml:space="preserve">
     <value>Steam-Id</value>
   </data>
+  <data name="ManageDiscordGuilds" xml:space="preserve">
+    <value>Manage discord guilds</value>
+  </data>
 </root>

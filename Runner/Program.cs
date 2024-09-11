@@ -19,7 +19,7 @@ namespace Sparta.Runner
         {
             var builder = Host.CreateApplicationBuilder(args);
 
-            builder.Services.AddDbContext<SpartaDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(ConfigLoader.Load().GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
+            builder.Services.AddDbContext<SpartaDbContext>(options => options.UseLazyLoadingProxies().EnableSensitiveDataLogging().UseSqlServer(ConfigLoader.Load().GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
             builder.Services.AddScoped<Updater>();
             builder.Services.AddScoped<DiscordAccess>();
             builder.Services.AddScoped<RconDataAccess>();

@@ -142,10 +142,11 @@ namespace Sparta.Modules.HllServerStatus
 
                 if (messageId == 0) return;
 
-                module.MdParameters.Add(new MdParameter
+                context.MdParameters.Add(new MdParameter
                 {
                     Name = nameof(HllServerStatusParameters.DiscordMessage),
-                    Value = messageId.ToString()
+                    Value = messageId.ToString(),
+                    ModuleId = module.Id
                 });
 
                 context.SaveChanges();

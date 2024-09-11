@@ -42,7 +42,13 @@ public class UserManagementService(ApplicationDbContext<IdentityUser, Applicatio
         return new RolePermission
         {
             ApplicationRole = role,
-            RolePermissions = GetPermissions(typeof(Permissions.Permissions).GetNestedTypes(), role)
+            RolePermissions = GetPermissions(typeof(Permissions.Permissions).GetNestedTypes(), role),
+            DiscordGuilds = context.DC_Guilds.Select(g => new DiscordGuildModel
+            {
+                Id = g.Id,
+                Name = g.Name,
+                Selected = g.ApplicationRoles.Contains(role)
+            }).ToArray()
         };
     }
 
@@ -82,6 +88,7 @@ public class UserManagementService(ApplicationDbContext<IdentityUser, Applicatio
         var role = context.Roles.FirstOrDefault(x => x.Id == rolePermissionModel.ApplicationRole.Id);
         if (role == null) return;
         SavePermissions(rolePermissionModel.RolePermissions, role);
+        SaveGuilds(rolePermissionModel.DiscordGuilds, role);
         context.SaveChanges();
     }
 
@@ -98,14 +105,35 @@ public class UserManagementService(ApplicationDbContext<IdentityUser, Applicatio
             if (permission is not RolePermissionModel rolePermission) continue;
 
             var roleHasPermission = role.Permissions.Any(x => x.Id == rolePermission.Id);
-            if (rolePermission.Selected && !roleHasPermission)
+            switch (rolePermission.Selected)
             {
-                role.Permissions.Add(context.US_Permissions.First(x => x.Id == rolePermission.Id));
+                case true when !roleHasPermission:
+                    role.Permissions.Add(context.US_Permissions.First(x => x.Id == rolePermission.Id));
+                    break;
+                case false when roleHasPermission:
+                    {
+                        var permissionsToRemove = role.Permissions.FirstOrDefault(x => x.Id == rolePermission.Id);
+                        if (permissionsToRemove != null) role.Permissions.Remove(permissionsToRemove);
+                        break;
+                    }
             }
-            else if (!rolePermission.Selected && roleHasPermission)
+        }
+    }
+
+    private void SaveGuilds(IList<DiscordGuildModel> guilds, ApplicationRole role)
+    {
+        foreach (var guild in guilds)
+        {
+            var roleHasGuild = role.DiscordGuilds.Any(g => g.Id == guild.Id);
+            switch (guild.Selected)
             {
-                var permissionsToRemove = role.Permissions.FirstOrDefault(x => x.Id == rolePermission.Id);
-                if (permissionsToRemove != null) role.Permissions.Remove(permissionsToRemove);
+                case true when !roleHasGuild:
+                    role.DiscordGuilds.Add(context.DC_Guilds.First(g => g.Id == guild.Id));
+                    break;
+                case false when roleHasGuild:
+                    var guildToRemove = role.DiscordGuilds.FirstOrDefault(g => g.Id == guild.Id);
+                    if (guildToRemove != null) role.DiscordGuilds.Remove(guildToRemove);
+                    break;
             }
         }
     }

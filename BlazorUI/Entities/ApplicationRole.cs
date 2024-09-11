@@ -10,5 +10,7 @@ public class ApplicationRole : IdentityRole
         NormalizedName = name.ToUpper();
     }
 
-    public virtual List<Permission> Permissions { get; } = new();
+    public virtual List<Permission> Permissions { get; } = [];
+
+    public virtual List<DiscordGuild> DiscordGuilds { get; } = [];
 }

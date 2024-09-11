@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Sparta.Core.Models;
+﻿namespace Sparta.Core.Models;
 
 public partial class DcUser
 {
@@ -12,4 +9,15 @@ public partial class DcUser
     public virtual ICollection<DcGuild> DiscordGuilds { get; set; } = new List<DcGuild>();
 
     public virtual ICollection<DcRole> Roles { get; set; } = new List<DcRole>();
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not DcUser user) return false;
+        return Id == user.Id && Name == user.Name;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Name);
+    }
 }
