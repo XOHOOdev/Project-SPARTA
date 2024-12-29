@@ -39,7 +39,6 @@
                                     @if (context.User.Authorize(Permissions.UserManagement.Edit))
                                     {
                                         <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageRolesModal" @onclick='() => LoadUserRoles(user)'>@Localizer["ManageRoles"]</a>
-                                        <a style='margin-right:16px' class="dropdown-item" data-bs-toggle="modal" data-bs-target="#manageSteamIdModal" @onclick='() => LoadUserSteamId(user)'>@Localizer["ManageSteamId"]</a>
                                     }
                                 </AuthorizeView>
                             </div>
@@ -80,31 +79,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="manageSteamIdModal" data-bs-keyboard="false" data-bs-backdrop="static" aria-hidden="true" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@Localizer["ManageSteamId"]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @if (userSteamId.User != null)
-                {
-                    <h6>@string.Format(Localizer["UserRolesRole"], userSteamId.User.UserName)</h6>
-                }
-                <div class="input-group">
-                    <span class="input-group-text" id="basic-addon3">@Localizer["SteamId"]</span>
-                    <input type="text" class="form-control" @bind="userSteamId.SteamId">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Abort"]</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @onclick="SaveUserSteamId">@Localizer["Save"]</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @code {
     private IEnumerable<IdentityUser> users = null!;
     private UserRoleModel userRoles = null!;
@@ -131,15 +105,4 @@
     {
         ManagementService.SaveUserRoles(userRoles);
     }
-
-    private void LoadUserSteamId(IdentityUser user)
-    {
-        userSteamId = ManagementService.GetSteamId(user);
-    }
-
-    private void SaveUserSteamId()
-    {
-        ManagementService.SaveUserSteamId(userSteamId);
-    }
-
 }

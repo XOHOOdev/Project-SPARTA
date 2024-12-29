@@ -3,11 +3,6 @@ using Sparta.Core.Converters;
 using Sparta.Core.DataAccess.DatabaseAccess;
 using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
-/**
- * Update Migration
- * Scaffold-DbContext "Server=localhost,1434;Database=SalesDb;User Id=SA;Password=A&VeryComplex123Password;MultipleActiveResultSets=true;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
- */
-
 namespace Sparta.Core.Helpers
 {
     public class ConfigHelper(ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
@@ -16,27 +11,28 @@ namespace Sparta.Core.Helpers
         {
             if (context.CF_Configurations.Any()) return;
 
-            foreach (var config in ConfigConverter.Deserialize(json))
-            {
-                var reqObj = context.Find(typeof(Configuration), [config.Class, config.Property]);
-                if (reqObj != null)
-                {
-                    ((Configuration)reqObj).Value = config.Value;
-                    continue;
-                }
-                context.Add(config);
-            }
+            context.CF_Configurations.AddRange(ConfigConverter.Deserialize(json));
+
             context.SaveChanges();
         }
 
-        public string? GetConfig(string className, string config)
+        public string? GetConfig(List<string> path)
         {
-            return (context.Find(typeof(Configuration), [className, config]) as Configuration)?.Value;
+            return GetConfig(
+                context.CF_Configurations.First(c => c.Parent == null && c.Name == path.First()),
+                path.Skip(1).ToList());
+        }
+
+        private static string? GetConfig(Configuration config, List<string> path)
+        {
+            return config.Children == null ?
+                config.Value :
+                GetConfig(config.Children.First(c => c.Parent == null && c.Name == path.First()), path.Skip(1).ToList());
         }
 
         public string GetConfigAsJson()
         {
-            return ConfigConverter.Serialize(context.CF_Configurations.ToArray());
+            return ConfigConverter.Serialize(context.CF_Configurations.Where(c => c.Parent == null).ToArray());
         }
     }
 }

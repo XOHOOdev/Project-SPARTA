@@ -7,8 +7,6 @@ using Sparta.BlazorUI.Areas.Identity;
 using Sparta.BlazorUI.Authorization;
 using Sparta.BlazorUI.Data.ConfigurationData;
 using Sparta.BlazorUI.Data.LoggingData;
-using Sparta.BlazorUI.Data.ModulesData;
-using Sparta.BlazorUI.Data.ServerData;
 using Sparta.BlazorUI.Data.UserManagementData;
 using Sparta.BlazorUI.Permissions;
 using Sparta.BlazorUI.Services;
@@ -52,8 +50,6 @@ internal class Program
         builder.Services.AddSingleton<IPermissionService, PermissionService>();
         builder.Services.AddScoped<ConfigurationService>();
         builder.Services.AddScoped<UserManagementService>();
-        builder.Services.AddScoped<ModulesService>();
-        builder.Services.AddScoped<ServerService>();
         builder.Services.AddScoped<LoggingService>();
         builder.Services.AddScoped<ConfigHelper>();
 

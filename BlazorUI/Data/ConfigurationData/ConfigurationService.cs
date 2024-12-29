@@ -14,22 +14,22 @@ public class ConfigurationService(ApplicationDbContext<IdentityUser, Application
         var dbConfigs = context.CF_Configurations.ToList();
 
         List<ConfigurationCategory> configurations = [];
-        foreach (var dbConfig in dbConfigs)
-        {
-            var config = configurations.FirstOrDefault(x => x.Name == dbConfig.Class);
-            if (config == null)
-            {
-                config = new ConfigurationCategory
-                {
-                    Name = dbConfig.Class,
-                    ConfigurationElements = []
-                };
-                configurations.Add(config);
-            }
+        //foreach (var dbConfig in dbConfigs)
+        //{
+        //    var config = configurations.FirstOrDefault(x => x.Name == dbConfig.Class);
+        //    if (config == null)
+        //    {
+        //        config = new ConfigurationCategory
+        //        {
+        //            Name = dbConfig.Class,
+        //            ConfigurationElements = []
+        //        };
+        //        configurations.Add(config);
+        //    }
 
-            config.ConfigurationElements.Add(new ConfigurationElement
-            { Value = dbConfig.Value, Name = dbConfig.Property });
-        }
+        //    config.ConfigurationElements.Add(new ConfigurationElement
+        //    { Value = dbConfig.Value, Name = dbConfig.Property });
+        //}
 
         return configurations.ToArray();
     }
@@ -37,10 +37,10 @@ public class ConfigurationService(ApplicationDbContext<IdentityUser, Application
     [HasPermission(Permissions.Permissions.Configuration.Edit)]
     public void SetConfiguration(ConfigurationCategory? category)
     {
-        if (category == null) return;
-        var affectedEntries = context.CF_Configurations.Where(x => x.Class == category.Name);
-        foreach (var entry in affectedEntries)
-            entry.Value = category.ConfigurationElements.First(x => x.Name == entry.Property).Value;
+        //if (category == null) return;
+        //var affectedEntries = context.CF_Configurations.Where(x => x.Class == category.Name);
+        //foreach (var entry in affectedEntries)
+        //    entry.Value = category.ConfigurationElements.First(x => x.Name == entry.Property).Value;
         context.SaveChanges();
     }
 

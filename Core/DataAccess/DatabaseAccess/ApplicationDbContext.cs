@@ -16,29 +16,8 @@ public class ApplicationDbContext<TUser, TRole, TKey>(
 {
     public DbSet<Permission> US_Permissions { get; set; }
 
-    public DbSet<UserSteamId> US_SteamIds { get; set; }
-
     public DbSet<Configuration> CF_Configurations { get; set; }
 
-    public DbSet<Module> MD_Modules { get; set; }
-
-    public DbSet<ModuleParameter> MD_Parameters { get; set; }
-
-    public DbSet<ModuleType> MD_ModuleType { get; set; }
-
-    public DbSet<DiscordReceivedMessage> DC_ReceivedMessages { get; set; }
-
-    public DbSet<DiscordGuild> DC_Guilds { get; set; }
-
-    public DbSet<DiscordChannel> DC_Channels { get; set; }
-
-    public DbSet<DiscordUser> DC_Users { get; set; }
-
-    public DbSet<DiscordRole> DC_Roles { get; set; }
-
-    public DbSet<Server> SV_Servers { get; set; }
 
     public DbSet<LogMessage> LG_LogMessages { get; set; }
-
-    public DbSet<RunnerStatus> RN_Status { get; set; }
 }

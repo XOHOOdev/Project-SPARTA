@@ -33,7 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="DataAccess\DatabaseAccess\Migrations\" />
+	  <Folder Include="DataAccess\DatabaseAccess\Entities\Migrations\" />
 	</ItemGroup>
 
 </Project>

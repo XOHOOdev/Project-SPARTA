@@ -1,13 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
-[PrimaryKey(nameof(Class), nameof(Property))]
 public class Configuration
 {
-    public string Class { get; set; } = null!;
+    [Required]
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
 
-    public string Property { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
-    public string Value { get; set; } = null!;
+    public virtual List<Configuration>? Children { get; set; }
+
+    public virtual Configuration? Parent { get; set; }
+
+    public string? Value { get; set; }
 }

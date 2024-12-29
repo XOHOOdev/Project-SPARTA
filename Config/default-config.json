@@ -7,21 +7,18 @@
     "SendGridKey": ""
   },
 
-  "Battlemetrics": {
-    "Url": "https://api.battlemetrics.com/"
-  },
-
-  "Runner": {
-    "ImportInterval": "10"
-  },
-
-  "ModuleRunner": {
-    "enabled": "true",
-    "ImportInterval":  "10"
-  },
-
-  "DiscordRunner": {
-    "enabled": "true",
-    "ImportInterval": "60"
+  "RCONs": {
+    "Taurus 1": {
+      "URL": "",
+      "Port": "",
+      "Username": "",
+      "Password": ""
+    },
+    "Taurus 2": {
+      "URL": "",
+      "Port": "",
+      "Username": "",
+      "Password": ""
+    }
   }
 }

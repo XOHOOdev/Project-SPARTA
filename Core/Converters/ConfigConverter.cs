@@ -7,27 +7,52 @@ namespace Sparta.Core.Converters
     {
         public static Configuration[] Deserialize(string json)
         {
-            List<Configuration> configs = [];
-
             var jsonObject = JObject.Parse(json);
-            configs.AddRange(from item in jsonObject.Children() from item2 in item.First().Children() let prop = item2 as JProperty select new Configuration { Class = item.Path, Property = prop?.Name ?? "", Value = prop?.Value.ToString() ?? "" });
 
-            return configs.ToArray();
+            return GenerateConfig(jsonObject).ToArray();
+        }
+
+        private static List<Configuration> GenerateConfig(JToken token)
+        {
+            return token switch
+            {
+                JProperty prop =>
+                [
+                    new Configuration
+                    {
+                        Name = prop.Name,
+                        Children = prop.Value is not JValue ? GenerateConfig(prop.Value) : null,
+                        Value = prop.Value is JValue val ? val.Value?.ToString() : null,
+                    }
+                ],
+                JObject obj => obj.Children().SelectMany(GenerateConfig).ToList(),
+                _ => throw new ArgumentOutOfRangeException(nameof(token), token, null)
+            };
         }
 
         public static string Serialize(Configuration[] dbConfigurations)
         {
             JObject jsonObject = new();
-            foreach (var config in dbConfigurations)
-            {
-                if (jsonObject.Children().FirstOrDefault(x => x.Path == config.Class) is not JProperty item)
-                {
-                    item = new JProperty(config.Class, new JObject());
-                    jsonObject.Add(item);
-                }
-                ((JObject)item.Value).Add(new JProperty(config.Property, config.Value));
-            }
+
+            AddToJsonObject(dbConfigurations.ToList(), ref jsonObject);
+
             return jsonObject.ToString();
+        }
+
+        private static void AddToJsonObject(List<Configuration>? configs, ref JObject jsonObject)
+        {
+            if (configs == null) return;
+            foreach (var configuration in configs)
+            {
+                var prop = new JProperty(configuration.Name, configuration.Value);
+
+                jsonObject.Add(prop);
+                if (!(configuration.Children?.Count > 0)) continue;
+
+                var obj = new JObject();
+                prop.Value = obj;
+                AddToJsonObject(configuration.Children, ref obj);
+            }
         }
     }
 }

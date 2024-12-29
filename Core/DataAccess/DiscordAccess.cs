@@ -3,7 +3,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Sparta.Core.DataAccess.DatabaseAccess;
 using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 using Sparta.Core.Helpers;
@@ -25,7 +24,7 @@ namespace Sparta.Core.DataAccess
         public DiscordAccess(ApplicationDbContext<IdentityUser, ApplicationRole, string> dbContext, SpartaLogger logger, ConfigHelper config)
         {
             _dbContext = dbContext;
-            _token = config.GetConfig("DiscordBot", "DiscordToken") ?? "";
+            _token = config.GetConfig(["DiscordBot", "DiscordToken"]) ?? "";
             _logger = logger;
 
             DiscordSocketConfig discordSocketConfig = new()
@@ -69,17 +68,6 @@ namespace Sparta.Core.DataAccess
                 .WithDescription("Please stand by")
                 .Build();
             await arg.RespondAsync(embed: embed, ephemeral: true);
-
-            var user = await _dbContext.DC_Users.FindAsync((decimal)arg.User.Id);
-
-            _dbContext.DC_ReceivedMessages.Add(new DiscordReceivedMessage()
-            {
-                Id = arg.Id,
-                Content = arg.Data.Value.IsNullOrEmpty() ? "Button Press" : arg.Data.Value,
-                MessageType = DiscordMessageType.Component,
-                Reference = arg.Message.Id,
-                UserId = arg.User.Id
-            });
 
             await _dbContext.SaveChangesAsync();
         }
@@ -235,96 +223,6 @@ namespace Sparta.Core.DataAccess
         {
             if (await _client.GetChannelAsync(channelId) is not IGuildChannel channel) return [];
             return await channel.Guild.GetEmotesAsync();
-        }
-
-        public async Task UpdateGuilds(CancellationToken ct)
-        {
-            if (!_isReady) return;
-
-            await _client.DownloadUsersAsync(_client.Guilds);
-
-            var dcGuilds = _client.Guilds.Select(g => new DiscordGuild()
-            {
-                Id = g.Id,
-                Name = g.Name,
-            }).ToArray();
-            var dbGuilds = _dbContext.DC_Guilds.ToList();
-
-            var guildsToAdd = dcGuilds.Except(dbGuilds).ToArray();
-            var guildsToRemove = dbGuilds.Except(dcGuilds).ToArray();
-
-            _dbContext.DC_Guilds.AddRange(guildsToAdd);
-            _dbContext.DC_Guilds.RemoveRange(guildsToRemove);
-
-            dbGuilds.AddRange(guildsToAdd);
-
-            var dcChannels = _client.Guilds.SelectMany(g => g.Channels).Where(c => c is SocketTextChannel).Select(c => new DiscordChannel()
-            {
-                Id = c.Id,
-                Name = c.Name,
-                DiscordGuild = dbGuilds.First(g => g.Id == c.Guild.Id)
-            }).ToArray();
-            var dbChannels = _dbContext.DC_Channels.ToArray();
-
-            var channelsToAdd = dcChannels.Except(dbChannels).ToArray();
-            var channelsToRemove = dbChannels.Except(dcChannels).ToArray();
-
-            _dbContext.DC_Channels.AddRange(channelsToAdd);
-            _dbContext.DC_Channels.RemoveRange(channelsToRemove);
-
-            var dcRoles = _client.Guilds.SelectMany(g => g.Roles).Select(r => new DiscordRole()
-            {
-                Id = r.Id,
-                Name = r.Name,
-                Guild = dbGuilds.First(g => g.Id == r.Guild.Id)
-            }).ToArray();
-            var dbRoles = _dbContext.DC_Roles.ToList();
-
-            var rolesToAdd = dcRoles.Except(dbRoles).ToArray();
-            var rolesToRemove = dbRoles.Except(dcRoles).ToArray();
-
-            _dbContext.DC_Roles.AddRange(rolesToAdd);
-            _dbContext.DC_Roles.RemoveRange(rolesToRemove);
-
-            dbRoles.AddRange(rolesToAdd);
-
-            var dcUsers = _client.Guilds.SelectMany(g => g.Users).DistinctBy(u => u.Id).Where(u => !u.IsBot).Select(u => new DiscordUser()
-            {
-                Id = u.Id,
-                Name = u.DisplayName,
-                DiscordGuilds = u.MutualGuilds.Select(g => dbGuilds.FirstOrDefault(gdb => gdb.Id == g.Id)).OfType<DiscordGuild>().ToList(),
-            }).ToArray();
-            var dbUsers = _dbContext.DC_Users.ToList();
-
-            var usersToAdd = dcUsers.Except(dbUsers).ToArray();
-            var usersToRemove = dbUsers.Except(dbUsers).ToArray();
-
-            _dbContext.DC_Users.AddRange(usersToAdd);
-            _dbContext.DC_Users.RemoveRange(usersToRemove);
-
-            dbUsers.AddRange(usersToAdd);
-
-            foreach (var user in dbUsers)
-            {
-                var roles = _client.GetUser(user.Id).MutualGuilds
-                    .SelectMany(g => g.Users)
-                    .Where(u => u.Id == user.Id)
-                    .SelectMany(u => u.Roles)
-                    .ToArray();
-
-                dcRoles = roles.Select(r => dbRoles.First(dr => dr.Id == r.Id)).ToArray();
-
-                rolesToAdd = user.Roles.Except(dcRoles).ToArray();
-                rolesToRemove = user.Roles.Except(dcRoles).ToArray();
-
-                user.Roles.AddRange(rolesToAdd);
-                foreach (var discordRole in rolesToRemove)
-                {
-                    user.Roles.Remove(discordRole);
-                }
-            }
-
-            await _dbContext.SaveChangesAsync(ct);
         }
     }
 }

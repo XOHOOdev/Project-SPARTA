@@ -11,6 +11,4 @@ public class ApplicationRole : IdentityRole
     }
 
     public virtual List<Permission> Permissions { get; } = [];
-
-    public virtual List<DiscordGuild> DiscordGuilds { get; } = [];
 }
