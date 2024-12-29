@@ -1,10 +1,13 @@
-﻿using Sparta.Core.Helpers;
+﻿using Microsoft.AspNetCore.Identity;
+using Sparta.Core.DataAccess.DatabaseAccess;
+using Sparta.Core.DataAccess.DatabaseAccess.Entities;
+using Sparta.Core.Helpers;
 using Sparta.Core.Logger;
 using Sparta.Runner.Runners;
 
 namespace Sparta.Runner
 {
-    public class Updater(ModuleRunner moduleRunner, DiscordRunner discordRunner, SpartaLogger logger, ConfigHelper config)
+    public class Updater(ModuleRunner moduleRunner, DiscordRunner discordRunner, SpartaLogger logger, ConfigHelper config, ApplicationDbContext<IdentityUser, ApplicationRole, string> context)
     {
         private readonly Dictionary<string, CancellationTokenSource> _cancellationTokens = [];
 
@@ -16,6 +19,9 @@ namespace Sparta.Runner
 
             var delay = int.Parse(config.GetConfig("Runner", "ImportInterval") ?? "60");
             Task.Delay(TimeSpan.FromSeconds(delay)).ContinueWith(t => Update());
+
+            context.RN_Status.First().LastActive = DateTime.UtcNow;
+            context.SaveChanges();
         }
 
         private void UpdateComponent(string dictionaryName, string configName, IRunner runner)

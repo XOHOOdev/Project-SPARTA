@@ -39,4 +39,6 @@ public class ApplicationDbContext<TUser, TRole, TKey>(
     public DbSet<Server> SV_Servers { get; set; }
 
     public DbSet<LogMessage> LG_LogMessages { get; set; }
+
+    public DbSet<RunnerStatus> RN_Status { get; set; }
 }

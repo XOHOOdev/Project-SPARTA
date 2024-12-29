@@ -50,8 +50,19 @@ namespace Sparta.Runner
 
             var serviceProvider = host.Services.CreateScope().ServiceProvider;
 
+            CheckRunnerStatus(serviceProvider);
+
             serviceProvider.GetRequiredService<Updater>().Update();
             Thread.Sleep(-1);
+        }
+
+        private static void CheckRunnerStatus(IServiceProvider serviceProvider)
+        {
+            var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext<IdentityUser, ApplicationRole, string>>();
+            if (dbContext.RN_Status.Any()) return;
+
+            dbContext.RN_Status.Add(new RunnerStatus { LastActive = DateTime.UtcNow });
+            dbContext.SaveChanges();
         }
     }
 }
