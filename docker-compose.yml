@@ -25,8 +25,8 @@ services:
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     container_name: sparta-sql
     user: root
-    ports:
-      - "1434:1433" 
+    # ports:
+    #   - "1434:1433" 
     environment:
       - ACCEPT_EULA=y
       - SA_PASSWORD=A&VeryComplex123Password
@@ -35,6 +35,10 @@ services:
       - "spartalog:/var/opt/mssql/log/"
       - "spartasecrets:/var/opt/mssql/secrets/"
     restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
 volumes:
   spartadata:
   spartalog:
