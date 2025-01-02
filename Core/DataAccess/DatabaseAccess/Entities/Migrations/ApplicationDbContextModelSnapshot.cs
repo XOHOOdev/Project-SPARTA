@@ -6,11 +6,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sparta.Core.DataAccess.DatabaseAccess;
-using Sparta.Core.DataAccess.DatabaseAccess.Entities;
 
 #nullable disable
 
-namespace Sparta.Core.DataAccess.DatabaseAccess.Migrations
+namespace Sparta.Core.DataAccess.DatabaseAccess.Entities.Migrations
 {
     [DbContext(typeof(ApplicationDbContext<IdentityUser, ApplicationRole, string>))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -517,6 +516,22 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("US_Permissions");
+                });
+
+            modelBuilder.Entity("Sparta.Core.DataAccess.DatabaseAccess.Entities.RunnerStatus", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("LastActive")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RN_Status");
                 });
 
             modelBuilder.Entity("Sparta.Core.DataAccess.DatabaseAccess.Entities.Server", b =>

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Sparta.Core.DataAccess.DatabaseAccess.Migrations
+namespace Sparta.Core.DataAccess.DatabaseAccess.Entities.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration
@@ -134,6 +134,19 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RN_Status",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    LastActive = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RN_Status", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SV_Servers",
                 columns: table => new
                 {
@@ -222,8 +235,8 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -267,8 +280,8 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -593,6 +606,9 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "MD_Parameters");
+
+            migrationBuilder.DropTable(
+                name: "RN_Status");
 
             migrationBuilder.DropTable(
                 name: "US_SteamIds");
