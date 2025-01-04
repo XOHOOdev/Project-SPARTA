@@ -323,7 +323,7 @@ namespace Sparta.Core.DataAccess
 
                     dcRoles = roles.Select(r => dbRoles.First(dr => dr.Id == r.Id)).ToArray();
 
-                    rolesToAdd = user.Roles.Except(dcRoles).ToArray();
+                    rolesToAdd = dcRoles.Except(user.Roles).ToArray();
                     rolesToRemove = user.Roles.Except(dcRoles).ToArray();
 
                     user.Roles.AddRange(rolesToAdd);
