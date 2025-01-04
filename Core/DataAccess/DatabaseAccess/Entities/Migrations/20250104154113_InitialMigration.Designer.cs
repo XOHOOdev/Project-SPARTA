@@ -13,7 +13,7 @@ using Sparta.Core.DataAccess.DatabaseAccess;
 namespace Sparta.Core.DataAccess.DatabaseAccess.Entities.Migrations
 {
     [DbContext(typeof(ApplicationDbContext<IdentityUser, ApplicationRole, string>))]
-    [Migration("20250102225438_InitialMigration")]
+    [Migration("20250104154113_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -207,10 +207,12 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Entities.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -247,10 +249,12 @@ namespace Sparta.Core.DataAccess.DatabaseAccess.Entities.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");

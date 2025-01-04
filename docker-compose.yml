@@ -22,7 +22,7 @@ services:
       - "sparta-web-ui"
     restart: always
   sql:
-    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    image: "mcr.microsoft.com/azure-sql-edge:latest"
     container_name: sparta-sql
     user: root
     # ports:

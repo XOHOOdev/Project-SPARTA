@@ -170,7 +170,6 @@ internal class Program
         var userManager = serviceProvider.GetService<UserManager<IdentityUser>>();
         if (userManager == null) return;
 
-
         if (await userManager.FindByNameAsync("admin@Sparta.de") == null)
         {
             var user = new IdentityUser
